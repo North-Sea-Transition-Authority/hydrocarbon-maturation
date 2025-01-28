@@ -3,8 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import java.util.UUID;
 
 public record SubmissionQueryResult(
-    UUID resourceDetailId,
+    UUID resourceId,
     String resourceName,
-    String centreOfInterestQuadrantAndBlock
+    String centreOfInterestQuadrantAndBlock,
+    String licenceApplicationReference
 ) {
 }

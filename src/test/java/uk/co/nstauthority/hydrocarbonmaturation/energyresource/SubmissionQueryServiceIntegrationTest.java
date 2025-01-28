@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -20,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -33,11 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 class SubmissionQueryServiceIntegrationTest {
 
   private static final User USER = UserTestUtil.Builder().build();
-
-  private static final String DISPLAY_STRING = "%s (%s)";
-
-  @Autowired
-  private DSLContext dslContext;
 
   @Autowired
   private EntityManager entityManager;
@@ -62,9 +57,15 @@ class SubmissionQueryServiceIntegrationTest {
 
     var trapProperty = SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail1, "1/2", entityManager);
 
-    var displayString = DISPLAY_STRING.formatted(resourceDetail1.getResourceName(), trapProperty.getCentreOfInterestQuadrantBlock());
+    var generalDetail = SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail1, entityManager, "F29/00001");
 
-    var resourceView1 = new ResourceView(resourceDetail1.getId(), displayString);
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail1.getResourceName(),
+        trapProperty.getCentreOfInterestQuadrantBlock(),
+        generalDetail.getLicenceApplicationReference()
+    );
+
+    var resourceView1 = new ResourceView(prospect1.getId(), displayString);
 
     var prospect2 = ResourceIntegrationTestUtils.buildResource(ResourceType.PROSPECT, entityManager);
 
@@ -73,7 +74,7 @@ class SubmissionQueryServiceIntegrationTest {
 
     var resourceDetail2 = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail2, "Prospect 2", 2, entityManager);
 
-    var resourceView2 = new ResourceView(resourceDetail2.getId(), resourceDetail2.getResourceName());
+    var resourceView2 = new ResourceView(prospect2.getId(), resourceDetail2.getResourceName());
 
     var expectedResult = List.of(resourceView1, resourceView2);
 
@@ -94,9 +95,13 @@ class SubmissionQueryServiceIntegrationTest {
 
     var trapProperty = SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail1, "1/2", entityManager);
 
-    var displayString = DISPLAY_STRING.formatted(resourceDetail1.getResourceName(), trapProperty.getCentreOfInterestQuadrantBlock());
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail1.getResourceName(),
+        trapProperty.getCentreOfInterestQuadrantBlock(),
+        null
+    );
 
-    var resourceView = new ResourceView(resourceDetail1.getId(), displayString);
+    var resourceView = new ResourceView(prospect1.getId(), displayString);
 
     var prospect2 = ResourceIntegrationTestUtils.buildResource(ResourceType.PROSPECT, entityManager);
 
@@ -213,10 +218,15 @@ class SubmissionQueryServiceIntegrationTest {
 
     var resourceDetails = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Prospect 1", 1, entityManager);
 
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetails.getResourceName(),
+        null,
+        null
+    );
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestProspectsByNameForSubmissionType("prospect", SubmissionType.CREATE_PROSPECT, USER))
-        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), resourceDetails.getResourceName())));
+        .isEqualTo(List.of(new ResourceView(prospect.getId(), displayString)));
   }
 
   @Test
@@ -231,11 +241,15 @@ class SubmissionQueryServiceIntegrationTest {
     SubmissionIntegrationTestUtils.createSubmissionDetail(relinquishmentSubmission, SubmissionType.RELINQUISHMENT_PROSPECT, entityManager);
 
     var resourceDetails = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Prospect 1", 1, entityManager);
-
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetails.getResourceName(),
+        null,
+        null
+    );
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestProspectsByNameForSubmissionType("prospect", SubmissionType.CREATE_PROSPECT, USER))
-        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), resourceDetails.getResourceName())));
+        .isEqualTo(List.of(new ResourceView(prospect.getId(), displayString)));
   }
 
   @Test
@@ -267,9 +281,13 @@ class SubmissionQueryServiceIntegrationTest {
 
     var trapProperty = SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail1, "1/2", entityManager);
 
-    var displayString = DISPLAY_STRING.formatted(resourceDetail1.getResourceName(), trapProperty.getCentreOfInterestQuadrantBlock());
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail1.getResourceName(),
+        trapProperty.getCentreOfInterestQuadrantBlock(),
+        null
+    );
 
-    var resourceView1 = new ResourceView(resourceDetail1.getId(), displayString);
+    var resourceView1 = new ResourceView(discovery1.getId(), displayString);
 
     var discovery2 = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
@@ -278,7 +296,12 @@ class SubmissionQueryServiceIntegrationTest {
 
     var resourceDetail2 = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail2, "Discovery 2", 2, entityManager);
 
-    var resourceView2 = new ResourceView(resourceDetail2.getId(), resourceDetail2.getResourceName());
+    var displayString2 = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail2.getResourceName(),
+        null,
+        null
+    );
+    var resourceView2 = new ResourceView(discovery2.getId(), displayString2);
 
     var expectedResult = List.of(resourceView1, resourceView2);
 
@@ -299,9 +322,13 @@ class SubmissionQueryServiceIntegrationTest {
 
     var trapProperty = SubmissionIntegrationTestUtils.createTrapProperty(submissionDetail1, "1/2", entityManager);
 
-    var displayString = DISPLAY_STRING.formatted(resourceDetail1.getResourceName(), trapProperty.getCentreOfInterestQuadrantBlock());
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail1.getResourceName(),
+        trapProperty.getCentreOfInterestQuadrantBlock(),
+        null
+    );
 
-    var resourceView = new ResourceView(resourceDetail1.getId(), displayString);
+    var resourceView = new ResourceView(discovery1.getId(), displayString);
 
     var discovery2 = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
@@ -381,11 +408,15 @@ class SubmissionQueryServiceIntegrationTest {
         .createSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY, discovery, SubmissionDetailStatus.DELETED, entityManager);
 
     var resourceDetails = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetails.getResourceName(),
+        null,
+        null
+    );
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestDiscoveriesByNameForSubmissionType("discovery", USER))
-        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), resourceDetails.getResourceName())));
+        .isEqualTo(List.of(new ResourceView(discovery.getId(), displayString)));
   }
 
   @Test
@@ -400,11 +431,15 @@ class SubmissionQueryServiceIntegrationTest {
     SubmissionIntegrationTestUtils.createSubmissionDetail(relinquishmentSubmission, SubmissionType.RELINQUISHMENT_DISCOVERY, entityManager);
 
     var resourceDetails = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetails.getResourceName(),
+        null,
+        null
+    );
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestDiscoveriesByNameForSubmissionType("discovery", USER))
-        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), resourceDetails.getResourceName())));
+        .isEqualTo(List.of(new ResourceView(discovery.getId(), displayString)));
   }
 
   @Test
@@ -417,10 +452,14 @@ class SubmissionQueryServiceIntegrationTest {
         .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY, discovery, SubmissionDetailStatus.ACCEPTED, entityManager);
 
     var resourceDetail = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail.getResourceName(),
+        null,
+        null
+    );
     SubmissionIntegrationTestUtils.createFieldResourceLink(discovery, fieldResource, entityManager);
 
-    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
+    var resourceView = new ResourceView(discovery.getId(), displayString);
 
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
@@ -440,10 +479,14 @@ class SubmissionQueryServiceIntegrationTest {
         .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY, discovery, SubmissionDetailStatus.ACCEPTED, entityManager);
 
     var resourceDetail = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail.getResourceName(),
+        null,
+        null
+    );
     SubmissionIntegrationTestUtils.createFieldResourceLink(discovery, fieldResource, entityManager);
 
-    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
+    var resourceView = new ResourceView(discovery.getId(), displayString);
 
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
@@ -481,8 +524,12 @@ class SubmissionQueryServiceIntegrationTest {
         .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY, discovery, SubmissionDetailStatus.ACCEPTED, entityManager);
 
     var resourceDetail = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
-    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail.getResourceName(),
+        null,
+        null
+    );
+    var resourceView = new ResourceView(discovery.getId(), displayString);
 
     assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
@@ -504,7 +551,7 @@ class SubmissionQueryServiceIntegrationTest {
     entityManager.persist(resourceGroupLink);
     entityManager.flush();
 
-    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
+    var resourceView = new ResourceView(discovery.getId(), resourceDetail.getResourceName());
 
     assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
@@ -540,8 +587,12 @@ class SubmissionQueryServiceIntegrationTest {
         .createSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY, discovery, SubmissionDetailStatus.DRAFT, entityManager);
 
     var resourceDetail = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
-    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
+    var displayString = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceDetail.getResourceName(),
+        null,
+        null
+    );
+    var resourceView = new ResourceView(discovery.getId(), displayString);
 
     assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }

@@ -5,6 +5,7 @@ import static org.jooq.impl.DSL.one;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_STATUS_HISTORY;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_REPORTING_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
@@ -24,9 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Resources;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
@@ -38,10 +39,6 @@ class SubmissionQueryService {
 
   private static final SubmissionDetails SUBMISSION_DETAILS_2 = SUBMISSION_DETAILS.as("sd2");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
-  private static final Resources RESOURCES_2 = RESOURCES.as("r2");
-  private static final SubmissionDetails SUBMISSION_DETAILS_3 = SUBMISSION_DETAILS.as("sd3");
-  private static final Submissions SUBMISSIONS_3 = SUBMISSIONS.as("s3");
-  private static final Resources RESOURCES_3 = RESOURCES.as("r3");
 
   private final DSLContext context;
   private final InternalTeamService internalTeamService;
@@ -88,19 +85,20 @@ class SubmissionQueryService {
     }
 
     var submissionQueryResults = context.select(
-        RESOURCE_DETAILS.ID,
+        RESOURCES.ID,
         RESOURCE_DETAILS.RESOURCE_NAME,
-        TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK
+        TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+        GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         )
         .from(RESOURCE_DETAILS
-            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
             .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID))
-            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID)
-                .and(RESOURCES.ARCHIVED.isFalse())
-            )
+            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
         )
         .where(conditionList)
+        .and(RESOURCES.ARCHIVED.isFalse())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
                 LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
@@ -109,26 +107,22 @@ class SubmissionQueryService {
             )
         )
         .and(notExists(select(one())
-            .from(RESOURCES_2
-                .join(SUBMISSIONS_2).on(SUBMISSIONS_2.RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID)
-                        .and(SUBMISSIONS_2.WITHDRAWN.isNull())
-                    )
+                .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
-                .where((SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID))
-                    .and((SUBMISSION_DETAILS_2.STATUS.in(
+                .where(SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID)
+                    .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
+                    .and(SUBMISSIONS_2.WITHDRAWN.isNull())
+                    .and(((SUBMISSION_DETAILS_2.STATUS.in(
                         SubmissionDetailStatus.DRAFT.name(),
                         SubmissionDetailStatus.SUBMITTED.name())
                     )
                     .or(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
-                        .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(submissionTypesToFilterBy))))))
+                        .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(submissionTypesToFilterBy)))))))
             )
         )
         .and(notExists(select(one())
-                .from(RESOURCE_LINKS
-                    .join(SUBMISSION_DETAILS_3).on(SUBMISSION_DETAILS_3.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
-                    .join(SUBMISSIONS_3).on(SUBMISSIONS_3.ID.eq(SUBMISSION_DETAILS_3.SUBMISSION_ID))
-                    .join(RESOURCES_3).on(RESOURCES_3.ID.eq(SUBMISSIONS_3.RESOURCE_ID)))
-                .where(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES_3.ID))
+                .from(RESOURCE_LINKS)
+                .where(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID))
             )
         )
         .fetchInto(SubmissionQueryResult.class);
@@ -160,19 +154,20 @@ class SubmissionQueryService {
     }
 
     var submissionQueryResults = context.select(
-            RESOURCE_DETAILS.ID,
-            RESOURCE_DETAILS.RESOURCE_NAME,
-            TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK
+        RESOURCES.ID,
+        RESOURCE_DETAILS.RESOURCE_NAME,
+        TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+        GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         )
         .from(RESOURCE_DETAILS
-            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
             .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID))
-            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID)
-                .and(RESOURCES.ARCHIVED.isFalse())
-            )
+            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
         )
         .where(conditionList)
+        .and(RESOURCES.ARCHIVED.isFalse())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
                 LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
@@ -181,25 +176,23 @@ class SubmissionQueryService {
             )
         )
         .and(notExists(select(one())
-                .from(RESOURCES_2
-                    .join(SUBMISSIONS_2).on(SUBMISSIONS_2.RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID)
-                        .and(SUBMISSIONS_2.WITHDRAWN.isNull())
-                    )
+                .from(SUBMISSIONS_2
                     .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
                     .where((SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID))
+                        .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
+                        .and(SUBMISSIONS_2.WITHDRAWN.isNull())
                         .and((SUBMISSION_DETAILS_2.STATUS.in(
                             SubmissionDetailStatus.DRAFT.name(),
                             SubmissionDetailStatus.SUBMITTED.name())
+                        ).or(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
+                                .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(SubmissionType.RELINQUISHMENT_DISCOVERY.name())))
                         )
-                            .or(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
-                                .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(SubmissionType.RELINQUISHMENT_DISCOVERY.name()))))))
+                    )
+                )
             )
         )
         .and(notExists(select(one())
                 .from(RESOURCE_LINKS
-                    .join(SUBMISSION_DETAILS_3).on(SUBMISSION_DETAILS_3.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
-                    .join(SUBMISSIONS_3).on(SUBMISSIONS_3.ID.eq(SUBMISSION_DETAILS_3.SUBMISSION_ID))
-                    .join(RESOURCES_3).on(RESOURCES_3.ID.eq(SUBMISSIONS_3.RESOURCE_ID))
                     .join(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCE_LINKS.FIELD_RESOURCE_ID))
                     .join(FIELD_STATUS_HISTORY).on(FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
                     .and(FIELD_STATUS_HISTORY.FIELD_STATUS.in(
@@ -213,7 +206,7 @@ class SubmissionQueryService {
                         FieldStatus.STATUS_899.name(),
                         FieldStatus.STATUS_900.name()
                     )))
-                .where(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES_3.ID))
+                .where(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID))
             )
         )
         .fetchInto(SubmissionQueryResult.class);
@@ -235,35 +228,36 @@ class SubmissionQueryService {
    */
   public List<ResourceView> getLatestActivePreferredViewDiscoveriesByName(String name) {
     var submissionQueryResults = context.select(
-            RESOURCE_DETAILS.ID,
-            RESOURCE_DETAILS.RESOURCE_NAME,
-            TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK
+        RESOURCES.ID,
+        RESOURCE_DETAILS.RESOURCE_NAME,
+        TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+        GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         )
         .from(RESOURCE_DETAILS
-            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
             .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID))
-            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID)
-                .and(RESOURCES.TYPE.eq(ResourceType.DISCOVERY.name()))
-                .and(RESOURCES.ARCHIVED.isFalse())
-            )
+            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
         )
         .where(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
+        .and(RESOURCES.ARCHIVED.isFalse())
+        .and(RESOURCES.TYPE.eq(ResourceType.DISCOVERY.name()))
         .and(notExists(select(one())
             .from(RESOURCE_GROUP_LINKS.where(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID)
                 .and(RESOURCE_GROUP_LINKS.PREFERRED_VIEW.eq(false)))
             ))
         )
         .and(notExists(select(one())
-            .from(RESOURCES_2
-                .join(SUBMISSIONS_2).on(SUBMISSIONS_2.RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID)
-                    .and(SUBMISSIONS_2.WITHDRAWN.isNull())
-                )
+            .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
-                .where((SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID))
-                    .and(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
-                        .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(SubmissionType.RELINQUISHMENT_DISCOVERY.name())))))
-            )
+                .where(SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID)
+                    .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
+                    .and(SUBMISSIONS_2.WITHDRAWN.isNull())
+                    .and(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))
+                    .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(SubmissionType.RELINQUISHMENT_DISCOVERY.name()))
+                )
+            ))
         ).fetchInto(SubmissionQueryResult.class);
 
     return submissionQueryResults.stream()
@@ -273,10 +267,12 @@ class SubmissionQueryService {
   }
 
   private ResourceView getResourceViewFromSubmissionQueryResult(SubmissionQueryResult submissionQueryResult) {
-    var quadAndBlockString = submissionQueryResult.centreOfInterestQuadrantAndBlock() != null
-        ? " (%s)".formatted(submissionQueryResult.centreOfInterestQuadrantAndBlock())
-        : "";
+    var displayName = SubmissionDetailDisplayUtil.getDisplayName(
+        submissionQueryResult.resourceName(),
+        submissionQueryResult.centreOfInterestQuadrantAndBlock(),
+        submissionQueryResult.licenceApplicationReference()
+    );
 
-    return new ResourceView(submissionQueryResult.resourceDetailId(), submissionQueryResult.resourceName() + quadAndBlockString);
+    return new ResourceView(submissionQueryResult.resourceId(), displayName);
   }
 }

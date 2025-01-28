@@ -4,12 +4,12 @@ import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.addtolist.AddToListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectable;
 
-public record ResourceView(UUID generalDetailId,
+public record ResourceView(UUID resourceId,
                            String resourceNameAndCentreOfInterestBlock) implements AddToListItem, SearchSelectable {
 
   @Override
   public String getId() {
-    return generalDetailId.toString();
+    return resourceId.toString();
   }
 
   @Override
@@ -24,7 +24,7 @@ public record ResourceView(UUID generalDetailId,
 
   @Override
   public String getSelectionId() {
-    return generalDetailId.toString();
+    return resourceId.toString();
   }
 
   @Override
