@@ -109,8 +109,7 @@ class SubmissionQueryService {
         .and(notExists(select(one())
                 .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
-                .where(SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID)
-                    .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
+                    .where(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID)
                     .and(SUBMISSIONS_2.WITHDRAWN.isNull())
                     .and(((SUBMISSION_DETAILS_2.STATUS.in(
                         SubmissionDetailStatus.DRAFT.name(),
@@ -178,14 +177,13 @@ class SubmissionQueryService {
         .and(notExists(select(one())
                 .from(SUBMISSIONS_2
                     .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
-                    .where((SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID))
-                        .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
+                    .where(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID)
                         .and(SUBMISSIONS_2.WITHDRAWN.isNull())
                         .and((SUBMISSION_DETAILS_2.STATUS.in(
                             SubmissionDetailStatus.DRAFT.name(),
                             SubmissionDetailStatus.SUBMITTED.name())
-                        ).or(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
-                                .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(SubmissionType.RELINQUISHMENT_DISCOVERY.name())))
+                        .or(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
+                                .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.eq(SubmissionType.RELINQUISHMENT_DISCOVERY.name()))))
                         )
                     )
                 )
@@ -251,8 +249,7 @@ class SubmissionQueryService {
         .and(notExists(select(one())
             .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
-                .where(SUBMISSION_DETAILS_2.ID.notEqual(SUBMISSION_DETAILS.ID)
-                    .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
+                .where(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID)
                     .and(SUBMISSIONS_2.WITHDRAWN.isNull())
                     .and(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))
                     .and(SUBMISSION_DETAILS_2.SUBMISSION_TYPE.in(SubmissionType.RELINQUISHMENT_DISCOVERY.name()))
