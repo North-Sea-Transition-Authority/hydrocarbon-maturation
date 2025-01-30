@@ -1,161 +1,185 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
-import java.util.Comparator;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.notExists;
+import static org.jooq.impl.DSL.one;
+import static org.jooq.impl.DSL.partitionBy;
+import static org.jooq.impl.DSL.rowNumber;
+import static org.jooq.impl.DSL.select;
+import static org.jooq.impl.DSL.table;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_STATUS_HISTORY;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.BooleanUtils;
+import org.jooq.Condition;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
 public class FieldQueryService {
 
-  public static final Role AREA_TEAM_MEMBER = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM;
+  private static final SubmissionDetails SUBMISSION_DETAILS_2 = SUBMISSION_DETAILS.as("sd2");
+  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
 
-  private final FieldPersistenceService fieldPersistenceService;
-  private final FieldStatusService fieldStatusService;
-  private final SubmissionDetailService submissionDetailService;
-  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final ResponsibleTeamService responsibleTeamService;
   private final IndustryTeamService industryTeamService;
-  private final TeamQueryService teamQueryService;
+  private final DSLContext context;
+  private final InternalTeamService internalTeamService;
+  private final FieldOperatorQueryService fieldOperatorQueryService;
 
   @Autowired
-  public FieldQueryService(FieldPersistenceService fieldPersistenceService,
-                           FieldStatusService fieldStatusService,
-                           SubmissionDetailService submissionDetailService,
-                           RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-                           ResponsibleTeamService responsibleTeamService,
-                           IndustryTeamService industryTeamService,
-                           TeamQueryService teamQueryService) {
-    this.fieldPersistenceService = fieldPersistenceService;
-    this.fieldStatusService = fieldStatusService;
-    this.submissionDetailService = submissionDetailService;
-    this.teamQueryService = teamQueryService;
-    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
+  public FieldQueryService(
+      ResponsibleTeamService responsibleTeamService,
+      IndustryTeamService industryTeamService,
+      DSLContext context,
+      InternalTeamService internalTeamService,
+      FieldOperatorQueryService fieldOperatorQueryService
+  ) {
     this.responsibleTeamService = responsibleTeamService;
     this.industryTeamService = industryTeamService;
+    this.context = context;
+    this.internalTeamService = internalTeamService;
+    this.fieldOperatorQueryService = fieldOperatorQueryService;
   }
 
   public List<FieldView> getFieldByNameForSubmissionType(String name, SubmissionType submissionType, User user) {
-    //gets every field by name
-    var fields = fieldPersistenceService.getFieldsByCorrectedLegalName(name);
-
-    HashSet<FieldStatus> allowedStatuses = new HashSet<>();
+    HashSet<String> allowedStatuses = new HashSet<>();
 
     switch (submissionType) {
-      case CREATE_CSR -> allowedStatuses.add(FieldStatus.STATUS_200);
+      case CREATE_CSR -> allowedStatuses.add(FieldStatus.STATUS_200.name());
       case CREATE_FDP -> allowedStatuses.addAll(Set.of(
-          FieldStatus.STATUS_200,
-          FieldStatus.STATUS_300,
-          FieldStatus.STATUS_400));
+          FieldStatus.STATUS_200.name(),
+          FieldStatus.STATUS_300.name(),
+          FieldStatus.STATUS_400.name()));
       case CREATE_FDPA -> allowedStatuses.addAll(Set.of(
-          FieldStatus.STATUS_600,
-          FieldStatus.STATUS_700,
-          FieldStatus.STATUS_799,
-          FieldStatus.STATUS_800,
-          FieldStatus.STATUS_899));
+          FieldStatus.STATUS_600.name(),
+          FieldStatus.STATUS_700.name(),
+          FieldStatus.STATUS_799.name(),
+          FieldStatus.STATUS_800.name(),
+          FieldStatus.STATUS_899.name()));
       case CREATE_COP -> allowedStatuses.addAll(Set.of(
-          FieldStatus.STATUS_700,
-          FieldStatus.STATUS_799,
-          FieldStatus.STATUS_800,
-          FieldStatus.STATUS_899));
+          FieldStatus.STATUS_700.name(),
+          FieldStatus.STATUS_799.name(),
+          FieldStatus.STATUS_800.name(),
+          FieldStatus.STATUS_899.name()));
       default -> throw new ActionNotAllowedException("No field statuses for submission type: %s".formatted(submissionType));
     }
 
-    return filterFields(fields, allowedStatuses, user);
+    return doFieldSearch(name, allowedStatuses, user);
   }
 
   public List<FieldView> getShelvedOrCopFieldByName(String name, User user) {
-    //gets every field by name
-    var fields = fieldPersistenceService.getFieldsByCorrectedLegalName(name);
-
-    HashSet<FieldStatus> allowedStatuses = new HashSet<>(Set.of(FieldStatus.STATUS_000, FieldStatus.STATUS_900));
-
-    return filterFields(fields, allowedStatuses, user);
+    return doFieldSearch(name, Set.of(FieldStatus.STATUS_000.name(), FieldStatus.STATUS_900.name()), user);
   }
 
-  private List<FieldView> filterFields(List<Field> fields, Set<FieldStatus> allowedStatuses, User user) {
-    // Filters out fields with an incorrect status or with other preventing submissions
-    return fields
-        .stream()
-        .filter(field -> BooleanUtils.isFalse(field.getResource().getArchived()))
-        .filter(
-            field -> {
-              var mostRecentStatus = fieldStatusService.getMostRecentFieldStatus(field);
-              // status hasn't been set yet, so exclude
-              return mostRecentStatus.filter(allowedStatuses::contains).isPresent();
-            })
-        .filter(field -> filterFieldByUser(field, user))
-        .filter(field -> filterFieldBySubmissions(field.getResource()))
-        .map(this::getFieldViewFromField)
-        .sorted(Comparator.comparing(FieldView::getSelectionText))
-        .toList();
-  }
-
-  /**
-   * Checks the user can select the field based on if they are in the responsible team or organisation.
-   * @param field The field to be checked if the user has permission to select it
-   * @return True if the user can select the field
+  /** Returns List of all field views that match the search term based on the following rules
+   * 1. The field is not archived
+   * 2. There are no open (not withdrawn) submissions of draft or submitted status against the field
+   * 3. The latest field status is in the set of allowed statuses
+   * 4. If the user is an operator user, only show fields from organisation units the user has permissions for
+   * 5. If the user is not an operator user, only show fields where the user is in the responsible team
+   *
+   * @param name The text to search by
+   * @param allowedStatuses The set of statuses used to filter by the latest status in the field status history
+   * @param user Used to check if the current user has the correct permissions to view each Field
+   * @return list of field views returned by the search
    */
-  private boolean filterFieldByUser(Field field, User user) {
-    var isAreaTeamMember =
-        teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, AREA_TEAM_MEMBER)
-        || teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, AREA_TEAM_MEMBER)
-        || teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, AREA_TEAM_MEMBER);
-    if (isAreaTeamMember) {
-      var responsibleTeamType = regulatorManagedInformationPersistenceService
-          .getRegulatorManagedInformationByResourceOrThrow(field.getResource())
-          .getResponsibleTeamType();
-      return responsibleTeamService.isInResponsibleTeam(user, responsibleTeamType);
-    } else if (teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)) {
-      if (field.getPrePearsOrganisationId() == null) {
-        return false;
-      }
-      return industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT))
-          .contains(field.getPrePearsOrganisationId());
+  private List<FieldView> doFieldSearch(String name, Set<String> allowedStatuses, User user) {
+    var conditionList = new ArrayList<Condition>();
+    var isRegulatorOrAreaTeam = internalTeamService.isRegulatorOrAreaTeamUser(user);
+
+    if (isRegulatorOrAreaTeam) {
+      var responsibleTeamTypesForUser = responsibleTeamService.getResponsibleTeamTypesForUser(user).stream()
+          .map(ResponsibleTeamType::name)
+          .toList();
+
+      conditionList.add(REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM.in(responsibleTeamTypesForUser));
     }
-    return false;
+
+    var fieldViews = context.with("field_rec").as(select(
+        FIELDS.FIELD_IDENTIFIER,
+        FIELDS.CORRECTED_LEGAL_FIELD_NAME,
+        FIELD_STATUS_HISTORY.FIELD_STATUS,
+                rowNumber().over(
+                    partitionBy(FIELD_STATUS_HISTORY.FIELD_IDENTIFIER)
+                        .orderBy(FIELD_STATUS_HISTORY.STATUS_DATE.desc(), FIELD_STATUS_HISTORY.FIELD_STATUS.desc()))
+                    .as("status_order")
+        )
+        .from(FIELDS
+            .join(RESOURCES).on(RESOURCES.ID.eq(FIELDS.RESOURCE_ID))
+            .join(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
+            .join(FIELD_STATUS_HISTORY).on(FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+            .leftJoin(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
+        )
+        .where(conditionList)
+            .and(FIELDS.CORRECTED_LEGAL_FIELD_NAME.containsIgnoreCase(name))
+            .and(RESOURCES.ARCHIVED.isFalse())
+            .and(notExists(select(one())
+                .from(SUBMISSIONS_2
+                    .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
+                    .where(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID)
+                        .and(SUBMISSIONS_2.WITHDRAWN.isNull())
+                        .and((SUBMISSION_DETAILS_2.STATUS.in(
+                            SubmissionDetailStatus.DRAFT.name(),
+                            SubmissionDetailStatus.SUBMITTED.name())
+                        ))))
+                )
+            )
+        )
+        .select(
+            field("field_identifier"),
+            field("corrected_legal_field_name")
+        )
+        .from(table(name("field_rec")))
+        .where(field(name("status_order"), Integer.class).eq(one()))
+        .and(field(name("field_status"), String.class).in(allowedStatuses))
+        .orderBy(field("corrected_legal_field_name"))
+        .fetchInto(FieldView.class);
+
+    if (!isRegulatorOrAreaTeam) {
+      return filterFieldViewsForIndustryUser(fieldViews, user);
+    }
+
+    return fieldViews;
   }
 
-  /** Checks submissions on the field to determine whether a new submission can be made.
-   * @param resource Current resource
-   * @return if the resource should be available to be chosen
-   */
-  private boolean filterFieldBySubmissions(Resource resource) {
-    var submissionsOnResource = submissionDetailService.getExtantSubmissionDetailsForResource(resource);
+  private List<FieldView> filterFieldViewsForIndustryUser(List<FieldView> fieldViews, User user) {
+    var userOrgUnits = industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT));
 
-    return submissionsOnResource
-        .stream()
-        .noneMatch(this::isSubmissionPreventingNewSubmission);
-  }
+    var fieldIds = fieldViews.stream()
+        .map(FieldView::fieldId)
+        .toList();
 
-  /**
-   *  Checks the business rules relating to other submissions on the same resource
-   *  for the submission type that is being created.
-   * @param submissionDetailsToBeChecked The submission detail to be checked whether
-   *                                     it prevents newSubmissionType from being submitted.
-   * @return True if the old submission prevents a new submission of type newSubmissionType.
-   */
-  private boolean isSubmissionPreventingNewSubmission(SubmissionDetail submissionDetailsToBeChecked) {
-    return submissionDetailsToBeChecked.isDraftOrSubmittedSubmission();
-  }
+    var fieldIdsWhereUserHasPermissions = fieldOperatorQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
+        .filter(entry -> userOrgUnits.contains(entry.getValue().getOrganisationUnitId()))
+        .map(Map.Entry::getKey)
+        .toList();
 
-  private FieldView getFieldViewFromField(Field field) {
-    var legalFieldName = field.getCorrectedLegalFieldName();
-    return new FieldView(field.getFieldIdentifier(), legalFieldName);
+    return fieldViews.stream()
+          .filter(fieldView -> fieldIdsWhereUserHasPermissions.contains(fieldView.fieldId()))
+          .toList();
   }
 }

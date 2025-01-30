@@ -16,7 +16,7 @@ public class FieldIntegrationTestUtils {
     throw new AssertionError();
   }
 
-  private static Field buildField(String fieldName, Resource fieldResource, EntityManager entityManager) {
+  public static Field buildFieldWithoutStatusHistory(String fieldName, Resource fieldResource, EntityManager entityManager) {
     var field = new Field();
     field.setCorrectedLegalFieldName(fieldName);
 
@@ -50,14 +50,14 @@ public class FieldIntegrationTestUtils {
    * @return the created field with an associated field status history with STATUS_200
    */
   public static Field createField(String fieldName, EntityManager entityManager) {
-    var field = buildField(fieldName, ResourceIntegrationTestUtils.buildFieldResource(entityManager), entityManager);
+    var field = buildFieldWithoutStatusHistory(fieldName, ResourceIntegrationTestUtils.buildFieldResource(entityManager), entityManager);
     addFieldStatusHistory(field, FieldStatus.STATUS_200, entityManager);
 
     return field;
   }
 
   public static Field createField(String fieldName, Resource fieldResource, EntityManager entityManager) {
-    var field = buildField(fieldName, fieldResource, entityManager);
+    var field = buildFieldWithoutStatusHistory(fieldName, fieldResource, entityManager);
     addFieldStatusHistory(field, FieldStatus.STATUS_200, entityManager);
 
     return field;
