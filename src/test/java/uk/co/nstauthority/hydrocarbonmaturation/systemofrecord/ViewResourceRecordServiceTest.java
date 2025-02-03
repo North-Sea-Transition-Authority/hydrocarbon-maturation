@@ -16,8 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -55,6 +57,8 @@ class ViewResourceRecordServiceTest {
   private IndustryTeamService industryTeamService;
   @Mock
   private InternalTeamService internalTeamService;
+  @Mock
+  private FieldOperatorQueryService fieldOperatorQueryService;
 
   @InjectMocks
   private ViewResourceRecordService underTest;
@@ -82,7 +86,7 @@ class ViewResourceRecordServiceTest {
     private final UUID RESOURCE_ID = UUID.randomUUID();
 
     @Test
-    void andResourceExists_ThenMapsQueryResultToView() {
+    void andResourceExists_andOperatorNotFromLicence_ThenMapsQueryResultToView() {
       var submissionDetailId = UUID.randomUUID();
       var resourceType = ResourceType.PROSPECT;
       var resourceName = "RESOURCE_NAME";
@@ -90,8 +94,6 @@ class ViewResourceRecordServiceTest {
       var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
       var licencesTheResourceIsOn = List.of(2, 3);
       var organisationResponsibleId = 1;
-      var parentFieldId = 8001;
-      var fieldStatus = FieldStatus.STATUS_200;
       var licenceApplicationReference = "";
 
       var resourceRecordSummaryQueryResult = new ResourceRecordSummaryQueryResult(
@@ -103,8 +105,9 @@ class ViewResourceRecordServiceTest {
           organisationResponsibleId,
           responsibleTeamType,
           licencesTheResourceIsOn,
-          parentFieldId,
-          fieldStatus);
+          null,
+          null,
+          null);
 
       when(resourceRecordSummaryQueryService.getResourceRecord(RESOURCE_ID))
           .thenReturn(Optional.of(resourceRecordSummaryQueryResult));
@@ -141,6 +144,79 @@ class ViewResourceRecordServiceTest {
               licencesForDisplay,
               responsibleTeamType,
               licenceApplicationReference
+          );
+    }
+
+    @Test
+    void andResourceExists_andOperatorIsFromLicence_ThenMapsQueryResultToView() {
+      var submissionDetailId = UUID.randomUUID();
+      var resourceType = ResourceType.PROSPECT;
+      var resourceName = "RESOURCE_NAME";
+      var centreOfInterestQuadBlock = "CENTRE_OF_INTEREST_QUAD_BLOCK";
+      var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
+      var licencesTheResourceIsOn = List.of(2, 3);
+      var organisationResponsibleId = 1;
+      var fieldId = 101;
+      var parentFieldId = 8001;
+      var fieldStatus = FieldStatus.STATUS_200;
+      var licenceApplicationReference = "";
+
+      var resourceRecordSummaryQueryResult = new ResourceRecordSummaryQueryResult(
+          submissionDetailId,
+          resourceType,
+          resourceName,
+          centreOfInterestQuadBlock,
+          licenceApplicationReference,
+          organisationResponsibleId,
+          responsibleTeamType,
+          licencesTheResourceIsOn,
+          fieldId,
+          parentFieldId,
+          fieldStatus);
+
+      when(resourceRecordSummaryQueryService.getResourceRecord(RESOURCE_ID))
+          .thenReturn(Optional.of(resourceRecordSummaryQueryResult));
+
+      var licencesForDisplay = List.of("2", "3");
+      when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
+          .thenReturn(licencesForDisplay);
+
+      var orgName = "FIELD OPERATOR";
+      var orgUnit = new OrganisationUnit();
+      orgUnit.setName(orgName);
+      when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(resourceRecordSummaryQueryResult.fieldId()))
+          .thenReturn(Optional.of(orgUnit));
+
+      var parentFieldName = "PARENT FIELD";
+      when(fieldDisplayService.getParentFieldNameOrNoneFound(resourceRecordSummaryQueryResult.parentFieldId()))
+          .thenReturn(parentFieldName);
+
+      var result = underTest.getResourceRecordOrThrow(RESOURCE_ID);
+
+      assertThat(result)
+          .extracting(
+              ResourceRecordSummaryView::submissionDetailId,
+              ResourceRecordSummaryView::resourceName,
+              ResourceRecordSummaryView::centreOfInterest,
+              ResourceRecordSummaryView::responsibleOrganisationId,
+              ResourceRecordSummaryView::organisationResponsible,
+              ResourceRecordSummaryView::licenceIds,
+              ResourceRecordSummaryView::licences,
+              ResourceRecordSummaryView::responsibleTeam,
+              ResourceRecordSummaryView::licenceApplicationReference,
+              ResourceRecordSummaryView::parentFieldName
+          )
+          .containsExactly(
+              submissionDetailId,
+              resourceName,
+              centreOfInterestQuadBlock,
+              organisationResponsibleId,
+              orgName,
+              licencesTheResourceIsOn,
+              licencesForDisplay,
+              responsibleTeamType,
+              licenceApplicationReference,
+              parentFieldName
           );
     }
   }

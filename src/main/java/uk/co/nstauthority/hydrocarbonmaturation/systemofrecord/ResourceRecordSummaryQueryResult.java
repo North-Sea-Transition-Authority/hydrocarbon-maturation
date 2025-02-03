@@ -15,6 +15,7 @@ record ResourceRecordSummaryQueryResult(
     Integer organisationResponsibleId,
     ResponsibleTeamType responsibleTeam,
     List<Integer> licencesTheResourceIsOn,
+    Integer fieldId,
     Integer parentFieldId,
     FieldStatus fieldStatus
 ) {

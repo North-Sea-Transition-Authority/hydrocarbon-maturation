@@ -6,7 +6,9 @@ import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
@@ -32,6 +34,7 @@ public class ViewResourceRecordService {
   private final FieldDisplayService fieldDisplayService;
   private final IndustryTeamService industryTeamService;
   private final InternalTeamService internalTeamService;
+  private final FieldOperatorQueryService fieldOperatorQueryService;
 
   @Autowired
   ViewResourceRecordService(ResourceRecordSummaryQueryService resourceRecordSummaryQueryService,
@@ -41,7 +44,8 @@ public class ViewResourceRecordService {
                             SubmissionDetailService submissionDetailService,
                             FieldDisplayService fieldDisplayService,
                             IndustryTeamService industryTeamService,
-                            InternalTeamService internalTeamService) {
+                            InternalTeamService internalTeamService,
+                            FieldOperatorQueryService fieldOperatorQueryService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.licenceQueryService = licenceQueryService;
@@ -50,6 +54,7 @@ public class ViewResourceRecordService {
     this.fieldDisplayService = fieldDisplayService;
     this.industryTeamService = industryTeamService;
     this.internalTeamService = internalTeamService;
+    this.fieldOperatorQueryService = fieldOperatorQueryService;
   }
 
   public ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
@@ -78,8 +83,14 @@ public class ViewResourceRecordService {
   }
 
   private String getOrganisationResponsible(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
-        resourceRecordSummaryQueryResult.organisationResponsibleId());
+    if (resourceRecordSummaryQueryResult.fieldId() != null) {
+      return fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(resourceRecordSummaryQueryResult.fieldId())
+          .map(OrganisationUnit::getName).orElse("");
+    } else {
+      return submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
+          resourceRecordSummaryQueryResult.organisationResponsibleId()
+      );
+    }
   }
 
   private static ResponsibleTeamType getResponsibleTeam(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {

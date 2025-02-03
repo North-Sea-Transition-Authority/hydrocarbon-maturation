@@ -63,6 +63,7 @@ class ResourceRecordSummaryQueryService {
                     .orderBy(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
                     .filterWhere(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID.isNotNull())
             ),
+            FIELDS.FIELD_IDENTIFIER,
             FIELDS.PARENT_DETERMINED_FIELD_ID,
             max(FIELD_STATUS_HISTORY.FIELD_STATUS)
         )
