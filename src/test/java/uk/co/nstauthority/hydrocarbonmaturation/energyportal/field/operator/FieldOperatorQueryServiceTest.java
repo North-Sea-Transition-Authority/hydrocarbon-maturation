@@ -19,9 +19,6 @@ import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
-import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class FieldOperatorQueryServiceTest {
@@ -29,22 +26,13 @@ class FieldOperatorQueryServiceTest {
   @Mock
   private FieldApi fieldApi;
 
-  @Mock
-  private QueryCounter queryCounter;
-
-  private final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
-      "name",
-      "mnemonic"
-  );
-
   private FieldOperatorQueryService fieldOperatorQueryService;
   private static final int FIELD_IDENTIFIER = 100;
 
   @BeforeEach
   void setUp() {
     fieldOperatorQueryService = new FieldOperatorQueryService(
-        fieldApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
+        fieldApi
     );
   }
 

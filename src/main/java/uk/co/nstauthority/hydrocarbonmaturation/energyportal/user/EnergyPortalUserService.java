@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 
 @Service
 public class EnergyPortalUserService {
@@ -36,61 +37,51 @@ public class EnergyPortalUserService {
 
   private final UserApi userApi;
 
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
-
   @Autowired
-  public EnergyPortalUserService(UserApi userApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
+  public EnergyPortalUserService(UserApi userApi) {
     this.userApi = userApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
   public List<EnergyPortalUserDto> findUserByUsername(String username) {
-    return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) ->
-        userApi.searchUsersByEmail(
-                username,
-                USERS_PROJECT_ROOT,
-                requestPurpose,
-                logCorrelationId
-            )
-            .stream()
-            .filter(User::getCanLogin)
-            .map(this::convertToEnergyPortalUser)
-            .toList()
-    ));
+    return userApi.searchUsersByEmail(
+        username,
+            USERS_PROJECT_ROOT,
+            new RequestPurpose("Search users by email"),
+            CorrelationIdUtil.getLogCorrelationId()
+    )
+    .stream()
+    .filter(User::getCanLogin)
+    .map(this::convertToEnergyPortalUser)
+    .toList();
   }
 
   public List<EnergyPortalUserDto> findByWuaIds(List<WebUserAccountId> webUserAccountIds) {
-    return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) -> {
-
-      List<Integer> webUserAccountIdApiInputs = webUserAccountIds
+    List<Integer> webUserAccountIdApiInputs = webUserAccountIds
           .stream()
           .map(WebUserAccountId::toInt)
           .toList();
 
-      return userApi.searchUsersByIds(
-              webUserAccountIdApiInputs,
-              USERS_PROJECT_ROOT,
-              requestPurpose,
-              logCorrelationId
-          )
-          .stream()
-          .map(this::convertToEnergyPortalUser)
-          .toList();
-    }));
-  }
-
-  public Optional<EnergyPortalUserDto> findByWuaId(WebUserAccountId webUserAccountId) {
-    return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) ->
-        userApi.findUserById(
-            webUserAccountId.toInt(),
-            USER_PROJECT_ROOT,
-            requestPurpose,
-            logCorrelationId
+    return userApi.searchUsersByIds(
+            webUserAccountIdApiInputs,
+            USERS_PROJECT_ROOT,
+            new RequestPurpose("Find users by IDs"),
+            CorrelationIdUtil.getLogCorrelationId()
         )
         .stream()
         .map(this::convertToEnergyPortalUser)
-        .findFirst()
-    ));
+        .toList();
+  }
+
+  public Optional<EnergyPortalUserDto> findByWuaId(WebUserAccountId webUserAccountId) {
+    return userApi.findUserById(
+            webUserAccountId.toInt(),
+            USER_PROJECT_ROOT,
+            new RequestPurpose("Find user by ID"),
+            CorrelationIdUtil.getLogCorrelationId()
+        )
+        .stream()
+        .map(this::convertToEnergyPortalUser)
+        .findFirst();
   }
 
   private EnergyPortalUserDto convertToEnergyPortalUser(User user) {

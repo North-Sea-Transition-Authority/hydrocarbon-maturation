@@ -8,12 +8,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
 import uk.co.fivium.energyportalapi.generated.client.LicenceProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.LicencesProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Licence;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
@@ -26,12 +27,10 @@ public class LicenceQueryService {
       new LicencesProjectionRoot().licenceRef().id().licenceStatus().root();
 
   private final LicenceApi licenceApi;
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
   @Autowired
-  public LicenceQueryService(LicenceApi licenceApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
+  public LicenceQueryService(LicenceApi licenceApi) {
     this.licenceApi = licenceApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
   public List<LicenceView> getLicencesByReferenceAndStatus(String searchReference, LicenceStatus licenceStatus) {
@@ -87,34 +86,31 @@ public class LicenceQueryService {
   }
 
   private Optional<LicenceView> findLicence(Integer licenceId) {
-    return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) ->
-        licenceApi.findLicence(
+    return licenceApi.findLicence(
             licenceId,
             LICENCE_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId)))
+            new RequestPurpose("Find licence by ID"),
+            CorrelationIdUtil.getLogCorrelationId())
         .map(LicenceView::fromLicence);
   }
 
   private List<LicenceView> findLicencesByIds(List<Integer> licenceIds) {
-    return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) ->
-            licenceApi.searchLicencesById(
+    return licenceApi.searchLicencesById(
                 licenceIds,
                 LICENCES_PROJECTION_ROOT,
-                requestPurpose,
-                logCorrelationId)))
+                new RequestPurpose("Find licences by IDs"),
+                CorrelationIdUtil.getLogCorrelationId())
         .stream()
         .map(LicenceView::fromLicence)
         .toList();
   }
 
   private List<Licence> getLicenceListBy(String searchReference) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        licenceApi.searchLicences(
+    return licenceApi.searchLicences(
             searchReference,
             LICENCES_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId
-        ));
+            new RequestPurpose("Search licences by reference"),
+            CorrelationIdUtil.getLogCorrelationId()
+        );
   }
 }

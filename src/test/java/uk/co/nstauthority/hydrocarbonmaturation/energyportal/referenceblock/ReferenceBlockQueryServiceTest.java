@@ -17,9 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.referenceblock.fullreferenceblock.FullReferenceBlockApi;
 import uk.co.fivium.energyportalapi.generated.types.FullReferenceBlock;
 import uk.co.fivium.energyportalapi.generated.types.ShoreType;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
-import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,21 +25,12 @@ class ReferenceBlockQueryServiceTest {
   @Mock
   private FullReferenceBlockApi referenceBlockApi;
 
-  @Mock
-  private QueryCounter queryCounter;
-
-  private final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
-      "name",
-      "mnemonic"
-  );
-
   private ReferenceBlockQueryService referenceBlockQueryService;
 
   @BeforeEach
   void setUp() {
     referenceBlockQueryService = new ReferenceBlockQueryService(
-        referenceBlockApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
+        referenceBlockApi
     );
   }
 

@@ -22,7 +22,7 @@ import uk.co.fivium.energyportalapi.generated.client.OrganisationUnitsProjection
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -48,7 +48,6 @@ public class OrganisationUnitQueryService {
       .organisationGroups().organisationGroupId().root();
 
   private final OrganisationApi organisationApi;
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
   private final InternalTeamService internalTeamService;
   private final OrganisationGroupQueryService organisationGroupQueryService;
   private final SearchSelectorService searchSelectorService;
@@ -56,13 +55,11 @@ public class OrganisationUnitQueryService {
 
   @Autowired
   public OrganisationUnitQueryService(OrganisationApi organisationApi,
-                                      EnergyPortalApiWrapper energyPortalApiWrapper,
                                       OrganisationGroupQueryService organisationGroupQueryService,
                                       SearchSelectorService searchSelectorService,
                                       InternalTeamService internalTeamService,
                                       IndustryTeamService industryTeamService) {
     this.organisationApi = organisationApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
     this.internalTeamService = internalTeamService;
     this.organisationGroupQueryService = organisationGroupQueryService;
     this.searchSelectorService = searchSelectorService;
@@ -145,24 +142,21 @@ public class OrganisationUnitQueryService {
 
   public Optional<OrganisationUnitDto> findOrganisationUnit(Integer organisationUnitId) {
 
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        organisationApi.findOrganisationUnit(
+    return organisationApi.findOrganisationUnit(
             organisationUnitId,
             ORGANISATION_UNIT_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId)
-    )
+            new RequestPurpose("Find organisation unit by ID"),
+            CorrelationIdUtil.getLogCorrelationId())
     .map(OrganisationUnitDto::fromOrganisationUnit);
   }
 
   public List<OrganisationUnitDto> getOrganisationUnitsByIds(List<Integer> organisationUnitIds) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        organisationApi.getOrganisationUnitsByIds(
+    return organisationApi.getOrganisationUnitsByIds(
             organisationUnitIds,
             ORGANISATION_UNITS_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId
-        )).stream()
+            new RequestPurpose("Get organisation units by IDs"),
+            CorrelationIdUtil.getLogCorrelationId()
+        ).stream()
         .map(OrganisationUnitDto::fromOrganisationUnit)
         .toList();
   }
@@ -181,14 +175,13 @@ public class OrganisationUnitQueryService {
   }
 
   public List<Integer> findOrganisationGroupIdsByUnitId(Integer organisationUnitId) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        organisationApi.findOrganisationUnit(
-            organisationUnitId,
+    return organisationApi.findOrganisationUnit(
+        organisationUnitId,
             ORGANISATION_UNIT_GROUPS_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId)
+            new RequestPurpose("Find organisation unit by ID"),
+            CorrelationIdUtil.getLogCorrelationId())
             .map(this::organisationGroupIdsFromOrganisationUnit)
-            .orElse(List.of()));
+            .orElse(List.of());
   }
 
   List<OrganisationUnit> searchOrganisations(
@@ -203,16 +196,15 @@ public class OrganisationUnitQueryService {
   }
 
   private List<OrganisationUnitDto> searchOrganisationUnitsWithName(String organisationName) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        searchOrganisations(
+    return searchOrganisations(
             organisationName,
-            requestPurpose,
-            logCorrelationId)
+            new RequestPurpose("Search organisation units by name"),
+            CorrelationIdUtil.getLogCorrelationId())
             .stream()
             .filter(unit -> !BooleanUtils.isTrue(unit.getIsDuplicate()))
             .map(OrganisationUnitDto::fromOrganisationUnit)
             .sorted(Comparator.comparing(OrganisationUnitDto::organisationUnitName))
-            .toList());
+            .toList();
   }
 
   private List<Integer> organisationGroupIdsFromOrganisationUnit(OrganisationUnit organisationUnit) {

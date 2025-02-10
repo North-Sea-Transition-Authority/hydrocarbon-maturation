@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
@@ -32,7 +32,6 @@ public class SearchResourceRecordsService {
   private final SearchSelectorService searchSelectorService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
-  private final SubmissionDetailService submissionDetailService;
   private final FieldOperatorQueryService fieldOperatorQueryService;
 
   @Autowired
@@ -40,13 +39,11 @@ public class SearchResourceRecordsService {
                                       SearchSelectorService searchSelectorService,
                                       OrganisationUnitQueryService organisationUnitQueryService,
                                       LicenceQueryService licenceQueryService,
-                                      SubmissionDetailService submissionDetailService,
                                       FieldOperatorQueryService fieldOperatorQueryService) {
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
-    this.submissionDetailService = submissionDetailService;
     this.fieldOperatorQueryService = fieldOperatorQueryService;
   }
 
@@ -215,10 +212,11 @@ public class SearchResourceRecordsService {
     var captionText = new StringBuilder();
     captionText.append(resourceType);
 
+    var isRelinquishment = SubmissionType.RELINQUISHMENT_PROSPECT.equals(resourceRecordQueryResult.submissionType())
+        || SubmissionType.RELINQUISHMENT_DISCOVERY.equals(resourceRecordQueryResult.submissionType());
+
     if (submissionDetailId != null) {
-      captionText.append(submissionDetailService.getSubmissionDetail(submissionDetailId)
-          .map(submissionDetail -> submissionDetail.isRelinquishment() ? " (Relinquishment)" : "")
-          .orElse(""));
+      captionText.append(isRelinquishment ? " (Relinquishment)" : "");
     }
 
     if (latestSubmissionInstant != null) {

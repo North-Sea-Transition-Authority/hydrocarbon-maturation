@@ -1,39 +1,28 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
-import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
-import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationGroupQueryServiceTest {
-
-  private static final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
-      "name",
-      "mnemonic"
-  );
 
   @Mock
   private OrganisationApi organisationApi;
@@ -45,10 +34,8 @@ class OrganisationGroupQueryServiceTest {
 
   @BeforeEach
   void setup() {
-    var queryCounter = mock(QueryCounter.class);
     organisationGroupQueryService = new OrganisationGroupQueryService(
-        organisationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
+        organisationApi
     );
 
     groupList = List.of(
@@ -64,7 +51,8 @@ class OrganisationGroupQueryServiceTest {
     when(organisationApi.searchOrganisationGroups(
         eq(searchTerm),
         any(OrganisationGroupsProjectionRoot.class),
-        any(RequestPurpose.class)
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class)
     )).thenReturn(groupList);
 
     var organisationGroups =
@@ -75,7 +63,8 @@ class OrganisationGroupQueryServiceTest {
     verify(organisationApi).searchOrganisationGroups(
         eq(searchTerm),
         argumentCaptor.capture(),
-        any(RequestPurpose.class)
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class)
     );
 
     assertThat(argumentCaptor.getValue().getFields()).containsKeys("organisationGroupId", "name");
@@ -97,37 +86,6 @@ class OrganisationGroupQueryServiceTest {
   }
 
   @Test
-  void getOrganisationGroupById_verifyCallsApiWithCorrectParameters() {
-    var argumentCaptor = ArgumentCaptor
-        .forClass(OrganisationGroupProjectionRoot.class);
-    var organisationGroup = new OrganisationGroup(
-        1,
-        "Royal Dutch Shell",
-        "Shell",
-        "shell.com",
-        "ACTIVE",
-        Collections.emptyList());
-
-    when(organisationApi.findOrganisationGroup(
-        eq(organisationGroup.getOrganisationGroupId()),
-        any(OrganisationGroupProjectionRoot.class),
-        any(RequestPurpose.class)))
-        .thenReturn(Optional.of(organisationGroup));
-
-    organisationGroupQueryService.getOrganisationGroupById(1);
-
-    verify(organisationApi).findOrganisationGroup(
-        eq(organisationGroup.getOrganisationGroupId()),
-        argumentCaptor.capture(),
-        any(RequestPurpose.class));
-
-    assertThat(argumentCaptor.getValue().getFields())
-        .containsOnly(
-            entry("organisationGroupId", null),
-            entry("name", null));
-  }
-
-  @Test
   void getOrganisationGroupsByIds_whenOne_verifyApiCallsAndReturn() {
     var organisationGroup = new OrganisationGroup(
         1,
@@ -140,7 +98,8 @@ class OrganisationGroupQueryServiceTest {
     when(organisationApi.getAllOrganisationGroupsByIds(
         eq(List.of(organisationGroup.getOrganisationGroupId())),
         any(OrganisationGroupsProjectionRoot.class),
-        any(RequestPurpose.class)))
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class)))
         .thenReturn(List.of(organisationGroup));
 
     var returnedOrganisations = organisationGroupQueryService
@@ -149,7 +108,8 @@ class OrganisationGroupQueryServiceTest {
     verify(organisationApi).getAllOrganisationGroupsByIds(
         eq(List.of(organisationGroup.getOrganisationGroupId())),
         any(),
-        any(RequestPurpose.class));
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class));
 
     assertThat(returnedOrganisations)
         .isEqualTo(List.of(organisationGroup));
@@ -176,7 +136,8 @@ class OrganisationGroupQueryServiceTest {
     when(organisationApi.getAllOrganisationGroupsByIds(
         eq(List.of(organisationGroup.getOrganisationGroupId(), organisationGroup2.getOrganisationGroupId())),
         any(OrganisationGroupsProjectionRoot.class),
-        any(RequestPurpose.class)))
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class)))
         .thenReturn(List.of(organisationGroup, organisationGroup2));
 
     var returnedOrganisations = organisationGroupQueryService
@@ -186,7 +147,8 @@ class OrganisationGroupQueryServiceTest {
         eq(List.of(organisationGroup.getOrganisationGroupId(),
             organisationGroup2.getOrganisationGroupId())),
         any(),
-        any(RequestPurpose.class));
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class));
 
     assertThat(returnedOrganisations)
         .isEqualTo(List.of(organisationGroup, organisationGroup2));

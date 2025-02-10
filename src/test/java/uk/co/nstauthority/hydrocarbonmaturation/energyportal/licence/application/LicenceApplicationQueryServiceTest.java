@@ -19,18 +19,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.licence.application.LicenceApplicationApi;
 import uk.co.fivium.energyportalapi.generated.types.LicenceApplication;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class LicenceApplicationQueryServiceTest {
 
-  private static final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
-      "name",
-      "mnemonic"
-  );
   private static final Integer LICENCE_APPLICATION_ID = 1;
   private static final String LICENCE_APPLICATION_REF = "F1234/1234";
 
@@ -40,11 +33,9 @@ class LicenceApplicationQueryServiceTest {
   @BeforeAll
   static void setup() {
     licenceApplicationApi = mock(LicenceApplicationApi.class);
-    var queryCounter = mock(QueryCounter.class);
     var searchSelectorService = new SearchSelectorService();
     licenceApplicationQueryService = new LicenceApplicationQueryService(
         licenceApplicationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter),
         searchSelectorService);
   }
 

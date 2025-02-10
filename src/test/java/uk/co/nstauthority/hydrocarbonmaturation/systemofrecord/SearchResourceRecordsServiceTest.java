@@ -41,8 +41,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
@@ -61,8 +59,6 @@ class SearchResourceRecordsServiceTest {
   private LicenceQueryService licenceQueryService;
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
-  @Mock
-  private SubmissionDetailService submissionDetailService;
   @Mock
   private FieldOperatorQueryService fieldOperatorQueryService;
   @InjectMocks
@@ -140,6 +136,7 @@ class SearchResourceRecordsServiceTest {
         null,
         null,
         null,
+        SubmissionType.CREATE_PROSPECT,
         false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
@@ -154,17 +151,11 @@ class SearchResourceRecordsServiceTest {
         null,
         null,
         fixedInstant,
+        SubmissionType.RELINQUISHMENT_PROSPECT,
         true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
-
-      var submissionDetailProspect = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-      when(submissionDetailService.getSubmissionDetail(result1.submissionDetailId()))
-          .thenReturn(Optional.of(submissionDetailProspect));
-      var submissionDetailRelinquishment = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
-      when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
-          .thenReturn(Optional.of(submissionDetailRelinquishment));
 
       var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy, USER);
 
@@ -226,6 +217,7 @@ class SearchResourceRecordsServiceTest {
         null,
         FieldStatus.STATUS_200,
         fixedInstant,
+        SubmissionType.CREATE_CSR,
         false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
@@ -240,17 +232,11 @@ class SearchResourceRecordsServiceTest {
         "Parent field name",
         FieldStatus.STATUS_400,
         fixedInstant,
+        SubmissionType.CREATE_FDP,
         true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
-
-      var submissionDetailCsr = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
-      when(submissionDetailService.getSubmissionDetail(result1.submissionDetailId()))
-          .thenReturn(Optional.of(submissionDetailCsr));
-      var submissionDetailFdp = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
-      when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
-          .thenReturn(Optional.of(submissionDetailFdp));
 
       var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy, USER);
 
@@ -307,6 +293,7 @@ class SearchResourceRecordsServiceTest {
         null,
         FieldStatus.STATUS_200,
         fixedInstant,
+        null,
         false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
@@ -321,17 +308,11 @@ class SearchResourceRecordsServiceTest {
         "Parent field name",
         FieldStatus.STATUS_400,
         fixedInstant,
+        null,
         true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
-
-      var submissionDetailCsr = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
-      when(submissionDetailService.getSubmissionDetail(result1.submissionDetailId()))
-          .thenReturn(Optional.of(submissionDetailCsr));
-      var submissionDetailFdp = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
-      when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
-          .thenReturn(Optional.of(submissionDetailFdp));
 
       var orgUnit1Name = "Org 1";
       var orgUnit1 = new OrganisationUnit();
@@ -406,6 +387,7 @@ class SearchResourceRecordsServiceTest {
         null,
         FieldStatus.STATUS_200,
         fixedInstant,
+        null,
         false
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
@@ -453,6 +435,7 @@ class SearchResourceRecordsServiceTest {
                                                                             String parentFieldName,
                                                                             FieldStatus fieldStatus,
                                                                             Instant acceptedSubmissionInstant,
+                                                                            SubmissionType submissionType,
                                                                             boolean archived) {
       if (!ResourceType.FIELD.equals(resourceType)) {
         when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
@@ -463,6 +446,7 @@ class SearchResourceRecordsServiceTest {
           UUID.randomUUID(),
           UUID.randomUUID(),
           acceptedSubmissionInstant,
+          submissionType,
           resourceType,
           fieldIdentifier,
           resourceName,
@@ -527,7 +511,7 @@ class SearchResourceRecordsServiceTest {
     }
 
     private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
-      return new ResourceRecordQueryResult(null, null, null, null, null,
+      return new ResourceRecordQueryResult(null, null, null, null,null, null,
           resourceName, null, null, null, null, null, null, null, false);
     }
   }

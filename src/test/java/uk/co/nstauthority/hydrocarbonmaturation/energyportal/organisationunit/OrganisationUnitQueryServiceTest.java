@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT;
@@ -31,11 +30,8 @@ import uk.co.fivium.energyportalapi.generated.types.OrganisationNameHistory;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
@@ -45,10 +41,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 @ExtendWith(MockitoExtension.class)
 class OrganisationUnitQueryServiceTest {
 
-  private static final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
-      "name",
-      "mnemonic"
-  );
   private static final User USER = UserTestUtil.Builder().build();
   private static final Integer ORGANISATION_UNIT_ID = 1;
   private static final String ORGANISATION_UNIT_NAME = "Fivium";
@@ -75,10 +67,8 @@ class OrganisationUnitQueryServiceTest {
 
   @BeforeEach
   void setUp() {
-    var queryCounter = mock(QueryCounter.class);
     organisationUnitQueryService = new OrganisationUnitQueryService(
         organisationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter),
         organisationGroupQueryService,
         searchSelectorService,
         internalTeamService,

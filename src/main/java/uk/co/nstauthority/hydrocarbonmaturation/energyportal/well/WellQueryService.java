@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.wellbore.WellboreApi;
 import uk.co.fivium.energyportalapi.generated.client.WellboreProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.WellboresProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Wellbore;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 
 @Service
 public class WellQueryService {
@@ -24,47 +25,43 @@ public class WellQueryService {
           .registrationNumber();
 
   private final WellboreApi wellboreApi;
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
   @Autowired
-  public WellQueryService(WellboreApi wellboreApi,
-                          EnergyPortalApiWrapper energyPortalApiWrapper) {
+  public WellQueryService(WellboreApi wellboreApi) {
     this.wellboreApi = wellboreApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
   public List<WellView> getWellsByRegistrationNumber(String registrationNumber) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        wellboreApi.searchWellboresByRegistrationNumber(
+    return wellboreApi.searchWellboresByRegistrationNumber(
             registrationNumber,
             WELLBORES_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId)
-            .stream()
-            .map(this::getWellViewFromWellbore)
-            .toList());
+            new RequestPurpose("Search wells by registration number"),
+            CorrelationIdUtil.getLogCorrelationId()
+        )
+        .stream()
+        .map(this::getWellViewFromWellbore)
+        .toList();
   }
 
   public List<WellView> getWellsByIds(List<Integer> wellIds) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        wellboreApi.searchWellboresByIds(
-                wellIds,
-                WELLBORES_PROJECTION_ROOT,
-                requestPurpose,
-                logCorrelationId)
-            .stream()
-            .map(this::getWellViewFromWellbore)
-            .toList());
+    return wellboreApi.searchWellboresByIds(
+        wellIds,
+            WELLBORES_PROJECTION_ROOT,
+            new RequestPurpose("Search wells by IDs"),
+            CorrelationIdUtil.getLogCorrelationId()
+        )
+        .stream()
+        .map(this::getWellViewFromWellbore)
+        .toList();
   }
 
   public Optional<WellView> findWellById(Integer wellId) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        wellboreApi.findWellboreById(
-                wellId,
-                WELLBORE_PROJECTION_ROOT,
-                requestPurpose,
-                logCorrelationId)
-            .map(this::getWellViewFromWellbore));
+    return wellboreApi.findWellboreById(
+        wellId,
+            WELLBORE_PROJECTION_ROOT,
+            new RequestPurpose("Find well by ID"),
+            CorrelationIdUtil.getLogCorrelationId()
+        ).map(this::getWellViewFromWellbore);
   }
 
   private WellView getWellViewFromWellbore(Wellbore wellbore) {

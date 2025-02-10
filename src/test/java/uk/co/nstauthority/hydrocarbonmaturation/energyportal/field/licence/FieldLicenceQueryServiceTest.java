@@ -17,11 +17,8 @@ import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.Licence;
-import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
-import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class FieldLicenceQueryServiceTest {
@@ -29,22 +26,13 @@ class FieldLicenceQueryServiceTest {
   @Mock
   private FieldApi fieldApi;
 
-  @Mock
-  private QueryCounter queryCounter;
-
-  private final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
-      "name",
-      "mnemonic"
-  );
-
   private FieldLicenceQueryService fieldLicenceQueryService;
   private static final int FIELD_IDENTIFIER = 100;
 
   @BeforeEach
   void setUp() {
     fieldLicenceQueryService = new FieldLicenceQueryService(
-        fieldApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
+        fieldApi
     );
   }
 

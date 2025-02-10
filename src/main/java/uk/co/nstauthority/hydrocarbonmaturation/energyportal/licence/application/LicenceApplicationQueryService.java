@@ -12,7 +12,7 @@ import uk.co.fivium.energyportalapi.client.licence.application.LicenceApplicatio
 import uk.co.fivium.energyportalapi.generated.client.LicenceApplicationProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.LicenceApplicationsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.LicenceApplication;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @Service
@@ -24,27 +24,24 @@ public class LicenceApplicationQueryService {
       new LicenceApplicationProjectionRoot().licenceApplicationId().licenceApplicationRef();
 
   private final LicenceApplicationApi licenceApplicationApi;
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
   private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public LicenceApplicationQueryService(LicenceApplicationApi licenceApplicationApi,
-                                        EnergyPortalApiWrapper energyPortalApiWrapper,
                                         SearchSelectorService searchSelectorService) {
     this.licenceApplicationApi = licenceApplicationApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
     this.searchSelectorService = searchSelectorService;
   }
 
   public List<LicenceApplicationDto> getLicenceApplicationSearchableResults(String licenceApplicationRef) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        searchLicenceApplications(
-            licenceApplicationRef,
-            requestPurpose,
-            logCorrelationId)
-        .stream()
-        .map(this::fromLicenceApplication)
-        .toList());
+    return searchLicenceApplications(
+        licenceApplicationRef,
+        new RequestPurpose("Search licence applications by reference"),
+        CorrelationIdUtil.getLogCorrelationId()
+    )
+    .stream()
+    .map(this::fromLicenceApplication)
+    .toList();
   }
 
   private LicenceApplicationDto fromLicenceApplication(LicenceApplication licenceApplication) {
@@ -60,12 +57,11 @@ public class LicenceApplicationQueryService {
   }
 
   public Optional<LicenceApplication> findLicenceApplication(Integer licenceApplicationId) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        licenceApplicationApi.findLicenceApplication(
+    return licenceApplicationApi.findLicenceApplication(
             licenceApplicationId,
             LICENCE_APPLICATION_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId)
+            new RequestPurpose("Find licence application by ID"),
+            CorrelationIdUtil.getLogCorrelationId()
     );
   }
 

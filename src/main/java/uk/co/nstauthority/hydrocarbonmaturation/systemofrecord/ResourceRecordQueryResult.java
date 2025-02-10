@@ -6,11 +6,13 @@ import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 public record ResourceRecordQueryResult(
     UUID resourceId,
     UUID submissionDetailId,
     Instant submissionAcceptedTimestamp,
+    SubmissionType submissionType,
     ResourceType resourceType,
     Integer fieldIdentifier,
     String resourceName,

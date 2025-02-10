@@ -6,12 +6,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.generated.client.FieldProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.FieldsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 
 @Service
 public class FieldOperatorQueryService {
@@ -32,37 +33,30 @@ public class FieldOperatorQueryService {
           .root();
 
   private final FieldApi fieldApi;
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
   @Autowired
-  public FieldOperatorQueryService(FieldApi fieldApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
+  public FieldOperatorQueryService(FieldApi fieldApi) {
     this.fieldApi = fieldApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
   public Optional<OrganisationUnit> getFieldOperatorByFieldIdentifier(Integer fieldIdentifier) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        fieldApi.findFieldById(
-                fieldIdentifier,
-                FIELD_OPERATOR_PROJECTION_ROOT,
-                requestPurpose,
-                logCorrelationId
-            )
-            .map(Field::getFieldOperator)
-    );
+    return fieldApi.findFieldById(
+        fieldIdentifier,
+            FIELD_OPERATOR_PROJECTION_ROOT,
+            new RequestPurpose("Find field by ID"),
+            CorrelationIdUtil.getLogCorrelationId()
+        ).map(Field::getFieldOperator);
   }
 
   public Map<Integer, OrganisationUnit> getFieldOperatorIdMap(List<Integer> ids) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        fieldApi.getFieldsByIds(
-                ids,
-                FIELDS_OPERATOR_PROJECTION_ROOT,
-                requestPurpose,
-                logCorrelationId
-            )
-            .stream()
-            .filter(field -> field.getFieldOperator() != null)
-            .collect(Collectors.toMap(Field::getFieldId, Field::getFieldOperator, (f1, f2) -> f1))
-    );
+    return fieldApi.getFieldsByIds(
+        ids,
+            FIELDS_OPERATOR_PROJECTION_ROOT,
+            new RequestPurpose("Get fields by IDs"),
+            CorrelationIdUtil.getLogCorrelationId()
+        )
+        .stream()
+        .filter(field -> field.getFieldOperator() != null)
+        .collect(Collectors.toMap(Field::getFieldId, Field::getFieldOperator, (f1, f2) -> f1));
   }
 }

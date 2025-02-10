@@ -3,10 +3,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.referenceblock.fullreferenceblock.FullReferenceBlockApi;
 import uk.co.fivium.energyportalapi.generated.client.FullReferenceBlocksProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.FullReferenceBlock;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @Service
@@ -19,12 +20,10 @@ public class ReferenceBlockQueryService {
           .shoreType().root();
 
   private final FullReferenceBlockApi fullReferenceBlockApi;
-  private final EnergyPortalApiWrapper energyPortalApiWrapper;
 
   @Autowired
-  public ReferenceBlockQueryService(FullReferenceBlockApi fullReferenceBlockApi, EnergyPortalApiWrapper energyPortalApiWrapper) {
+  public ReferenceBlockQueryService(FullReferenceBlockApi fullReferenceBlockApi) {
     this.fullReferenceBlockApi = fullReferenceBlockApi;
-    this.energyPortalApiWrapper = energyPortalApiWrapper;
   }
 
   List<ReferenceBlockView> getReferenceBlocksContaining(String searchReference, OnshoreOffshore onshoreOffshore) {
@@ -34,27 +33,25 @@ public class ReferenceBlockQueryService {
   }
 
   public List<ReferenceBlockView> getReferenceBlocksContaining(String searchReference) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        fullReferenceBlockApi.searchFullReferenceBlocksByReferenceContains(
-                searchReference,
-                REFERENCE_BLOCKS_PROJECTION_ROOT,
-                requestPurpose,
-                logCorrelationId
-            ).stream()
-            .map(this::getReferenceBlockView)
-            .toList());
+    return fullReferenceBlockApi.searchFullReferenceBlocksByReferenceContains(
+        searchReference,
+            REFERENCE_BLOCKS_PROJECTION_ROOT,
+            new RequestPurpose("Search full reference blocks"),
+            CorrelationIdUtil.getLogCorrelationId()
+        ).stream()
+        .map(this::getReferenceBlockView)
+        .toList();
   }
 
   public List<ReferenceBlockView> getReferenceBlocksByRefsIn(List<String> quadBlocksRefs) {
-    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
-        fullReferenceBlockApi.searchFullReferenceBlocksByReferences(
-            quadBlocksRefs,
+    return fullReferenceBlockApi.searchFullReferenceBlocksByReferences(
+        quadBlocksRefs,
             REFERENCE_BLOCKS_PROJECTION_ROOT,
-            requestPurpose,
-            logCorrelationId
+            new RequestPurpose("Search full reference blocks by references"),
+            CorrelationIdUtil.getLogCorrelationId()
         ).stream()
-            .map(this::getReferenceBlockView)
-            .toList());
+        .map(this::getReferenceBlockView)
+        .toList();
   }
 
   private ReferenceBlockView getReferenceBlockView(FullReferenceBlock fullReferenceBlock) {

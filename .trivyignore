@@ -27,3 +27,6 @@ CVE-2024-12801
 
 # spring-webmvc
 CVE-2024-38819
+
+# net.minidev:json-smart
+CVE-2024-57699

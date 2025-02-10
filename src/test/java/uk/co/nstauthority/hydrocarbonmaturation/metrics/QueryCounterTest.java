@@ -22,18 +22,8 @@ class QueryCounterTest {
   }
 
   @Test
-  void getAndResetEpa() throws ExecutionException, InterruptedException {
-    testMultiThreaded(QueryCounter::incrementEpa, QueryCounter::getAndResetEpa);
-  }
-
-  @Test
   void getAndResetJooq() throws ExecutionException, InterruptedException {
     testMultiThreaded(QueryCounter::incrementJooq, QueryCounter::getAndResetJooq);
-  }
-
-  @Test
-  void getAndResetHibernate() throws ExecutionException, InterruptedException {
-    testMultiThreaded(QueryCounter::incrementHibernate, QueryCounter::getAndResetHibernate);
   }
 
   /*

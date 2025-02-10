@@ -30,7 +30,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.configuration.ExternalApiAuthent
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.IncludeAnalyticsConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EpaRequestHandler;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
+import uk.co.nstauthority.hydrocarbonmaturation.hibernate.HibernateQueryCounter;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
@@ -64,7 +66,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     MetricsProvider.class,
     TeamManagementHandlerInterceptor.class,
     RequestLogFilter.class,
-    PostAuthenticationRequestMdcFilter.class
+    PostAuthenticationRequestMdcFilter.class,
+    HibernateQueryCounter.class,
+    EpaRequestHandler.class
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
