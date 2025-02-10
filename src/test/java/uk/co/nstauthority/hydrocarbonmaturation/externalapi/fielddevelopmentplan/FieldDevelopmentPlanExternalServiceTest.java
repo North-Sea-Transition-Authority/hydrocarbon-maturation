@@ -5,9 +5,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @ExtendWith(MockitoExtension.class)
 class FieldDevelopmentPlanExternalServiceTest {
@@ -44,7 +44,11 @@ class FieldDevelopmentPlanExternalServiceTest {
         "FDPA Title"
     );
 
+    var submissionUuid = UUID.randomUUID();
+
     var fdpDto = new FieldDevelopmentPlanExternalDto(
+        1,
+        submissionUuid,
         LocalDate.of(2024, 1, 1),
         "FDP Title",
         List.of(fdpaDto)
@@ -56,8 +60,12 @@ class FieldDevelopmentPlanExternalServiceTest {
     field.setFieldIdentifier(1);
     field.setResource(resource);
 
+    var fdpSubmission = new Submission();
+    fdpSubmission.setId(submissionUuid);
+
     var fdpSubmissionDetail = new SubmissionDetail();
     fdpSubmissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
+    fdpSubmissionDetail.setSubmission(fdpSubmission);
 
     var fdpaSubmissionDetail = new SubmissionDetail();
     fdpaSubmissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
@@ -65,19 +73,20 @@ class FieldDevelopmentPlanExternalServiceTest {
     var fdpGeneralDetail = new GeneralDetail();
     fdpGeneralDetail.setFdpDate(fdpDto.date());
     fdpGeneralDetail.setFdpTitle(fdpDto.title());
+    fdpGeneralDetail.setSubmissionDetail(fdpSubmissionDetail);
 
     var fdpaGeneralDetail = new GeneralDetail();
     fdpaGeneralDetail.setFdpDate(fdpaDto.date());
     fdpaGeneralDetail.setFdpTitle(fdpaDto.title());
 
-    when(fieldPersistenceService.getField(1)).thenReturn(Optional.of(field));
+    when(fieldPersistenceService.getFields(List.of(1))).thenReturn(List.of(field));
     when(submissionDetailService.getAcceptedExtantSubmissionDetailsForResource(resource))
         .thenReturn(List.of(fdpSubmissionDetail, fdpaSubmissionDetail));
     when(generalDetailsPersistenceService.getGeneralDetailOrThrow(fdpSubmissionDetail)).thenReturn(fdpGeneralDetail);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(fdpaSubmissionDetail))
         .thenReturn(Optional.of(fdpaGeneralDetail));
 
-    assertThat(fieldDevelopmentPlanExternalService.createFdpDtosByFieldIds(Set.of(1))).isEqualTo(Map.of(1, fdpDto));
+    assertThat(fieldDevelopmentPlanExternalService.createFdpDtosByFieldIds(List.of(1))).isEqualTo(List.of(fdpDto));
   }
 
 }

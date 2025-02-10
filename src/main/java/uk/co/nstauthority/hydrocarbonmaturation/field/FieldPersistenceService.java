@@ -140,6 +140,10 @@ public class FieldPersistenceService {
     return fieldRepository.findById(fieldId);
   }
 
+  public List<Field> getFields(List<Integer> fieldIds) {
+    return fieldRepository.findAllByFieldIdentifierIn(fieldIds);
+  }
+
   public Field getFieldOrThrow(Integer fieldId) {
     return getField(fieldId)
         .orElseThrow(() -> new EntityNotFoundException("No field found for id: %s".formatted(fieldId)));

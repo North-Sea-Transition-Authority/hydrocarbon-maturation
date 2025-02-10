@@ -18,4 +18,6 @@ public interface FieldRepository extends CrudRepository<Field, Integer> {
   List<Field> findFieldsByParentDeterminedField(Field parentDeterminedField);
 
   Optional<Field> findTopByFieldNumberNotNullOrderByFieldNumberDesc();
+
+  List<Field> findAllByFieldIdentifierIn(List<Integer> fieldIds);
 }

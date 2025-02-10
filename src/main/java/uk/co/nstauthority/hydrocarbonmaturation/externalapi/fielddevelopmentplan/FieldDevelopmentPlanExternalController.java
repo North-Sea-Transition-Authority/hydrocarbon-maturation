@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.externalapi.fielddevelopmentplan;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +19,7 @@ public class FieldDevelopmentPlanExternalController {
   }
 
   @GetMapping("/field-development-plans")
-  Map<Integer, FieldDevelopmentPlanExternalDto> findByFieldIds(@RequestParam(name = "ids") Set<Integer> fieldIds) {
+  List<FieldDevelopmentPlanExternalDto> findByFieldIds(@RequestParam(name = "ids") List<Integer> fieldIds) {
     return fieldDevelopmentPlanExternalService.createFdpDtosByFieldIds(fieldIds);
   }
 

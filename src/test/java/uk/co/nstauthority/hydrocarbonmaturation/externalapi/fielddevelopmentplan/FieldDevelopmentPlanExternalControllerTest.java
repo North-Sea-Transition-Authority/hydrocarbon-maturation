@@ -12,8 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -36,22 +35,24 @@ class FieldDevelopmentPlanExternalControllerTest extends RealSecurityAbstractCon
     mapper.registerModule(new JavaTimeModule());
     mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-    var fieldIds = Set.of(1, 2);
+    var fieldIds = List.of(1, 2);
 
     var fdpaDto = new FieldDevelopmentPlanAddendumExternalDto(
         LocalDate.of(2024, 1, 1),
         "FDPA Title"
     );
 
-    var fdpDtos = Map.of(
-        1,
+    var fdpDtos = List.of(
         new FieldDevelopmentPlanExternalDto(
+            1,
+            UUID.randomUUID(),
             LocalDate.of(2024, 1, 1),
             "FDP Title 1",
             List.of(fdpaDto)
         ),
-        2,
         new FieldDevelopmentPlanExternalDto(
+            2,
+            UUID.randomUUID(),
             LocalDate.of(2024, 1, 1),
             "FDP Title 2",
             List.of()
@@ -72,7 +73,7 @@ class FieldDevelopmentPlanExternalControllerTest extends RealSecurityAbstractCon
 
   @SecurityTest
   void findByFieldIds_NoBearerToken_AssertUnauthorized() throws Exception {
-    mockMvc.perform(post(ReverseRouter.route(on(FieldDevelopmentPlanExternalController.class).findByFieldIds(Set.of()))))
+    mockMvc.perform(post(ReverseRouter.route(on(FieldDevelopmentPlanExternalController.class).findByFieldIds(List.of()))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
