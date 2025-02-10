@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.externalapi.fielddevelopmentplan;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,7 @@ public class FieldDevelopmentPlanExternalService {
                 generalDetail.getFdpTitle()
             )
         )
+        .sorted(Comparator.comparing(FieldDevelopmentPlanAddendumExternalDto::date))
         .toList();
   }
 
