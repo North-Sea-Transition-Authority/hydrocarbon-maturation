@@ -56,10 +56,10 @@ public class EnergyPortalUserService {
   }
 
   public List<EnergyPortalUserDto> findByWuaIds(List<WebUserAccountId> webUserAccountIds) {
-    List<Integer> webUserAccountIdApiInputs = webUserAccountIds
-          .stream()
-          .map(WebUserAccountId::toInt)
-          .toList();
+    List<Long> webUserAccountIdApiInputs = webUserAccountIds
+        .stream()
+        .map(WebUserAccountId::id)
+        .toList();
 
     return userApi.searchUsersByIds(
             webUserAccountIdApiInputs,

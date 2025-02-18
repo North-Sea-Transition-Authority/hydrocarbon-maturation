@@ -12,6 +12,15 @@ public record WebUserAccountId(long id) implements Serializable {
     return new WebUserAccountId(Long.parseLong(value));
   }
 
+  public static WebUserAccountId from(Long userWuaId) {
+    return new WebUserAccountId(userWuaId);
+  }
+
+  @Override
+  public long id() {
+    return id;
+  }
+
   public int toInt() {
     return ((Long) id).intValue();
   }

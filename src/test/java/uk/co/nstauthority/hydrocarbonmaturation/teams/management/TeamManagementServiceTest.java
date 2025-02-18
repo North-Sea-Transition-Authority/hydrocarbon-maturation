@@ -135,7 +135,7 @@ public class TeamManagementServiceTest {
     orgTeam2User1RoleManage.setRole(Role.MANAGE_TEAM);
 
     user1 = new User();
-    user1.setWebUserAccountId(Math.toIntExact(user1WuaId));
+    user1.setWebUserAccountId(user1WuaId);
     user1.setTitle("Ms");
     user1.setForename("User");
     user1.setSurname("One");
@@ -145,7 +145,7 @@ public class TeamManagementServiceTest {
     user1.setIsAccountShared(false);
 
     user2 = new User();
-    user2.setWebUserAccountId(Math.toIntExact(user2WuaId));
+    user2.setWebUserAccountId(user2WuaId);
     user2.setTitle("Mr");
     user2.setForename("User");
     user2.setSurname("Two");
@@ -300,7 +300,7 @@ public class TeamManagementServiceTest {
         .telephoneNumber();
 
     var user = new User();
-    user.setWebUserAccountId(1);
+    user.setWebUserAccountId(1L);
     user.setForename("Foo");
     user.setSurname("Bar");
     user.setPrimaryEmailAddress("text@example.com");
@@ -308,7 +308,7 @@ public class TeamManagementServiceTest {
     user.setCanLogin(true);
     user.setIsAccountShared(false);
 
-    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user));
 
     var teamMemberView = teamManagementService.getTeamMemberView(regTeam, user1WuaId);
@@ -336,7 +336,7 @@ public class TeamManagementServiceTest {
         .primaryEmailAddress()
         .telephoneNumber();
 
-    when(userApi.searchUsersByIds(eq(List.of(1,2)), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.searchUsersByIds(eq(List.of(1L,2L)), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(List.of(user1, user2));
 
     var teamMemberViews = teamManagementService.getTeamMemberViewsForTeam(regTeam);
@@ -378,7 +378,7 @@ public class TeamManagementServiceTest {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
-    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
@@ -413,7 +413,7 @@ public class TeamManagementServiceTest {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
-    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
@@ -436,7 +436,7 @@ public class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_noTeamManagerLeft() {
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
 
     when(teamRoleRepository.findByTeam(regTeam))
@@ -457,7 +457,7 @@ public class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_noEpaUser() {
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
     assertThatExceptionOfType(TeamManagementException.class)
@@ -472,7 +472,7 @@ public class TeamManagementServiceTest {
     var epaUser = new User();
     epaUser.setIsAccountShared(true);
 
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
     assertThatExceptionOfType(TeamManagementException.class)
@@ -487,7 +487,7 @@ public class TeamManagementServiceTest {
     var epaUser = new User();
     epaUser.setCanLogin(false);
 
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(user1WuaId), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
     assertThatExceptionOfType(TeamManagementException.class)

@@ -16,8 +16,8 @@ class PortalUserTestUtil {
 
   static class Builder {
 
-    private int webUserAccountId = 1;
-    private int personId = 2;
+    private long webUserAccountId = 1L;
+    private long personId = 2L;
     private String loginId = "login@test.com";
     private String title = "title";
     private String forename = "forename";
@@ -30,12 +30,12 @@ class PortalUserTestUtil {
     private AccountStatus status = AccountStatus.ACTIVE;
     private Builder() {}
 
-    Builder withWebUserAccountId(int webUserAccountId) {
+    Builder withWebUserAccountId(long webUserAccountId) {
       this.webUserAccountId = webUserAccountId;
       return this;
     }
 
-    Builder withPersonId(int personId) {
+    Builder withPersonId(long personId) {
       this.personId = personId;
       return this;
     }

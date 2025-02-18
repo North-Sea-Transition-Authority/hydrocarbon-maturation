@@ -494,7 +494,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void handleAddMemberToTeam() throws Exception {
     var epaUser = new uk.co.fivium.energyportalapi.generated.types.User.Builder()
-        .webUserAccountId(999)
+        .webUserAccountId(999L)
         .isAccountShared(false)
         .canLogin(true)
         .build();
