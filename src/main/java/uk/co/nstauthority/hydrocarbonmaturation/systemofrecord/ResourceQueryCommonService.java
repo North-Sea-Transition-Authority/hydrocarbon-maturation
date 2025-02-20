@@ -1,7 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.jooq.impl.DSL.and;
+import static org.jooq.impl.DSL.exists;
 import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.not;
+import static org.jooq.impl.DSL.one;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
@@ -101,13 +104,16 @@ class ResourceQueryCommonService {
             .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
-        .and(
-            SUBMISSION_DETAILS.ID.isNull()
-                .or(SUBMISSION_DETAILS.ID.in(
-                    select(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
-                        .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                    )
-                )
+        .and((exists(
+            select(one())
+                .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
+                .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
+            )
+            .or(not(exists(
+                select(one())
+                    .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
+                    .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.RESOURCE_ID.eq(RESOURCES.ID)))
+            ))
         )
         .groupBy(
             RESOURCES.ID,
