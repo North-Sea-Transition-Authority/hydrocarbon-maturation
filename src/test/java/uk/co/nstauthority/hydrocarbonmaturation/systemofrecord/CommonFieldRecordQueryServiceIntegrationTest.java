@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
@@ -83,7 +84,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     }
 
     @Test
-    void whenFieldStatuseDatesAreEqual_assertOrderedByFieldName() {
+    void whenFieldStatusDatesAreEqual_assertOrderedByFieldName() {
       var fieldAlpha = FieldIntegrationTestUtils.createField("Field alpha", entityManager);
       FieldIntegrationTestUtils.addFieldStatusHistory(fieldAlpha, FieldStatus.STATUS_500, FIXED_DATE, entityManager);
 
@@ -372,6 +373,31 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
         .containsExactlyInAnyOrder(
             field1.getResource().getId(),
             field2.getResource().getId()
+        );
+  }
+
+  @Test
+  void getFieldsWithMultipleSubmissions() {
+    var field1 = FieldIntegrationTestUtils.createField("Field 1", entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(field1.getResource(), entityManager);
+    SubmissionIntegrationTestUtils.createSubmissionDetail(submission, SubmissionType.CREATE_CSR, entityManager);
+    var field2 = FieldIntegrationTestUtils.createField("Field 2", entityManager);
+    var submission2 = SubmissionTestUtils.createSubmissionForIntegrationTest(field2.getResource(), entityManager);
+    SubmissionIntegrationTestUtils.createSubmissionDetail(submission2, SubmissionType.CREATE_FDP, entityManager);
+    var submission3 = SubmissionTestUtils.createSubmissionForIntegrationTest(field2.getResource(), entityManager);
+    SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission3,
+        SubmissionType.CREATE_CSR,
+        SubmissionDetailStatus.DRAFT,
+        entityManager
+    );
+    var field3 = FieldIntegrationTestUtils.createField("Field 3", entityManager);
+    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+        .extracting(ResourceRecordQueryResult::resourceId)
+        .containsExactlyInAnyOrder(
+            field1.getResource().getId(),
+            field2.getResource().getId(),
+            field3.getResource().getId()
         );
   }
 

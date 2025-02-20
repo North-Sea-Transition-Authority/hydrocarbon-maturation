@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
@@ -61,14 +62,20 @@ public class FieldPersistenceService {
     field.setCorrectedLegalFieldName(form.getCorrectedLegalFieldName());
     field.setCommonNameForField(form.getCommonNameForField());
 
-    Optional.ofNullable(form.getPrePearsOrganisationId())
-        .map(Integer::valueOf)
-        .flatMap(organisationUnitQueryService::findOrganisationUnit)
-        .ifPresent(organisationUnitDto -> {
-          field.setPrePearsOrganisationId(organisationUnitDto.organisationUnitId());
-          field.setOrganisationName(organisationUnitDto.organisationUnitName());
-          field.setOrganisationRegisteredNumber(organisationUnitDto.companyHouseNumber());
-        });
+    if (Objects.isNull(form.getPrePearsOrganisationId())) {
+      field.setPrePearsOrganisationId(null);
+      field.setOrganisationName(null);
+      field.setOrganisationRegisteredNumber(null);
+    } else {
+      Optional.ofNullable(form.getPrePearsOrganisationId())
+          .map(Integer::valueOf)
+          .flatMap(organisationUnitQueryService::findOrganisationUnit)
+          .ifPresent(organisationUnitDto -> {
+            field.setPrePearsOrganisationId(organisationUnitDto.organisationUnitId());
+            field.setOrganisationName(organisationUnitDto.organisationUnitName());
+            field.setOrganisationRegisteredNumber(organisationUnitDto.companyHouseNumber());
+          });
+    }
 
     field.setOnshoreOffshore(form.getOnshoreOffshore());
     GeographicalArea geographicalArea;

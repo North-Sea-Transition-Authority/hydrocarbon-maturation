@@ -145,6 +145,22 @@ class FieldPersistenceServiceTest {
     }
 
     @Test
+    void responsibleOrganisationNotProvided() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
+
+      form.setPrePearsOrganisationId(null);
+
+      var result = underTest.saveFieldFromFieldForm(form, resource);
+      assertThat(result)
+          .extracting(
+              Field::getPrePearsOrganisationId,
+              Field::getOrganisationName,
+              Field::getOrganisationRegisteredNumber
+          ).containsOnlyNulls();
+    }
+
+    @Test
     void parentFieldSet() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       var parentDeterminedField = 1;

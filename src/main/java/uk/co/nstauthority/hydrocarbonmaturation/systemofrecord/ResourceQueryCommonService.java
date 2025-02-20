@@ -104,16 +104,17 @@ class ResourceQueryCommonService {
             .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
-        .and((exists(
-            select(one())
-                .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
-            )
-            .or(not(exists(
+        .and(
+            not(exists(
                 select(one())
                     .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                    .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.RESOURCE_ID.eq(RESOURCES.ID)))
-            ))
+                    .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.RESOURCE_ID.eq(RESOURCES.ID))
+            )).or(
+                SUBMISSION_DETAILS.ID.in(
+                    select(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
+                        .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
+                )
+            )
         )
         .groupBy(
             RESOURCES.ID,
