@@ -27,9 +27,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -622,10 +623,10 @@ class GeneralReservoirInformationServiceTest {
     field.setResource(fieldResource);
     when(fieldPersistenceService.getFieldOrThrow(fieldResource)).thenReturn(field);
 
-    var firstDiscoveryResource = new Resource();
+    var firstDiscoveryResource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     var firstResourceLink = new ResourceLink();
     firstResourceLink.setDiscoveryResource(firstDiscoveryResource);
-    var secondDiscoveryResource = new Resource();
+    var secondDiscoveryResource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     var secondResourceLink = new ResourceLink();
     secondResourceLink.setDiscoveryResource(secondDiscoveryResource);
     when(resourceLinkService.getResourceLinksByField(fieldResource))

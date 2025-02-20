@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -155,6 +156,10 @@ public class GeneralDetailsPersistenceService {
 
   public boolean isOnAnExtantLicence(GeneralDetail generalDetail) {
     return licencePersistenceService.hasAnExtantLicence(generalDetail);
+  }
+
+  public List<GeneralDetail> getGeneralDetailsForSubmissionDetails(List<SubmissionDetail> submissionDetail) {
+    return generalDetailsRepository.findBySubmissionDetailIn(submissionDetail);
   }
 
   private void setLicenceApplication(GeneralDetail generalDetail,

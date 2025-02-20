@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.envers.Audited;
@@ -56,5 +57,23 @@ public class Resource {
 
   public void setArchived(Boolean archived) {
     this.archived = archived;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Resource resource = (Resource) o;
+    return Objects.equals(id, resource.id) && type == resource.type && Objects.equals(
+        createdTimestamp, resource.createdTimestamp) && Objects.equals(archived, resource.archived);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, type, createdTimestamp, archived);
   }
 }

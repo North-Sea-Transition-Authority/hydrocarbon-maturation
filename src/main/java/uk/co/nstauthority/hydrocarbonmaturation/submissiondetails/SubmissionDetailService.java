@@ -3,9 +3,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,9 +112,16 @@ public class SubmissionDetailService {
     );
   }
 
-  public List<SubmissionDetail> getAcceptedExtantSubmissionDetailsForResource(Resource resource) {
+  public List<SubmissionDetail> getAcceptedExtantSubmissionDetailsForResources(Resource resource) {
     return getExtantSubmissionDetailsForResourceByStatuses(
         resource,
+        Set.of(SubmissionDetailStatus.ACCEPTED)
+    );
+  }
+
+  public List<SubmissionDetail> getAcceptedExtantSubmissionDetailsForResources(List<Resource> resources) {
+    return getExtantSubmissionDetailsForResourcesByStatuses(
+        resources,
         Set.of(SubmissionDetailStatus.ACCEPTED)
     );
   }
@@ -129,6 +138,16 @@ public class SubmissionDetailService {
         ))
         .flatMap(Optional::stream)
         .toList();
+  }
+
+  private List<SubmissionDetail> getExtantSubmissionDetailsForResourcesByStatuses(
+      List<Resource> resource,
+      Set<SubmissionDetailStatus> submissionDetailStatuses
+  ) {
+    var submissions = submissionPersistenceService.getSubmissionsByResources(resource);
+    return getLatestSubmissionDetailsBySubmissionsAndStatuses(
+        submissions, submissionDetailStatuses
+    );
   }
 
   public String getSubmissionTypeNameWithAcronym(SubmissionDetail submissionDetail) {
@@ -202,6 +221,24 @@ public class SubmissionDetailService {
         submission,
         statuses
     );
+  }
+
+  public List<SubmissionDetail> getLatestSubmissionDetailsBySubmissionsAndStatuses(
+      List<Submission> submissions, Set<SubmissionDetailStatus> statuses
+  ) {
+    var submissionDetails = submissionDetailRepository
+        .findAllBySubmissionIn(submissions)
+        .stream()
+        .filter(sd -> statuses.contains(sd.getStatus()))
+        .collect(Collectors.toSet());
+
+    Map<Submission, Optional<SubmissionDetail>> maxSubmissionVersionMap = submissionDetails
+        .stream()
+        .collect(Collectors.groupingBy(SubmissionDetail::getSubmission,
+            Collectors.maxBy(Comparator.comparing(SubmissionDetail::getVersionNumber))));
+
+    return maxSubmissionVersionMap.values().stream().toList().stream().flatMap(Optional::stream).toList();
+
   }
 
   public boolean openCorrectionExists(Set<SubmissionDetailStatus> statuses, Resource resource) {

@@ -47,6 +47,8 @@ public interface SubmissionDetailRepository extends CrudRepository<SubmissionDet
 
   List<SubmissionDetail> findAllBySubmission(Submission submission);
 
+  List<SubmissionDetail> findAllBySubmissionIn(List<Submission> submissions);
+
   Optional<SubmissionDetail> findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
       Submission submission, Set<SubmissionDetailStatus> statuses);
 

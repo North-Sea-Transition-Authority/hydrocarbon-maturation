@@ -357,7 +357,7 @@ class SubmissionDetailServiceTest {
         Set.of(SubmissionDetailStatus.ACCEPTED)))
         .thenReturn(Optional.empty());
 
-    var result = submissionDetailService.getAcceptedExtantSubmissionDetailsForResource(resource);
+    var result = submissionDetailService.getAcceptedExtantSubmissionDetailsForResources(resource);
 
     assertThat(result).containsExactly(submissionDetail1);
   }
@@ -541,5 +541,37 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetailService.hasDraftOrSubmittedSubmission(resource))
         .isFalse();
+  }
+
+  @Test
+  void getLatestSubmissionDetailsBySubmissionsAndStatuses() {
+    var resource1 = new Resource();
+    var submission1 = SubmissionTestUtils.createSubmission(resource1);
+    var submissionDetail1 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    submissionDetail1.setSubmission(submission1);
+    var resource2 = new Resource();
+    var submission2 = SubmissionTestUtils.createSubmission(resource2);
+    var submissionDetail2 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
+    submissionDetail2.setStatus(SubmissionDetailStatus.ACCEPTED);
+    submissionDetail2.setSubmission(submission2);
+    var submissionDetail3 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
+    submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
+    submissionDetail3.setSubmission(submission2);
+    submissionDetail3.setVersionNumber(2);
+    var resource3 = new Resource();
+    var submission3 = SubmissionTestUtils.createSubmission(resource3);
+    var submissionDetail4 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
+    submissionDetail4.setStatus(SubmissionDetailStatus.ACCEPTED);
+    submissionDetail4.setSubmission(submission3);
+    var submissions = List.of(submission1, submission2, submission3);
+    var submissionDetailList = List.of(submissionDetail1, submissionDetail2, submissionDetail3, submissionDetail4);
+    when(submissionDetailRepository.findAllBySubmissionIn(submissions)).thenReturn(
+        submissionDetailList
+    );
+
+    assertThat(submissionDetailService.getLatestSubmissionDetailsBySubmissionsAndStatuses(
+        submissions,
+        Set.of(SubmissionDetailStatus.ACCEPTED))
+    ).containsExactlyInAnyOrder(submissionDetail3, submissionDetail4);
   }
 }

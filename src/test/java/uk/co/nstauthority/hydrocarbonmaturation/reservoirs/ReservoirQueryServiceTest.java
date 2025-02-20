@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,9 +54,11 @@ class ReservoirQueryServiceTest {
     when(fieldPersistenceService.getFieldOrThrow(fieldResource)).thenReturn(field);
 
     var firstDiscoveryResource = new Resource();
+    firstDiscoveryResource.setId(UUID.randomUUID());
     var firstResourceLink = new ResourceLink();
     firstResourceLink.setDiscoveryResource(firstDiscoveryResource);
     var secondDiscoveryResource = new Resource();
+    secondDiscoveryResource.setId(UUID.randomUUID());
     var secondResourceLink = new ResourceLink();
     secondResourceLink.setDiscoveryResource(secondDiscoveryResource);
     when(resourceLinkService.getResourceLinksByField(fieldResource)).thenReturn(List.of(firstResourceLink, secondResourceLink));

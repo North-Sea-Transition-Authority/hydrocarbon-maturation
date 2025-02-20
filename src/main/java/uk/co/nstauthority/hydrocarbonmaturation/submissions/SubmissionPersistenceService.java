@@ -34,6 +34,13 @@ public class SubmissionPersistenceService {
         .toList();
   }
 
+  public List<Submission> getSubmissionsByResources(List<Resource> resources) {
+    return submissionRepository.findAllByResourceIn(resources)
+        .stream()
+        .filter(submission -> BooleanUtils.isNotTrue(submission.isWithdrawn()))
+        .toList();
+  }
+
   @Transactional
   public Submission createSubmission(Resource resource) {
     var submission = new Submission();

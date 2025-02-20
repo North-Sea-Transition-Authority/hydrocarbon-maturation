@@ -10,8 +10,12 @@ CVE-2024-38820
 # spring-security-web
 CVE-2024-38821
 
-# netty-common
+# io.netty:netty-common
 CVE-2024-47535
+CVE-2025-25193
+
+# io.netty:netty-handler
+CVE-2025-24970
 
 # tomcat-embed-core
 CVE-2024-52317
