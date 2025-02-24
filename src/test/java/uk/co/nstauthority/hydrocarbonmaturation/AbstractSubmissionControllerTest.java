@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRoleInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.OperatorResourceAccessInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.RegulatorResourceAccessInterceptorRule;
@@ -29,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionDe
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -61,7 +63,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
     SubmissionDetailVersionInterceptorRule.class,
     OperatorResourceAccessInterceptorRule.class,
     RegulatorResourceAccessInterceptorRule.class,
-    SubmissionTypeInterceptorRule.class})
+    SubmissionTypeInterceptorRule.class,
+    ResourceAccessService.class})
 public abstract class AbstractSubmissionControllerTest extends AbstractControllerTest{
 
   @MockBean
@@ -76,6 +79,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   @MockBean
   protected FieldPersistenceService fieldPersistenceService;
 
+  @MockBean
+  protected FieldOperatorQueryService fieldOperatorQueryService;
+
   @Autowired
   protected OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
@@ -87,6 +93,9 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   @Autowired
   protected ResourceAccessInterceptorRule resourceAccessInterceptorRule;
+
+  @Autowired
+  protected ResourceAccessService resourceAccessService;
 
   @MockBean
   protected ResourceAccessInterceptorFactory resourceAccessInterceptorFactory;
