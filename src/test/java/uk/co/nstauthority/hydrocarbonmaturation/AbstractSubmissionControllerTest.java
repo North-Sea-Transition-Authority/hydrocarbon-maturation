@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsersInterceptor;
@@ -48,8 +50,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Import(value = {
@@ -94,7 +94,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   @Autowired
   protected ResourceAccessInterceptorRule resourceAccessInterceptorRule;
 
-  @Autowired
+  @MockBean
   protected ResourceAccessService resourceAccessService;
 
   @MockBean
@@ -147,24 +147,14 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     var resourceDetail = new ResourceDetail();
-    resourceDetail.setOrganisationId(1);
+    var organisationUnitId = 1;
+    resourceDetail.setOrganisationId(organisationUnitId);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(resourceDetail));
-    var orgGroupId = 100;
-    var orgGroups = List.of(orgGroupId);
-    var orgGroupStrings = orgGroups.stream().map(String::valueOf).toList();
-    var orgTeam = new Team();
-    orgTeam.setTeamType(TeamType.INDUSTRY);
-    orgTeam.setScopeId(String.valueOf(orgGroupId));
-    var orgTeamRole = new TeamRole();
-    orgTeamRole.setTeam(orgTeam);
-    orgTeamRole.setRole(Role.INDUSTRY_SUBMIT);
-    orgTeamRole.setWuaId(user.wuaId());
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
-        .thenReturn(orgGroups);
-    when(teamQueryService.getOrganisationScopedTeams(orgGroupStrings)).thenReturn(Set.of(orgTeam));
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(orgTeamRole));
-    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(true);
+    when(resourceAccessService.userHasAccessToResourceForOrganisation(
+        user,
+        Set.of(Role.INDUSTRY_SUBMIT),
+        organisationUnitId)).thenReturn(true);
   }
 
   protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(User user, SubmissionDetail submissionDetail) {
@@ -178,24 +168,14 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         submissionDetail.getSubmission().getResource()))
         .thenReturn(responsibleTeam);
     var resourceDetail = new ResourceDetail();
-    resourceDetail.setOrganisationId(1);
+    var organisationUnitId = 1;
+    resourceDetail.setOrganisationId(organisationUnitId);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
             .thenReturn(Optional.of(resourceDetail));
-    var orgGroupId = 100;
-    var orgGroups = List.of(orgGroupId);
-    var orgGroupStrings = orgGroups.stream().map(String::valueOf).toList();
-    var orgTeam = new Team();
-    orgTeam.setTeamType(TeamType.INDUSTRY);
-    orgTeam.setScopeId(String.valueOf(orgGroupId));
-    var orgTeamRole = new TeamRole();
-    orgTeamRole.setTeam(orgTeam);
-    orgTeamRole.setRole(Role.INDUSTRY_SUBMIT);
-    orgTeamRole.setWuaId(user.wuaId());
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
-        .thenReturn(orgGroups);
-    when(teamQueryService.getOrganisationScopedTeams(orgGroupStrings)).thenReturn(Set.of(orgTeam));
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(orgTeamRole));
-    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(true);
+    when(resourceAccessService.userHasAccessToResourceForOrganisation(
+        user,
+        Set.of(Role.INDUSTRY_SUBMIT),
+        organisationUnitId)).thenReturn(true);
   }
 
   protected void setUpWhenUserIsResponsibleOrganisation_field_passSecurity(User user, SubmissionDetail submissionDetail) {
@@ -217,20 +197,13 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
             .thenReturn(true);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
-    var orgGroupId = 100;
-    var orgGroups = List.of(orgGroupId);
-    var orgGroupStrings = orgGroups.stream().map(String::valueOf).toList();
-    var orgTeam = new Team();
-    orgTeam.setTeamType(TeamType.INDUSTRY);
-    orgTeam.setScopeId(String.valueOf(orgGroupId));
-    var orgTeamRole = new TeamRole();
-    orgTeamRole.setTeam(orgTeam);
-    orgTeamRole.setRole(Role.INDUSTRY_SUBMIT);
-    orgTeamRole.setWuaId(user.wuaId());
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
-        .thenReturn(orgGroups);
-    when(teamQueryService.getOrganisationScopedTeams(orgGroupStrings)).thenReturn(Set.of(orgTeam));
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(orgTeamRole));
+    var organisationUnit = mock(OrganisationUnit.class);
+    when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier()))
+        .thenReturn(Optional.of(organisationUnit));
+    when(resourceAccessService.userHasAccessToResourceForOrganisation(
+        eq(user),
+        eq(Set.of(Role.INDUSTRY_SUBMIT)),
+        any(Integer.class))).thenReturn(true);
   }
 
   protected void setUpWhenUserIsResponsibleTeam_passSecurity() {
@@ -288,15 +261,14 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(responsibleTeam);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
     var resourceDetail = new ResourceDetail();
-    resourceDetail.setOrganisationId(1);
+    var organisationUnitId = 1;
+    resourceDetail.setOrganisationId(organisationUnitId);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(resourceDetail));
-    var orgGroups = List.of(100);
-    var orgGroupStrings = orgGroups.stream().map(String::valueOf).toList();
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
-        .thenReturn(orgGroups);
-    when(teamQueryService.getOrganisationScopedTeams(orgGroupStrings)).thenReturn(Set.of());
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of());
+    when(resourceAccessService.userHasAccessToResourceForOrganisation(
+        user,
+        Set.of(Role.INDUSTRY_SUBMIT),
+        organisationUnitId)).thenReturn(false);
   }
 
   protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(User user, SubmissionDetail submissionDetail) {
@@ -310,15 +282,14 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(responsibleTeam);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
     var resourceDetail = new ResourceDetail();
-    resourceDetail.setOrganisationId(1);
+    var organisationUnitId = 1;
+    resourceDetail.setOrganisationId(organisationUnitId);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(resourceDetail));
-    var orgGroups = List.of(100);
-    var orgGroupStrings = orgGroups.stream().map(String::valueOf).toList();
-    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
-        .thenReturn(orgGroups);
-    when(teamQueryService.getOrganisationScopedTeams(orgGroupStrings)).thenReturn(Set.of());
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of());
+    when(resourceAccessService.userHasAccessToResourceForOrganisation(
+        user,
+        Set.of(Role.INDUSTRY_SUBMIT),
+        organisationUnitId)).thenReturn(false);
   }
 
   protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_field_failSecurity(User user, SubmissionDetail submissionDetail) {
