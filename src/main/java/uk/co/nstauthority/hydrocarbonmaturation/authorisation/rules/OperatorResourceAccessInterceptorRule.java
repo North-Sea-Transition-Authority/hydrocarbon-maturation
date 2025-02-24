@@ -1,24 +1,23 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules;
 
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
 
 @Component
 public class OperatorResourceAccessInterceptorRule implements ResourceAccessInterceptorStrategy {
@@ -26,18 +25,18 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final FieldPersistenceService fieldPersistenceService;
-  private final TeamQueryService teamQueryService;
-  private final OrganisationUnitQueryService organisationUnitQueryService;
+  private final ResourceAccessService resourceAccessService;
+  private final FieldOperatorQueryService fieldOperatorQueryService;
 
   @Autowired
   OperatorResourceAccessInterceptorRule(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                         FieldPersistenceService fieldPersistenceService,
-                                        TeamQueryService teamQueryService,
-                                        OrganisationUnitQueryService organisationUnitQueryService) {
+                                        ResourceAccessService resourceAccessService,
+                                        FieldOperatorQueryService fieldOperatorQueryService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.fieldPersistenceService = fieldPersistenceService;
-    this.teamQueryService = teamQueryService;
-    this.organisationUnitQueryService = organisationUnitQueryService;
+    this.resourceAccessService = resourceAccessService;
+    this.fieldOperatorQueryService = fieldOperatorQueryService;
   }
 
   @Override
@@ -48,22 +47,11 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
       return getForbiddenResponse(user, submissionDetail, responsibleOrganisationId);
     }
 
-    var portalOrganisationGroups = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(responsibleOrganisationId)
-            .stream()
-            .map(String::valueOf)
-            .toList();
-    var responsibleOrganisationGroups = teamQueryService.getOrganisationScopedTeams(portalOrganisationGroups)
-            .stream()
-            .map(Team::getId)
-            .collect(Collectors.toSet());
-    var userSubmitterTeams = teamQueryService.getTeamRolesForUser(user.wuaId())
-            .stream()
-            .filter(role -> Role.INDUSTRY_SUBMIT.equals(role.getRole()))
-            .map(TeamRole::getTeam)
-            .map(Team::getId)
-            .collect(Collectors.toSet());
-
-    if (userSubmitterTeams.stream().anyMatch(responsibleOrganisationGroups::contains)) {
+    if (resourceAccessService.userHasAccessToResourceForOrganisation(
+        user,
+        Set.of(Role.INDUSTRY_SUBMIT),
+        responsibleOrganisationId)
+    ) {
       return SecurityRuleResult.continueAsNormal();
     } else {
       return getForbiddenResponse(user, submissionDetail, responsibleOrganisationId);
@@ -89,7 +77,10 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
   private Integer getResponsibleOrganisationId(SubmissionDetail submissionDetail) {
     if (submissionDetail.isFieldSubmission()) {
       var resource = submissionDetail.getSubmission().getResource();
-      return fieldPersistenceService.getFieldOrThrow(resource).getPrePearsOrganisationId();
+      var field = fieldPersistenceService.getFieldOrThrow(resource);
+      return fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier())
+          .map(OrganisationUnit::getOrganisationUnitId)
+          .orElse(null);
     }
 
     return resourceDetailsPersistenceService
