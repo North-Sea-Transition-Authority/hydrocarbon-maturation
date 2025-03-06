@@ -27,8 +27,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
@@ -135,13 +135,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(List.of(results.get(0), results.get(1)))
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn,
@@ -214,7 +214,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.getEnumName(), ResourceType.DISCOVERY.getEnumName()));
     form.setResourceNameFromResourceDetail("Resourc");
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::resourceName
@@ -271,13 +271,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(List.of(results.get(0)))
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -340,13 +340,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceNameFromResourceDetail(resourceDetails1.getResourceName());
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of(OpportunityType.PROSPECT.name()));
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -409,13 +409,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -460,13 +460,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.DISCOVERY.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -511,13 +511,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -557,7 +557,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -615,7 +615,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -657,7 +657,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -699,7 +699,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of(opportunityType.name()));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -734,7 +734,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var form = new SearchResourceRecordsForm();
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -777,7 +777,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("PROSPECT"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .isEmpty();
@@ -806,7 +806,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("PROSPECT"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -837,7 +837,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.DISCOVERY.name()));
     form.setOpportunityTypes(List.of("DISCOVERY"));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -876,7 +876,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setLicenceRound("9000");
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -907,7 +907,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setLicenceRound("cool");
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .isEmpty();
@@ -947,7 +947,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setLicenceRound(licenceRoundFilter);
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -985,7 +985,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setLicenceRound("SECOND");
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .isEmpty();
@@ -1014,11 +1014,11 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .thenReturn(List.of());
     var form = new SearchResourceRecordsForm();
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
-            ResourceRecordQueryResult::prePearsOrganisationId)
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId)
         .containsExactly(
             tuple(
                 submissionWithNotExtantLicence.getId(),
@@ -1064,7 +1064,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setGeographicalArea(List.of(geographicalArea.name()));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     if (geographicalArea == GeographicalArea.ONSHORE) {
       assertThat(results)
           .extracting(
@@ -1109,7 +1109,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(showOnlyPreferredViews);
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     if (showOnlyPreferredViews) {
       assertThat(results)
           .extracting(
@@ -1142,7 +1142,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(true);
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -1209,7 +1209,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(true);
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -1240,11 +1240,11 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission, null);
     var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var form = new SearchResourceRecordsForm();
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     if (BooleanUtils.isTrue(withdrawn)) {
       assertThat(results).isEmpty();
@@ -1280,7 +1280,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setShowArchivedResources(false);
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
       assertThat(results)
           .extracting(
               ResourceRecordQueryResult::submissionDetailId)
@@ -1311,7 +1311,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setShowArchivedResources(true);
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
       assertThat(results)
           .extracting(
               ResourceRecordQueryResult::submissionDetailId)
@@ -1355,14 +1355,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::resourceId,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::resourceName,
-            ResourceRecordQueryResult::prePearsOrganisationId,
+            ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
             ResourceRecordQueryResult::responsibleTeam,
             ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus
@@ -1372,7 +1372,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 resource1.getId(),
                 ResourceType.FIELD,
                 resourceName1,
-                responsibleOrgId1,
+                null,
                 regulatorManagedInformation1.getResponsibleTeamType(),
                 field1.getParentDeterminedField().getCorrectedLegalFieldName(),
                 fieldStatusHistoryForField1.getFieldStatus()
@@ -1381,7 +1381,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 resource2.getId(),
                 ResourceType.FIELD,
                 resourceName2,
-                responsibleOrgId2,
+                null,
                 regulatorManagedInformation2.getResponsibleTeamType(),
                 field2.getParentDeterminedField().getCorrectedLegalFieldName(),
                 fieldStatusHistoryForField2.getFieldStatus()
@@ -1405,7 +1405,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setFieldNameForResourceSubmission("Field name");
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     assertThat(results)
         .extracting(
@@ -1428,7 +1428,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setFieldNameForResourceSubmission("JH Fiel");
 
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     var fieldNames = List.of("JH Field", "jh Field 2", "JH Field With More Text");
     assertThat(results)

@@ -93,7 +93,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordSummaryQueryResult::submissionDetailId,
             ResourceRecordSummaryQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordSummaryQueryResult::organisationResponsibleId,
+            ResourceRecordSummaryQueryResult::prospectOrDiscoveryResponsibleOrganisationId,
             ResourceRecordSummaryQueryResult::resourceName,
             ResourceRecordSummaryQueryResult::resourceType,
             ResourceRecordSummaryQueryResult::responsibleTeam,
@@ -166,14 +166,14 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .get()
         .extracting(
             ResourceRecordSummaryQueryResult::resourceName,
-            ResourceRecordSummaryQueryResult::organisationResponsibleId,
+            ResourceRecordSummaryQueryResult::prospectOrDiscoveryResponsibleOrganisationId,
             ResourceRecordSummaryQueryResult::parentFieldId,
             ResourceRecordSummaryQueryResult::fieldStatus,
             ResourceRecordSummaryQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             field.getCorrectedLegalFieldName(),
-            field.getPrePearsOrganisationId(),
+            null,
             field.getParentDeterminedField().getFieldIdentifier(),
             fieldStatusHistory.getFieldStatus(),
             List.of(fieldLicence1.getPrePearsLicenceId(), fieldLicence2.getPrePearsLicenceId())

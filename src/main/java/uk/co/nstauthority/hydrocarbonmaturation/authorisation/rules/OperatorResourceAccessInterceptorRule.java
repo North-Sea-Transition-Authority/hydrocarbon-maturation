@@ -11,7 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
@@ -26,17 +26,17 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final FieldPersistenceService fieldPersistenceService;
   private final ResourceAccessService resourceAccessService;
-  private final FieldOperatorQueryService fieldOperatorQueryService;
+  private final FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
   OperatorResourceAccessInterceptorRule(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                         FieldPersistenceService fieldPersistenceService,
                                         ResourceAccessService resourceAccessService,
-                                        FieldOperatorQueryService fieldOperatorQueryService) {
+                                        FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.fieldPersistenceService = fieldPersistenceService;
     this.resourceAccessService = resourceAccessService;
-    this.fieldOperatorQueryService = fieldOperatorQueryService;
+    this.fieldOperatorAndLicenceQueryService = fieldOperatorAndLicenceQueryService;
   }
 
   @Override
@@ -78,7 +78,7 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
     if (submissionDetail.isFieldSubmission()) {
       var resource = submissionDetail.getSubmission().getResource();
       var field = fieldPersistenceService.getFieldOrThrow(resource);
-      return fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier())
+      return fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier())
           .map(OrganisationUnit::getOrganisationUnitId)
           .orElse(null);
     }

@@ -122,7 +122,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
-            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getProspectOrDiscoveryOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
@@ -467,11 +467,11 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
-    assertThat(results.get(0))
+    assertThat(results.getFirst())
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
-            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getProspectOrDiscoveryOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
@@ -490,7 +490,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             licenceApplicationReference
         );
 
-    assertThat(results.get(0)
+    assertThat(results.getFirst()
         .getLicencesTheResourceIsOn())
         .containsExactlyInAnyOrder(
             licenceId1, licenceId2);
@@ -561,11 +561,11 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
-    assertThat(results.get(0))
+    assertThat(results.getFirst())
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
-            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getProspectOrDiscoveryOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
@@ -584,7 +584,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             null
         );
 
-    assertThat(results.get(0)
+    assertThat(results.getFirst()
         .getLicencesTheResourceIsOn())
         .containsExactlyInAnyOrder(
             licenceId1, licenceId2);
@@ -655,11 +655,11 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
-    assertThat(results.get(0))
+    assertThat(results.getFirst())
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
             SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
-            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getProspectOrDiscoveryOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
@@ -669,7 +669,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
         .containsExactly(
             submissionDetail.getId(),
             trapProperty.getCentreOfInterestQuadrantBlock(),
-            responsibleOrganisationId,
+            null,
             fieldName,
             SubmissionType.CREATE_CSR,
             SubmissionDetailStatus.DRAFT,
@@ -678,7 +678,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             newestFieldStatusHistory.getFieldStatus()
         );
 
-    assertThat(results.get(0)
+    assertThat(results.getFirst()
         .getLicencesTheResourceIsOn())
         .containsExactlyInAnyOrder(
             licenceId1, licenceId2);

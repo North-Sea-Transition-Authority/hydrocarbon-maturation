@@ -16,7 +16,7 @@ import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
@@ -52,7 +52,7 @@ class FieldQueryServiceIntegrationTest {
   private IndustryTeamService industryTeamService;
 
   @MockBean
-  private FieldOperatorQueryService fieldOperatorQueryService;
+  private FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
   private FieldQueryService fieldQueryService;
@@ -100,7 +100,7 @@ class FieldQueryServiceIntegrationTest {
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER, Set.of(Role.INDUSTRY_SUBMIT)))
         .thenReturn(List.of(1));
-    when(fieldOperatorQueryService.getFieldOperatorIdMap(List.of(field.getFieldIdentifier())))
+    when(fieldOperatorAndLicenceQueryService.getFieldOperatorIdMap(List.of(field.getFieldIdentifier())))
         .thenReturn(Map.of(field.getFieldIdentifier(), orgUnit));
 
     assertThat(fieldQueryService.getFieldByNameForSubmissionType("field", SubmissionType.CREATE_FDP, USER))

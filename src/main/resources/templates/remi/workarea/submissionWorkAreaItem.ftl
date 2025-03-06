@@ -56,6 +56,9 @@
   >
     <@fdsResultList.resultListDataItem>
       <@fdsResultList.resultListDataValue
+      key="Status"
+      value=modelProperties["submissionStatus"]/>
+      <@fdsResultList.resultListDataValue
       key="Field status"
       value=modelProperties["fieldStatus"]/>
       <@fdsResultList.resultListDataValue

@@ -17,7 +17,7 @@ import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.Licence;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,8 +72,8 @@ class FieldLicenceQueryServiceTest {
 
     assertThat(result)
         .containsExactly(
-            LicenceView.fromLicence(licence1),
-            LicenceView.fromLicence(licence2)
+            LicenceDto.fromLicence(licence1),
+            LicenceDto.fromLicence(licence2)
         );
   }
 
@@ -97,8 +97,8 @@ class FieldLicenceQueryServiceTest {
     assertThat(result)
         .isSortedAccordingTo(new LicenceViewByReferenceComparator())
         .containsExactly(
-            LicenceView.fromLicence(licence2),
-            LicenceView.fromLicence(licence1)
+            LicenceDto.fromLicence(licence2),
+            LicenceDto.fromLicence(licence1)
         );
   }
 

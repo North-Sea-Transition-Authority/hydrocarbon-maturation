@@ -87,13 +87,13 @@ DO $$
             GROUP BY rgl.id, pmrd.resource_id, CASE WHEN pmrd.choice = '1' THEN TRUE ELSE FALSE END
             ORDER BY pmrd.resource_id
         )
-            LOOP
+        LOOP
 
-                UPDATE remi.resource_group_links
-                SET preferred_view = TRUE
-                WHERE id = single_reservoir_choice_rec.id;
+            UPDATE remi.resource_group_links
+            SET preferred_view = TRUE
+            WHERE id = multi_reservoir_choice_rec.id;
 
-            END LOOP;
+        END LOOP;
 
         UPDATE remi.resource_group_links
         SET preferred_view = FALSE

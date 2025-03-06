@@ -25,7 +25,7 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
@@ -47,7 +47,7 @@ public class FieldQueryService {
   private final IndustryTeamService industryTeamService;
   private final DSLContext context;
   private final InternalTeamService internalTeamService;
-  private final FieldOperatorQueryService fieldOperatorQueryService;
+  private final FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
   public FieldQueryService(
@@ -55,13 +55,13 @@ public class FieldQueryService {
       IndustryTeamService industryTeamService,
       DSLContext context,
       InternalTeamService internalTeamService,
-      FieldOperatorQueryService fieldOperatorQueryService
+      FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService
   ) {
     this.responsibleTeamService = responsibleTeamService;
     this.industryTeamService = industryTeamService;
     this.context = context;
     this.internalTeamService = internalTeamService;
-    this.fieldOperatorQueryService = fieldOperatorQueryService;
+    this.fieldOperatorAndLicenceQueryService = fieldOperatorAndLicenceQueryService;
   }
 
   public List<FieldView> getFieldByNameForSubmissionType(String name, SubmissionType submissionType, User user) {
@@ -173,7 +173,7 @@ public class FieldQueryService {
         .map(FieldView::fieldId)
         .toList();
 
-    var fieldIdsWhereUserHasPermissions = fieldOperatorQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
+    var fieldIdsWhereUserHasPermissions = fieldOperatorAndLicenceQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
         .filter(entry -> userOrgUnits.contains(entry.getValue().getOrganisationUnitId()))
         .map(Map.Entry::getKey)
         .toList();

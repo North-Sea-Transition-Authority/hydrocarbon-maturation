@@ -39,8 +39,8 @@ import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -177,7 +177,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(preselectedLicenceApplication);
 
-    var licenceView = new LicenceView("1/1", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("1/1", 1, LicenceStatus.EXTANT);
     var licenceViewList = List.of(licenceView);
     when(generalDetailsFormService.getLicenceViews(form)).thenReturn(licenceViewList);
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
@@ -241,7 +241,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(
         preselectedLicenceApplication);
-    var licenceView = new LicenceView("1/1", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("1/1", 1, LicenceStatus.EXTANT);
     var licenceViewList = List.of(licenceView);
     when(generalDetailsFormService.getLicenceViews(form)).thenReturn(licenceViewList);
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);

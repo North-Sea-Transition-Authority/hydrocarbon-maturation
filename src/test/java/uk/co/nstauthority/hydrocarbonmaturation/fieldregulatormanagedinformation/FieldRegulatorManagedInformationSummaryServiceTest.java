@@ -19,8 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -67,7 +67,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @Mock
-  private FieldOperatorQueryService fieldOperatorQueryService;
+  private FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
   @InjectMocks
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
@@ -296,8 +296,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
 
     when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
-    var licenceView1 = new LicenceView("ref1", 1, LicenceStatus.EXTANT);
-    var licenceView2 = new LicenceView("ref2", 2, LicenceStatus.EXTANT);
+    var licenceView1 = new LicenceDto("ref1", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceDto("ref2", 2, LicenceStatus.EXTANT);
     var mostCurrentLicences = List.of(licenceView1, licenceView2);
 
     when(fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field)).thenReturn(mostCurrentLicences);
@@ -335,8 +335,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
     var pearsLicenceList = List.of(
-        new LicenceView("ref1", 1, LicenceStatus.EXTANT),
-        new LicenceView("ref2", 2, LicenceStatus.EXTANT)
+        new LicenceDto("ref1", 1, LicenceStatus.EXTANT),
+        new LicenceDto("ref2", 2, LicenceStatus.EXTANT)
     );
 
     when(fieldLicenceService.getPearsLicenceList(field)).thenReturn(pearsLicenceList);
@@ -377,7 +377,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     var orgUnit = new OrganisationUnit();
     orgUnit.setName("Org name");
 
-    when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier())).thenReturn(Optional.of(orgUnit));
+    when(fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier())).thenReturn(Optional.of(orgUnit));
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -413,8 +413,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   @Test
   void getLicenceDisplayNames_MultipleElements() {
     var licenceList = List.of(
-        new LicenceView("license1", 1, LicenceStatus.EXTANT),
-        new LicenceView("license2", 2, LicenceStatus.EXTANT)
+        new LicenceDto("license1", 1, LicenceStatus.EXTANT),
+        new LicenceDto("license2", 2, LicenceStatus.EXTANT)
     );
     var result = fieldRegulatorManagedInformationSummaryService.getLicenceDisplayNames(licenceList);
     assertThat(result).containsExactly("license1", "license2");
@@ -424,9 +424,9 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   void getLicenceDisplayNames_shouldReturnLicencesSorted() {
 
     var result = fieldRegulatorManagedInformationSummaryService.getLicenceDisplayNames(List.of(
-        new LicenceView("licenceRef100", 2, LicenceStatus.EXTANT),
-        new LicenceView("licenceRef2", 3, LicenceStatus.EXTANT),
-        new LicenceView("licenceRef1", 1, LicenceStatus.EXTANT)
+        new LicenceDto("licenceRef100", 2, LicenceStatus.EXTANT),
+        new LicenceDto("licenceRef2", 3, LicenceStatus.EXTANT),
+        new LicenceDto("licenceRef1", 1, LicenceStatus.EXTANT)
     ));
 
     assertThat(result)

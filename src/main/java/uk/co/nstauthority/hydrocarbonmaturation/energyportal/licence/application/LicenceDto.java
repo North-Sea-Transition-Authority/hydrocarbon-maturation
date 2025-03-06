@@ -5,11 +5,11 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.addtolist.AddToListItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectable;
 
-public record LicenceView(String licenceRef,
-                          Integer licenceId,
-                          LicenceStatus licenceStatus) implements AddToListItem, SearchSelectable {
-  public static LicenceView fromLicence(Licence licence) {
-    return new LicenceView(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
+public record LicenceDto(String licenceRef,
+                         Integer licenceId,
+                         LicenceStatus licenceStatus) implements AddToListItem, SearchSelectable {
+  public static LicenceDto fromLicence(Licence licence) {
+    return new LicenceDto(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
   }
 
   @Override
@@ -24,7 +24,7 @@ public record LicenceView(String licenceRef,
 
   @Override
   public boolean isValid() {
-    return LicenceQueryService.isLicenceStatusValid(licenceStatus);
+    return LicenceStatus.EXTANT.equals(licenceStatus);
   }
 
   @Override

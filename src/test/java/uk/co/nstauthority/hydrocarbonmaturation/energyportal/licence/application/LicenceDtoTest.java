@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import uk.co.fivium.energyportalapi.generated.types.Licence;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 
-class LicenceViewTest {
+class LicenceDtoTest {
   @Test
   void fromLicence() {
     var id = 1;
@@ -18,13 +18,13 @@ class LicenceViewTest {
     licence.setLicenceRef(licenceRef);
     licence.setLicenceStatus(licenceStatus);
 
-    var result = LicenceView.fromLicence(licence);
+    var result = LicenceDto.fromLicence(licence);
 
     assertThat(result)
         .extracting(
-            LicenceView::licenceId,
-            LicenceView::licenceRef,
-            LicenceView::licenceStatus
+            LicenceDto::licenceId,
+            LicenceDto::licenceRef,
+            LicenceDto::licenceStatus
         )
         .containsExactly(
             id,

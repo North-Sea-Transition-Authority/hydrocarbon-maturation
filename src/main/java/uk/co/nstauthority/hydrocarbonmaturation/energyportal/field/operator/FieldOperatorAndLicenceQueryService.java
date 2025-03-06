@@ -13,9 +13,10 @@ import uk.co.fivium.energyportalapi.generated.client.FieldsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @Service
-public class FieldOperatorQueryService {
+public class FieldOperatorAndLicenceQueryService {
   public static final FieldProjectionRoot FIELD_OPERATOR_PROJECTION_ROOT =
       new FieldProjectionRoot()
           .fieldId()
@@ -32,10 +33,36 @@ public class FieldOperatorQueryService {
           .name()
           .root();
 
+  public static final FieldProjectionRoot FIELD_OPERATOR_AND_LICENCE_PROJECTION_ROOT =
+      new FieldProjectionRoot()
+          .fieldId()
+          .fieldOperator()
+          .organisationUnitId()
+          .name()
+          .root()
+          .licences()
+          .id()
+          .licenceRef()
+          .licenceStatus()
+          .root();
+
+  public static final FieldsProjectionRoot FIELDS_OPERATOR_AND_LICENCE_PROJECTION_ROOT =
+      new FieldsProjectionRoot()
+          .fieldId()
+          .fieldOperator()
+          .organisationUnitId()
+          .name()
+          .root()
+          .licences()
+          .id()
+          .licenceRef()
+          .licenceStatus()
+          .root();
+
   private final FieldApi fieldApi;
 
   @Autowired
-  public FieldOperatorQueryService(FieldApi fieldApi) {
+  public FieldOperatorAndLicenceQueryService(FieldApi fieldApi) {
     this.fieldApi = fieldApi;
   }
 
@@ -59,4 +86,29 @@ public class FieldOperatorQueryService {
         .filter(field -> field.getFieldOperator() != null)
         .collect(Collectors.toMap(Field::getFieldId, Field::getFieldOperator, (f1, f2) -> f1));
   }
+
+  public Optional<Field> getFieldById(Integer fieldId) {
+    return fieldApi.findFieldById(
+        fieldId,
+        FIELD_OPERATOR_AND_LICENCE_PROJECTION_ROOT,
+        new RequestPurpose("Get field by ID"),
+        CorrelationIdUtil.getLogCorrelationId()
+    );
+  }
+
+  public Field getFieldByIdOrThrow(Integer fieldId) {
+    return getFieldById(fieldId).orElseThrow(() -> new RemiEntityNotFoundException(String.format(
+        "Could not find field for ID: %s", fieldId
+    )));
+  }
+
+  public List<Field> getFieldsByIds(List<Integer> ids) {
+    return fieldApi.getFieldsByIds(
+        ids,
+        FIELDS_OPERATOR_AND_LICENCE_PROJECTION_ROOT,
+        new RequestPurpose("Get fields by IDs"),
+        CorrelationIdUtil.getLogCorrelationId()
+    );
+  }
+
 }

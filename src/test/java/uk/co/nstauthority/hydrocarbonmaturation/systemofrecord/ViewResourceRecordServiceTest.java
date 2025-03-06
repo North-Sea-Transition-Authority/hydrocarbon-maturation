@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil.toListOfStrings;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,13 +16,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.generated.types.Field;
+import uk.co.fivium.energyportalapi.generated.types.Licence;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -58,7 +61,7 @@ class ViewResourceRecordServiceTest {
   @Mock
   private InternalTeamService internalTeamService;
   @Mock
-  private FieldOperatorQueryService fieldOperatorQueryService;
+  private FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @InjectMocks
   private ViewResourceRecordService underTest;
@@ -124,6 +127,7 @@ class ViewResourceRecordServiceTest {
 
       assertThat(result)
           .extracting(
+              ResourceRecordSummaryView::resourceType,
               ResourceRecordSummaryView::submissionDetailId,
               ResourceRecordSummaryView::resourceName,
               ResourceRecordSummaryView::centreOfInterest,
@@ -135,6 +139,7 @@ class ViewResourceRecordServiceTest {
               ResourceRecordSummaryView::licenceApplicationReference
           )
           .containsExactly(
+              resourceType,
               submissionDetailId,
               resourceName,
               centreOfInterestQuadBlock,
@@ -150,7 +155,7 @@ class ViewResourceRecordServiceTest {
     @Test
     void andResourceExists_andOperatorIsFromLicence_ThenMapsQueryResultToView() {
       var submissionDetailId = UUID.randomUUID();
-      var resourceType = ResourceType.PROSPECT;
+      var resourceType = ResourceType.FIELD;
       var resourceName = "RESOURCE_NAME";
       var centreOfInterestQuadBlock = "CENTRE_OF_INTEREST_QUAD_BLOCK";
       var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
@@ -184,7 +189,7 @@ class ViewResourceRecordServiceTest {
       var orgName = "FIELD OPERATOR";
       var orgUnit = new OrganisationUnit();
       orgUnit.setName(orgName);
-      when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(resourceRecordSummaryQueryResult.fieldId()))
+      when(fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(resourceRecordSummaryQueryResult.fieldId()))
           .thenReturn(Optional.of(orgUnit));
 
       var parentFieldName = "PARENT FIELD";
@@ -195,6 +200,7 @@ class ViewResourceRecordServiceTest {
 
       assertThat(result)
           .extracting(
+              ResourceRecordSummaryView::resourceType,
               ResourceRecordSummaryView::submissionDetailId,
               ResourceRecordSummaryView::resourceName,
               ResourceRecordSummaryView::centreOfInterest,
@@ -207,6 +213,7 @@ class ViewResourceRecordServiceTest {
               ResourceRecordSummaryView::parentFieldName
           )
           .containsExactly(
+              resourceType,
               submissionDetailId,
               resourceName,
               centreOfInterestQuadBlock,
@@ -222,15 +229,16 @@ class ViewResourceRecordServiceTest {
   }
 
   @Nested
-  class WhenCheckingIfCanViewResource {
+  class WhenCheckingIfCanViewResource_forNonFieldResources {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer OTHER_ORG_UNIT_ID = 2;
     private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, true);
     private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, false);
-    private final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
-        UUID.randomUUID(), ORGANISATION_UNIT_ID);
-    private final User USER_DETAIL = UserTestUtil.Builder().build();
+    private static final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
+        ResourceType.PROSPECT, UUID.randomUUID(), ORGANISATION_UNIT_ID
+    );
+    private static final User USER_DETAIL = UserTestUtil.Builder().build();
 
     @Test
     void AndUserIsRegulatorOrAreaTeamUser_ThenTrue() {
@@ -243,7 +251,7 @@ class ViewResourceRecordServiceTest {
 
     @Nested
     class AndUserIsNotRegulatorOrAreaTeamUser {
-      private static final LicenceView LICENCE_VIEW = new LicenceView("licenceRef", 2, LicenceStatus.EXTANT);
+      private static final LicenceDto LICENCE_VIEW = new LicenceDto("licenceRef", 2, LicenceStatus.EXTANT);
       @BeforeEach
       void setup() {
         when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
@@ -262,7 +270,7 @@ class ViewResourceRecordServiceTest {
       }
 
       @Test
-      void AndUserIsMemberOfOrgButResourceDoesNotHaveExtantLicence_ThenFalse() {
+      void AndResourceHasExtantLicenceButUserIsNotMemberOfOrg_ThenFalse() {
         when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
             .thenReturn(List.of(LICENCE_VIEW));
 
@@ -276,12 +284,14 @@ class ViewResourceRecordServiceTest {
       @Test
       void AndUserIsMemberOfOrgButResourceHasNullExtantLicence_ThenFalse() {
         var resourceRecordWithNullExtantLicence = new ResourceRecordSummaryView(
+            ResourceType.PROSPECT,
             UUID.randomUUID(),
             "resource",
             "center",
             "RT9",
             ORGANISATION_UNIT_ID,
             "Fivium",
+            null,
             null,
             null,
             null,
@@ -297,7 +307,7 @@ class ViewResourceRecordServiceTest {
       }
 
       @Test
-      void AndResourceHasExtantLicenceButUserIsNotMemberOfOrg_ThenFalse() {
+      void AndUserIsMemberOfOrgButResourceDoesNotHaveExtantLicence_ThenFalse() {
         when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
             .thenReturn(List.of());
 
@@ -323,6 +333,135 @@ class ViewResourceRecordServiceTest {
                 .thenReturn(List.of(LICENCE_VIEW));
 
         when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, ARCHIVED_RESOURCE, USER_DETAIL);
+
+        assertThat(result).isFalse();
+      }
+    }
+  }
+
+  @Nested
+  class WhenCheckingIfCanViewResource_forFieldResources {
+
+    private static final Integer ORGANISATION_UNIT_ID = 1;
+    private static final Integer OTHER_ORG_UNIT_ID = 2;
+    private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD, true);
+    private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD, false);
+    private static final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
+        ResourceType.FIELD, UUID.randomUUID(), null
+    );
+    private static final User USER_DETAIL = UserTestUtil.Builder().build();
+
+    @Test
+    void AndUserIsRegulatorOrAreaTeamUser_ThenTrue() {
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+
+      var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
+
+      assertThat(result).isTrue();
+    }
+
+    @Nested
+    class AndUserIsNotRegulatorOrAreaTeamUser {
+      private static final LicenceDto LICENCE_VIEW = new LicenceDto("licenceRef", 2, LicenceStatus.EXTANT);
+      @BeforeEach
+      void setup() {
+        when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
+      }
+
+      @Test
+      void AndUserIsMemberOfOrgAndResourceHasExtantLicenceOnResource_ThenTrue() {
+        var field = new Field();
+        var organisationUnit = new OrganisationUnit();
+        organisationUnit.setOrganisationUnitId(ORGANISATION_UNIT_ID);
+        field.setFieldOperator(organisationUnit);
+        field.setLicences(Collections.emptyList());
+        when(fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(RESOURCE_RECORD.fieldId()))
+            .thenReturn(field);
+        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
+            .thenReturn(List.of(LICENCE_VIEW));
+
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
+
+        assertThat(result).isTrue();
+      }
+
+      @Test
+      void AndUserIsMemberOfOrgAndResourceHasExtantPearsLicence_ThenTrue() {
+        var field = new Field();
+        var organisationUnit = new OrganisationUnit();
+        organisationUnit.setOrganisationUnitId(ORGANISATION_UNIT_ID);
+        field.setFieldOperator(organisationUnit);
+        var licence = new Licence();
+        licence.setId(100);
+        licence.setLicenceStatus(LicenceStatus.EXTANT);
+        field.setLicences(List.of(licence));
+        when(fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(RESOURCE_RECORD.fieldId()))
+            .thenReturn(field);
+        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
+            .thenReturn(Collections.emptyList());
+
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
+
+        assertThat(result).isTrue();
+      }
+
+      @Test
+      void AndUserIsMemberOfOrgButResourceDoesNotHaveAnyExtantLicences_ThenFalse() {
+        var field = new Field();
+        var organisationUnit = new OrganisationUnit();
+        organisationUnit.setOrganisationUnitId(ORGANISATION_UNIT_ID);
+        field.setFieldOperator(organisationUnit);
+        field.setLicences(Collections.emptyList());
+        when(fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(RESOURCE_RECORD.fieldId()))
+            .thenReturn(field);
+        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
+            .thenReturn(List.of());
+
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
+
+        assertThat(result).isFalse();
+      }
+
+      @Test
+      void AndResourceHasExtantLicenceButUserIsNotMemberOfOrg_ThenFalse() {
+        var field = new Field();
+        var organisationUnit = new OrganisationUnit();
+        organisationUnit.setOrganisationUnitId(ORGANISATION_UNIT_ID);
+        field.setFieldOperator(organisationUnit);
+        field.setLicences(Collections.emptyList());
+        when(fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(RESOURCE_RECORD.fieldId()))
+            .thenReturn(field);
+        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
+            .thenReturn(List.of(LICENCE_VIEW));
+
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
+
+        assertThat(result).isFalse();
+      }
+
+      @Test
+      void AndResourceIsArchived_ThenFalse() {
+        var field = new Field();
+        var organisationUnit = new OrganisationUnit();
+        organisationUnit.setOrganisationUnitId(ORGANISATION_UNIT_ID);
+        field.setFieldOperator(organisationUnit);
+        field.setLicences(Collections.emptyList());
+        when(fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(RESOURCE_RECORD.fieldId()))
+            .thenReturn(field);
+        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
+            .thenReturn(List.of(LICENCE_VIEW));
+
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
         var result = underTest.canViewResource(RESOURCE_RECORD, ARCHIVED_RESOURCE, USER_DETAIL);
 

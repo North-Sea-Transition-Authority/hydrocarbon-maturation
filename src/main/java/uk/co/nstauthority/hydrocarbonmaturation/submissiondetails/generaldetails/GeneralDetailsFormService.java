@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
@@ -109,7 +109,7 @@ public class GeneralDetailsFormService {
 
     var licences = licenceQueryService.getLicencesByIds(licenceIds)
         .stream()
-        .map(LicenceView::getId)
+        .map(LicenceDto::getId)
         .toList();
 
     form.setLicences(licences);
@@ -119,7 +119,7 @@ public class GeneralDetailsFormService {
     return form;
   }
 
-  List<LicenceView> getLicenceViews(GeneralDetailsForm form) {
+  List<LicenceDto> getLicenceViews(GeneralDetailsForm form) {
     if (ObjectUtils.isEmpty(form.getLicences())) {
       return Collections.emptyList();
     }

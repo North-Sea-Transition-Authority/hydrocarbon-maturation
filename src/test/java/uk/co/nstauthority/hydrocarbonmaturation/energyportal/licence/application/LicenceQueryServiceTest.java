@@ -64,8 +64,8 @@ class LicenceQueryServiceTest {
 
     assertThat(licenceQueryService.getLiveLicencesBy(licenceRef))
         .extracting(
-            LicenceView::getSelectionId,
-            LicenceView::getSelectionText
+            LicenceDto::getSelectionId,
+            LicenceDto::getSelectionText
         ).containsExactly(
             tuple(
                 licence.getId().toString(),
@@ -105,8 +105,8 @@ class LicenceQueryServiceTest {
 
     assertThat(licenceQueryService.getLicencesByReferenceAndStatus(licenceRef, LicenceStatus.EXTANT))
         .extracting(
-            LicenceView::getSelectionId,
-            LicenceView::getSelectionText
+            LicenceDto::getSelectionId,
+            LicenceDto::getSelectionText
         ).containsExactly(
             tuple(
                 extantLicence.getId().toString(),
@@ -136,8 +136,8 @@ class LicenceQueryServiceTest {
 
     assertThat(expectedLicence)
         .extracting(
-            LicenceView::getSelectionId,
-            LicenceView::getSelectionText)
+            LicenceDto::getSelectionId,
+            LicenceDto::getSelectionText)
         .containsExactly(
             tuple(licenceId.toString(), licenceRef));
   }
@@ -162,8 +162,8 @@ class LicenceQueryServiceTest {
 
     assertThat(expectedLicence.get())
         .extracting(
-            LicenceView::getSelectionId,
-            LicenceView::getSelectionText)
+            LicenceDto::getSelectionId,
+            LicenceDto::getSelectionText)
         .containsExactly(
             licenceId.toString(), licenceRef);
   }
@@ -189,9 +189,9 @@ class LicenceQueryServiceTest {
     assertThat(result)
         .hasSize(2)
         .extracting(
-          LicenceView::licenceId,
-          LicenceView::licenceRef,
-          LicenceView::licenceStatus
+          LicenceDto::licenceId,
+          LicenceDto::licenceRef,
+          LicenceDto::licenceStatus
         )
         .containsExactly(
             tuple(1, "Licence 1", LicenceStatus.EXTANT),

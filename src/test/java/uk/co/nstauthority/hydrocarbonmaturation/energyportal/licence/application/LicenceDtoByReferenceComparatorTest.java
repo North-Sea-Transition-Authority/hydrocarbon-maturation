@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 
 @ExtendWith(MockitoExtension.class)
-class LicenceViewByReferenceComparatorTest {
+class LicenceDtoByReferenceComparatorTest {
 
   @InjectMocks
   private LicenceViewByReferenceComparator licenceViewByReferenceComparator;
@@ -21,8 +21,8 @@ class LicenceViewByReferenceComparatorTest {
   @ParameterizedTest
   @MethodSource("referencesArguments")
   void compare_assertComparator() {
-    var licenceView = new LicenceView("A22", 1, LicenceStatus.EXTANT);
-    var licenceView2 = new LicenceView("A23", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("A22", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceDto("A23", 1, LicenceStatus.EXTANT);
     assertThat(licenceViewByReferenceComparator.compare(licenceView, licenceView2))
         .isEqualTo(-1);
     assertThat(licenceViewByReferenceComparator.compare(licenceView2, licenceView))
@@ -39,8 +39,8 @@ class LicenceViewByReferenceComparatorTest {
 
   @Test
   void compare_whenEqual_assertLetterFirst() {
-    var licenceView = new LicenceView("A23", 1, LicenceStatus.EXTANT);
-    var licenceView2 = new LicenceView("A23", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("A23", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceDto("A23", 1, LicenceStatus.EXTANT);
     assertThat(licenceViewByReferenceComparator.compare(licenceView, licenceView2))
         .isZero();
     assertThat(licenceViewByReferenceComparator.compare(licenceView2, licenceView))
@@ -49,8 +49,8 @@ class LicenceViewByReferenceComparatorTest {
 
   @Test
   void compare_whenUnexpectedValues_assertComparesLexicographically() {
-    var licenceView = new LicenceView("23AB23", 1, LicenceStatus.EXTANT);
-    var licenceView2 = new LicenceView("AS23", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("23AB23", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceDto("AS23", 1, LicenceStatus.EXTANT);
     assertThat(licenceViewByReferenceComparator.compare(licenceView, licenceView2))
         .isNegative();
     assertThat(licenceViewByReferenceComparator.compare(licenceView2, licenceView))
@@ -59,8 +59,8 @@ class LicenceViewByReferenceComparatorTest {
 
   @Test
   void compare_whenNumberValues_assertResult() {
-    var licenceView = new LicenceView("555", 1, LicenceStatus.EXTANT);
-    var licenceView2 = new LicenceView("255", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("555", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceDto("255", 1, LicenceStatus.EXTANT);
     assertThat(licenceViewByReferenceComparator.compare(licenceView, licenceView2))
         .isEqualTo(1);
     assertThat(licenceViewByReferenceComparator.compare(licenceView2, licenceView))
@@ -69,8 +69,8 @@ class LicenceViewByReferenceComparatorTest {
 
   @Test
   void compare_whenStringValues_assertResult() {
-    var licenceView = new LicenceView("ACC", 1, LicenceStatus.EXTANT);
-    var licenceView2 = new LicenceView("ABB", 1, LicenceStatus.EXTANT);
+    var licenceView = new LicenceDto("ACC", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceDto("ABB", 1, LicenceStatus.EXTANT);
     assertThat(licenceViewByReferenceComparator.compare(licenceView, licenceView2))
         .isEqualTo(1);
     assertThat(licenceViewByReferenceComparator.compare(licenceView2, licenceView))

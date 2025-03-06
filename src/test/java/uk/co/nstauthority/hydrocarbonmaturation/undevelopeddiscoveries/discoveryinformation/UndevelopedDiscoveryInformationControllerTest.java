@@ -60,13 +60,13 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     var resourceName = "resource name";
     var centreOfInterest = "coi";
     var licenceApplicationReference = "RT9";
-
-    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+    var resourceType = ResourceType.DISCOVERY;
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, resourceType))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
         .thenReturn(
-            new ResourceRecordSummaryView(null, resourceName, centreOfInterest, licenceApplicationReference, null, null,
-                null, null, null, null, null));
+            new ResourceRecordSummaryView(resourceType, null, resourceName, centreOfInterest, licenceApplicationReference, null, null,
+                null, null, null, null, null, null));
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -134,15 +134,16 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
   void saveDiscoveryInformation_validationFailed() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
     var form = new UndevelopedDiscoveryInformationForm();
+    var resourceType = ResourceType.DISCOVERY;
 
     when(formValidator.isValid(eq(form), any(Errors.class), eq(undevelopedDiscovery), eq(null)))
         .thenReturn(false);
-    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, resourceType))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
         .thenReturn(
-            new ResourceRecordSummaryView(null, "resourceName", "coi", "RT9", null, null, null, null, null, null,
-                null));
+            new ResourceRecordSummaryView(resourceType,null, "resourceName", "coi", "RT9", null, null, null, null, null, null,
+                null, null));
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
         .thenReturn(undevelopedDiscovery);
 
@@ -232,12 +233,26 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     var returnedForm = new UndevelopedDiscoveryInformationForm();
+    var resourceType = ResourceType.DISCOVERY;
 
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
         .thenReturn(
-            new ResourceRecordSummaryView(null, resourceName, null, null, null, null, null, null, null, null, null));
+            new ResourceRecordSummaryView(
+                resourceType,
+                null,
+                resourceName,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null));
     when(undevelopedDiscoveryInformationService.getUndevelopedDiscoveryInformationOrThrow(informationId))
         .thenReturn(undevelopedDiscoveryInformation);
     when(undevelopedDiscoveryInformationService.entityToForm(undevelopedDiscoveryInformation))
@@ -367,13 +382,27 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         undevelopedDiscovery
     );
 
+    var resourceType = ResourceType.DISCOVERY;
     when(formValidator.isValid(eq(form), any(Errors.class), eq(undevelopedDiscovery), eq(informationId)))
         .thenReturn(false);
-    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, resourceType))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
         .thenReturn(
-            new ResourceRecordSummaryView(null, "resourceName", "coi", "RT9", null, null, null, null, null, null, null));
+            new ResourceRecordSummaryView(
+                resourceType,
+                null,
+                "resourceName",
+                "coi",
+                "RT9",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null));
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
         .thenReturn(undevelopedDiscovery);
     when(undevelopedDiscoveryInformationService.getUndevelopedDiscoveryInformationOrThrow(informationId))

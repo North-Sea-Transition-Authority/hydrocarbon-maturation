@@ -15,8 +15,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
@@ -217,7 +217,7 @@ public class UndevelopedDiscoveriesOverviewService {
     return !extantLicenses.isEmpty() && !hasBeenRelinquished;
   }
 
-  private List<LicenceView> getExtantLicenceViews(List<Integer> licenseIds) {
+  private List<LicenceDto> getExtantLicenceViews(List<Integer> licenseIds) {
     return licenseIds
         .stream()
         .map(licenceQueryService::getLicenceById)

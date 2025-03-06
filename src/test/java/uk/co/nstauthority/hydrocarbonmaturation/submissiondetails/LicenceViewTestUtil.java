@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
 public class LicenceViewTestUtil {
@@ -36,8 +36,8 @@ public class LicenceViewTestUtil {
       return this;
     }
 
-    public LicenceView build() {
-      return new LicenceView(licenceRef, licenceId, status);
+    public LicenceDto build() {
+      return new LicenceDto(licenceRef, licenceId, status);
     }
   }
 }

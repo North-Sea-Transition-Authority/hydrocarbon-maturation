@@ -15,8 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 
@@ -150,9 +150,9 @@ class SubmissionDetailDisplayServiceTest {
       var licenceIds = List.of(1, 2);
 
       var licenceRef1 = "ref1";
-      var licenceView1 = new LicenceView(licenceRef1, 1, LicenceStatus.EXTANT);
+      var licenceView1 = new LicenceDto(licenceRef1, 1, LicenceStatus.EXTANT);
       var licenceRef2 = "ref2";
-      var licenceView2 = new LicenceView(licenceRef2, 2, LicenceStatus.EXTANT);
+      var licenceView2 = new LicenceDto(licenceRef2, 2, LicenceStatus.EXTANT);
       when(licenceQueryService.getLicencesByIds(List.of("1", "2")))
           .thenReturn(List.of(licenceView1, licenceView2));
 
@@ -167,13 +167,13 @@ class SubmissionDetailDisplayServiceTest {
 
     private final String licenceRef1 = "ref1";
     private final String licenceRef2 = "ref2";
-    private final LicenceView licenceView1 = new LicenceView(licenceRef1, 1, LicenceStatus.EXTANT);
-    private final LicenceView licenceView2 = new LicenceView(licenceRef2, 2, LicenceStatus.EXTANT);
+    private final LicenceDto licenceDto1 = new LicenceDto(licenceRef1, 1, LicenceStatus.EXTANT);
+    private final LicenceDto licenceDto2 = new LicenceDto(licenceRef2, 2, LicenceStatus.EXTANT);
 
 
-    private Map<Integer, LicenceView> licenceMap = Map.of(
-        1, licenceView1,
-        2, licenceView2
+    private Map<Integer, LicenceDto> licenceMap = Map.of(
+        1, licenceDto1,
+        2, licenceDto2
     );
 
     @BeforeEach

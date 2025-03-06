@@ -111,9 +111,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     resource.setArchived(false);
     resourceId = resource.getId();
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT, resource);
-    resourceRecordSummaryView = new ResourceRecordSummaryView(submissionDetail.getId(), "resource", "coi", "RT9",
+    resourceRecordSummaryView = new ResourceRecordSummaryView(resource.getType(), submissionDetail.getId(), "resource", "coi", "RT9",
         1, "org name", List.of(), List.of(),
-        null, "parent", "field status");
+        null, 1,"parent", "field status");
 
     when(viewResourceRecordService.getResourceRecordOrThrow(resourceId)).thenReturn(resourceRecordSummaryView);
     when(submissionDetailService.getSubmissionDetail(resourceRecordSummaryView.submissionDetailId()))

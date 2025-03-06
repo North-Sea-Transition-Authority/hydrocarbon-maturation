@@ -12,7 +12,7 @@ record ResourceRecordSummaryQueryResult(
     String resourceName,
     String centreOfInterestQuadBlock,
     String licenceApplicationReference,
-    Integer organisationResponsibleId,
+    Integer prospectOrDiscoveryResponsibleOrganisationId,
     ResponsibleTeamType responsibleTeam,
     List<Integer> licencesTheResourceIsOn,
     Integer fieldId,

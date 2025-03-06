@@ -23,8 +23,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -365,8 +365,8 @@ class GeneralDetailsFormServiceTest {
   void getLicenceApplicationViews_whenLicencesPresent() {
     var form = new GeneralDetailsForm();
     form.setLicences(List.of("ref", "ref2"));
-    var licence1 = new LicenceView("ref", 1, LicenceStatus.EXTANT);
-    var licence2 = new LicenceView("ref2", 2, LicenceStatus.EXTANT);
+    var licence1 = new LicenceDto("ref", 1, LicenceStatus.EXTANT);
+    var licence2 = new LicenceDto("ref2", 2, LicenceStatus.EXTANT);
 
     when(licenceQueryService.getLicencesByIds(form.getLicences()))
         .thenReturn(List.of(licence1, licence2));
@@ -375,9 +375,9 @@ class GeneralDetailsFormServiceTest {
 
     assertThat(selectorViews)
         .extracting(
-            LicenceView::getId,
-            LicenceView::getName,
-            LicenceView::isValid)
+            LicenceDto::getId,
+            LicenceDto::getName,
+            LicenceDto::isValid)
         .containsExactly(
             tuple("1", "ref", true),
             tuple("2", "ref2", true)

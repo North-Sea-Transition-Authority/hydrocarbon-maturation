@@ -19,11 +19,12 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -770,6 +771,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
   private void mockGetResourceRecord(UUID resourceId, String resourceName, List<Integer> licenceIds) {
     var resourceRecord = new ResourceRecordSummaryView(
+        ResourceType.DISCOVERY,
         null,
         resourceName,
         "COI",
@@ -778,6 +780,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         null,
         licenceIds,
         List.of(),
+        null,
         null,
         null,
         null
@@ -796,7 +799,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
   }
 
   private void mockLicenceStatus(LicenceStatus status) {
-    var licenceView = new LicenceView(null, null, status);
+    var licenceView = new LicenceDto(null, null, status);
     when(licenceQueryService.getLicenceById(licenceId))
         .thenReturn(Optional.of(licenceView));
   }

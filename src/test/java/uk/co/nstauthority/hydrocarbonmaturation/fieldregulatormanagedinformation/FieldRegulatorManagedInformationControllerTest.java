@@ -33,8 +33,8 @@ import org.springframework.validation.BindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
@@ -282,7 +282,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
-    var licences = List.of(new LicenceView("example", 1, LicenceStatus.EXTANT));
+    var licences = List.of(new LicenceDto("example", 1, LicenceStatus.EXTANT));
         when(fieldLicenceService.getFieldLicenceViews(form))
             .thenReturn(licences);
 
@@ -370,7 +370,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
-    var licences = List.of(new LicenceView("example", 1, LicenceStatus.EXTANT));
+    var licences = List.of(new LicenceDto("example", 1, LicenceStatus.EXTANT));
     when(fieldLicenceService.getFieldLicenceViews(form))
         .thenReturn(licences);
 

@@ -41,7 +41,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @Service
 class ResourceQueryCommonService {
 
-  static final int MAX_RESULTS = 200;
   private static final SubmissionDetails SUBMISSION_DETAILS_2 = SUBMISSION_DETAILS.as("sd2");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
   private static final GeneralDetails GENERAL_DETAILS_2 = GENERAL_DETAILS.as("gd2");
@@ -58,7 +57,7 @@ class ResourceQueryCommonService {
   }
 
   protected List<ResourceRecordQueryResult> getFieldRecordQueryResults(
-      List<Condition> conditionList, List<Condition> aggregateConditionList) {
+      List<Condition> conditionList) {
     return context
         .select(
             RESOURCES.ID,
@@ -69,7 +68,7 @@ class ResourceQueryCommonService {
             FIELDS.FIELD_IDENTIFIER,
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID,
+            DSL.val((Integer) null),
             DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
                 .orderBy(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
                 .filterWhere(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID.isNotNull()),
@@ -127,11 +126,9 @@ class ResourceQueryCommonService {
             FIELD_STATUS_HISTORY.ID,
             GENERAL_DETAILS.ID
         )
-        .having(aggregateConditionList)
         .orderBy(
             FIELD_STATUS_HISTORY.STATUS_DATE.desc(),
             FIELDS.CORRECTED_LEGAL_FIELD_NAME)
-        .limit(ResourceQueryCommonService.MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);
   }
 
@@ -185,7 +182,6 @@ class ResourceQueryCommonService {
             SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc(),
             SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc(),
             RESOURCE_DETAILS.RESOURCE_NAME)
-        .limit(ResourceQueryCommonService.MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);
   }
 

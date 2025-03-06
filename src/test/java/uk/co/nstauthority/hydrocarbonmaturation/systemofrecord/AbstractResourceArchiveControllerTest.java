@@ -12,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -28,6 +29,7 @@ public abstract class AbstractResourceArchiveControllerTest extends AbstractCont
   protected static final UUID RESOURCE_ID = UUID.randomUUID();
   protected static final ResponsibleTeamType RESPONSIBLE_TEAM_TYPE = ResponsibleTeamType.ONSHORE;
   protected static final ResourceRecordSummaryView RESOURCE_RECORD = new ResourceRecordSummaryView(
+      ResourceType.PROSPECT,
       UUID.randomUUID(),
       "resource name",
       "coi",
@@ -37,6 +39,7 @@ public abstract class AbstractResourceArchiveControllerTest extends AbstractCont
       null,
       null,
       RESPONSIBLE_TEAM_TYPE,
+      null,
       null,
       null
   );

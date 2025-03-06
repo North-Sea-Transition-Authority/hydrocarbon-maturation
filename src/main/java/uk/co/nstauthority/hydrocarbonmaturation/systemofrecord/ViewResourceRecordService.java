@@ -3,15 +3,18 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
@@ -34,7 +37,7 @@ public class ViewResourceRecordService {
   private final FieldDisplayService fieldDisplayService;
   private final IndustryTeamService industryTeamService;
   private final InternalTeamService internalTeamService;
-  private final FieldOperatorQueryService fieldOperatorQueryService;
+  private final FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
   ViewResourceRecordService(ResourceRecordSummaryQueryService resourceRecordSummaryQueryService,
@@ -45,7 +48,7 @@ public class ViewResourceRecordService {
                             FieldDisplayService fieldDisplayService,
                             IndustryTeamService industryTeamService,
                             InternalTeamService internalTeamService,
-                            FieldOperatorQueryService fieldOperatorQueryService) {
+                            FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.licenceQueryService = licenceQueryService;
@@ -54,25 +57,27 @@ public class ViewResourceRecordService {
     this.fieldDisplayService = fieldDisplayService;
     this.industryTeamService = industryTeamService;
     this.internalTeamService = internalTeamService;
-    this.fieldOperatorQueryService = fieldOperatorQueryService;
+    this.fieldOperatorAndLicenceQueryService = fieldOperatorAndLicenceQueryService;
   }
 
   public ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
     return resourceRecordSummaryQueryService.getResourceRecord(resourceId)
         .map(resourceRecordSummaryQueryResult -> new ResourceRecordSummaryView(
-                resourceRecordSummaryQueryResult.submissionDetailId(),
-                resourceRecordSummaryQueryResult.resourceName(),
-                resourceRecordSummaryQueryResult.centreOfInterestQuadBlock(),
-                resourceRecordSummaryQueryResult.licenceApplicationReference(),
-                resourceRecordSummaryQueryResult.organisationResponsibleId(),
-                getOrganisationResponsible(resourceRecordSummaryQueryResult),
-                resourceRecordSummaryQueryResult.licencesTheResourceIsOn(),
-                getLicences(resourceRecordSummaryQueryResult),
-                getResponsibleTeam(resourceRecordSummaryQueryResult),
-                fieldDisplayService.getParentFieldNameOrNoneFound(resourceRecordSummaryQueryResult.parentFieldId()),
-                resourceRecordSummaryQueryResult.fieldStatus() != null
-                    ? resourceRecordSummaryQueryResult.fieldStatus().getDisplayName()
-                    : null
+            resourceRecordSummaryQueryResult.resourceType(),
+            resourceRecordSummaryQueryResult.submissionDetailId(),
+            resourceRecordSummaryQueryResult.resourceName(),
+            resourceRecordSummaryQueryResult.centreOfInterestQuadBlock(),
+            resourceRecordSummaryQueryResult.licenceApplicationReference(),
+            resourceRecordSummaryQueryResult.prospectOrDiscoveryResponsibleOrganisationId(),
+            getOrganisationResponsible(resourceRecordSummaryQueryResult),
+            resourceRecordSummaryQueryResult.licencesTheResourceIsOn(),
+            getLicences(resourceRecordSummaryQueryResult),
+            getResponsibleTeam(resourceRecordSummaryQueryResult),
+            resourceRecordSummaryQueryResult.fieldId(),
+            fieldDisplayService.getParentFieldNameOrNoneFound(resourceRecordSummaryQueryResult.parentFieldId()),
+            resourceRecordSummaryQueryResult.fieldStatus() != null
+                ? resourceRecordSummaryQueryResult.fieldStatus().getDisplayName()
+                : null
             )
         )
         .orElseThrow(() -> new RemiEntityNotFoundException("Resource record not found for resource ID %s".formatted(resourceId)));
@@ -84,11 +89,11 @@ public class ViewResourceRecordService {
 
   private String getOrganisationResponsible(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
     if (resourceRecordSummaryQueryResult.fieldId() != null) {
-      return fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(resourceRecordSummaryQueryResult.fieldId())
+      return fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(resourceRecordSummaryQueryResult.fieldId())
           .map(OrganisationUnit::getName).orElse("");
     } else {
       return submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
-          resourceRecordSummaryQueryResult.organisationResponsibleId()
+          resourceRecordSummaryQueryResult.prospectOrDiscoveryResponsibleOrganisationId()
       );
     }
   }
@@ -113,12 +118,32 @@ public class ViewResourceRecordService {
       return true;
     }
 
-    var organisationUnitId = resourceRecord.responsibleOrganisationId();
-    var memberOfOrganisationUnit = industryTeamService.getOrganisationUnitIdsForUser(user).contains(organisationUnitId);
-
+    var industryUserTeams = industryTeamService.getOrganisationUnitIdsForUser(user);
     var resourceIsAssociatedWithAnExtantLicence = isResourceAssociatedWithAnExtantLicence(resourceRecord);
 
-    return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence && !resource.getArchived();
+    if (resourceRecord.resourceType() != ResourceType.FIELD) {
+      var organisationUnitId = resourceRecord.responsibleOrganisationId();
+
+      var memberOfOrganisationUnit = industryUserTeams.contains(organisationUnitId);
+
+      return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence && !resource.getArchived();
+    } else {
+      var field = fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(resourceRecord.fieldId());
+
+      var memberOfOrganisationUnit = field.getFieldOperator() != null
+          && industryUserTeams.contains(field.getFieldOperator().getOrganisationUnitId());
+
+      var hasExtantPearsLicence = !field.getLicences()
+          .stream()
+          .filter(licence -> licence.getLicenceStatus().equals(LicenceStatus.EXTANT))
+          .collect(Collectors.toSet())
+          .isEmpty();
+
+      return memberOfOrganisationUnit
+          && (resourceIsAssociatedWithAnExtantLicence || hasExtantPearsLicence)
+          && !resource.getArchived();
+    }
+
   }
 
   public boolean isRegulatorOrAreaTeamUser(User user) {

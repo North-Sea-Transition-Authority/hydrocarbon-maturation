@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.jooq.impl.DSL.and;
-import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.nvl;
@@ -46,14 +45,13 @@ class SubmissionWorkAreaQueryCommonService {
   List<SubmissionWorkAreaQueryResult> getWorkAreaQueryResults(List<Condition> conditions) {
 
     return context.select(
+            RESOURCES.TYPE,
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE,
             SUBMISSION_DETAILS.STATUS,
             nvl(RESOURCE_DETAILS.RESOURCE_NAME, FIELDS.CORRECTED_LEGAL_FIELD_NAME),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            coalesce(
-                RESOURCE_DETAILS.ORGANISATION_ID,
-                FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID),
+            RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAgg(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
@@ -108,14 +106,13 @@ class SubmissionWorkAreaQueryCommonService {
                 )))
         .where(conditions))
         .groupBy(
+            RESOURCES.TYPE,
             SUBMISSIONS.ID,
             SUBMISSION_DETAILS.ID,
             RESOURCE_DETAILS.RESOURCE_NAME,
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            coalesce(
-                RESOURCE_DETAILS.ORGANISATION_ID,
-                FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID),
+            RESOURCE_DETAILS.ORGANISATION_ID,
             SUBMISSION_UPDATE.ID,
             SUBMISSION_DETAILS.CORRECTION,
             FIELDS.FIELD_IDENTIFIER,

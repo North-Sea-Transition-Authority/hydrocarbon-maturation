@@ -8,7 +8,7 @@ import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.generated.client.FieldProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
 
 @Service
@@ -27,7 +27,7 @@ public class FieldLicenceQueryService {
     this.fieldApi = fieldApi;
   }
 
-  public List<LicenceView> getFieldLicencesByFieldIdentifier(Integer fieldIdentifier) {
+  public List<LicenceDto> getFieldLicencesByFieldIdentifier(Integer fieldIdentifier) {
     return fieldApi.findFieldById(
         fieldIdentifier,
             FIELD_LICENCE_PROJECTION_ROOT,
@@ -35,7 +35,7 @@ public class FieldLicenceQueryService {
             CorrelationIdUtil.getLogCorrelationId()
         ).map(Field::getLicences).orElseGet(List::of)
         .stream()
-        .map(LicenceView::fromLicence)
+        .map(LicenceDto::fromLicence)
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
   }

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.licence.FieldLicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 
@@ -28,7 +28,7 @@ public class FieldLicenceService {
     this.fieldLicenceRepository = fieldLicenceRepository;
   }
 
-  public List<LicenceView> getFieldLicenceViews(FieldForm form) {
+  public List<LicenceDto> getFieldLicenceViews(FieldForm form) {
     if (ObjectUtils.isEmpty(form.getLicences())) {
       return Collections.emptyList();
     }
@@ -42,24 +42,24 @@ public class FieldLicenceService {
    * @param field a FieldForm containing a list of licenceId's
    * @return A list of LicenceView's for the associated licences with all statuses set to null
    */
-  public List<LicenceView> getFieldLicencesViewsIgnoreStatus(Field field) {
+  public List<LicenceDto> getFieldLicencesViewsIgnoreStatus(Field field) {
     return fieldLicenceRepository.getLicencesByField(field)
         .stream()
         .map(fieldLicence ->
-            new LicenceView(fieldLicence.getPrePearsLicenceReference(), fieldLicence.getPrePearsLicenceId(), null))
+            new LicenceDto(fieldLicence.getPrePearsLicenceReference(), fieldLicence.getPrePearsLicenceId(), null))
         .toList();
   }
 
-  public List<LicenceView> getPearsLicenceList(Field field) {
+  public List<LicenceDto> getPearsLicenceList(Field field) {
     return fieldLicenceQueryService.getFieldLicencesByFieldIdentifier(field.getFieldIdentifier());
   }
 
-  public boolean fieldHasPearsLicences(List<LicenceView> pearsLicenceList) {
+  public boolean fieldHasPearsLicences(List<LicenceDto> pearsLicenceList) {
     return ObjectUtils.isNotEmpty(pearsLicenceList);
   }
 
-  public List<LicenceView> filterExtantLicences(List<LicenceView> licenceViewList) {
-    return licenceViewList.stream()
+  public List<LicenceDto> filterExtantLicences(List<LicenceDto> licenceDtoList) {
+    return licenceDtoList.stream()
         .filter(licence -> licence.licenceStatus() == LicenceStatus.EXTANT)
         .toList();
   }

@@ -27,8 +27,8 @@ import org.springframework.validation.FieldError;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -90,7 +90,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
     when(newFieldService.getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
         .thenReturn(alreadyAddedDiscovery);
 
-    var licenceViews = List.of(new LicenceView("ref", 1, LicenceStatus.EXTANT));
+    var licenceViews = List.of(new LicenceDto("ref", 1, LicenceStatus.EXTANT));
     when(fieldLicenceService.getFieldLicenceViews(any(FieldForm.class)))
         .thenReturn(licenceViews);
 

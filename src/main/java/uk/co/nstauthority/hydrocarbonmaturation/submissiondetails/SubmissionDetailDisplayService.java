@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -66,11 +66,11 @@ public class SubmissionDetailDisplayService {
         .toList();
 
     return licenceQueryService.getLicencesByIds(licences).stream()
-        .map(LicenceView::licenceRef)
+        .map(LicenceDto::licenceRef)
         .toList();
   }
 
-  public List<String> getLicencesForDisplayFromMap(Map<Integer, LicenceView> licencesMap,
+  public List<String> getLicencesForDisplayFromMap(Map<Integer, LicenceDto> licencesMap,
                                                    List<Integer> licencesTheResourceIsOn) {
     if (CollectionUtils.isEmpty(licencesTheResourceIsOn)) {
       return List.of(NOT_PROVIDED);
@@ -79,7 +79,7 @@ public class SubmissionDetailDisplayService {
     return licencesTheResourceIsOn.stream()
         .map(licencesMap::get)
         .filter(Objects::nonNull)
-        .map(LicenceView::licenceRef)
+        .map(LicenceDto::licenceRef)
         .toList();
   }
 }

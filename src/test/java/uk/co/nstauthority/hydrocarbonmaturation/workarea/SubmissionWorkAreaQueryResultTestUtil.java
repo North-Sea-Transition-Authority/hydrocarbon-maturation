@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import java.util.List;
 import java.util.UUID;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 
@@ -17,6 +18,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
 
   public static class Builder {
 
+    private ResourceType resourceType = ResourceType.PROSPECT;
     private UUID submissionDetailId = UUID.randomUUID();
     private String submissionType = "CREATE_PROSPECT";
     private String status = "DRAFT";
@@ -32,6 +34,11 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private String licenceApplicationReference = null;
 
     private Builder() {
+    }
+
+    public Builder withResourceType(ResourceType resourceType) {
+      this.resourceType = resourceType;
+      return this;
     }
 
     public Builder withSubmissionDetailId(UUID submissionDetailId) {
@@ -84,9 +91,14 @@ class SubmissionWorkAreaQueryResultTestUtil {
       return this;
     }
 
+    public Builder withFieldStatus(FieldStatus fieldStatus) {
+      this.fieldStatus = fieldStatus;
+      return this;
+    }
+
     public SubmissionWorkAreaQueryResult build() {
 
-      return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status, resourceName,
+      return new SubmissionWorkAreaQueryResult(resourceType, submissionDetailId, submissionType, status, resourceName,
           centreOfInterestQuadBlock, organisationResponsibleId, licencesTheResourceIsOn, updateRequested, isCorrection,
           fieldIdentifier, parentFieldId, fieldStatus, licenceApplicationReference);
     }

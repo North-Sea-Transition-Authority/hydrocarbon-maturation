@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
@@ -66,7 +66,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
   private final SubmissionDetailService submissionDetailService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
-  private final FieldOperatorQueryService fieldOperatorQueryService;
+  private final FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
   public FieldRegulatorManagedInformationSummaryService(
@@ -78,7 +78,7 @@ public class FieldRegulatorManagedInformationSummaryService {
       PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
       SubmissionDetailService submissionDetailService,
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-      FieldOperatorQueryService fieldOperatorQueryService
+      FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService
   ) {
     this.fieldRegulatorManagedInformationService = fieldRegulatorManagedInformationService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
@@ -88,7 +88,7 @@ public class FieldRegulatorManagedInformationSummaryService {
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
     this.submissionDetailService = submissionDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
-    this.fieldOperatorQueryService = fieldOperatorQueryService;
+    this.fieldOperatorAndLicenceQueryService = fieldOperatorAndLicenceQueryService;
   }
 
   public SummaryCard getFieldRegulatorManagedInformationSummaryCard(Resource resource) {
@@ -112,7 +112,7 @@ public class FieldRegulatorManagedInformationSummaryService {
         submissionDetailDisplayService.getOrganisationResponsibleDisplayById(field.getPrePearsOrganisationId())
     );
 
-    var fieldOperator = fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier());
+    var fieldOperator = fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier());
 
     fieldOperator.ifPresent(organisationUnit -> summaryDataView.addKeyValue(
         RESPONSIBLE_ORGANISATION,
@@ -238,11 +238,11 @@ public class FieldRegulatorManagedInformationSummaryService {
   }
 
   @VisibleForTesting
-  List<String> getLicenceDisplayNames(List<LicenceView> licenceList) {
+  List<String> getLicenceDisplayNames(List<LicenceDto> licenceList) {
     return licenceList
         .stream()
         .sorted(new LicenceViewByReferenceComparator())
-        .map(LicenceView::licenceRef)
+        .map(LicenceDto::licenceRef)
         .toList();
   }
 }

@@ -190,16 +190,24 @@ public class SubmissionDetailService {
           getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());
       case POST_DRILL_DRY_HOLE, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
           getLatestApprovedProspectSubmissionForResource(submissionDetail.getSubmission().getResource());
-      case CREATE_DISCOVERY_FROM_PROSPECT -> resourceLinkService
+      case CREATE_DISCOVERY_FROM_PROSPECT -> getLatestCreateDiscoveryFromProspectSubmissionDetail(submissionDetail);
+      case CREATE_PROSPECT, CREATE_DISCOVERY, CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
+          Optional.of(submissionDetail);
+    };
+  }
+
+  public Optional<SubmissionDetail> getLatestCreateDiscoveryFromProspectSubmissionDetail(SubmissionDetail submissionDetail) {
+    if (submissionDetail.getStatus().equals(SubmissionDetailStatus.ACCEPTED)) {
+      return getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());
+    } else {
+      return resourceLinkService
           .getResourceLinksByDiscovery(submissionDetail.getSubmission().getResource())
           .stream()
           .map(ResourceLink::getProspectResource)
           .map(this::getLatestApprovedProspectSubmissionForResource)
           .flatMap(Optional::stream)
           .min(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
-      case CREATE_PROSPECT, CREATE_DISCOVERY, CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
-          Optional.of(submissionDetail);
-    };
+    }
   }
 
   public boolean isLatestSubmissionDetailForSubmissionWithStatuses(

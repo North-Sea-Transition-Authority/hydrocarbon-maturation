@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -33,7 +33,7 @@ class OperatorResourceAccessInterceptorRuleTest {
   @Mock
   private ResourceAccessService resourceAccessService;
   @Mock
-  private FieldOperatorQueryService fieldOperatorQueryService;
+  private FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @InjectMocks
   private OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
@@ -75,7 +75,7 @@ class OperatorResourceAccessInterceptorRuleTest {
     field.setFieldIdentifier(fieldId);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
-    when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(fieldId))
+    when(fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(fieldId))
         .thenReturn(Optional.of(organisationUnit));
     when(resourceAccessService.userHasAccessToResourceForOrganisation(
         user,
@@ -127,7 +127,7 @@ class OperatorResourceAccessInterceptorRuleTest {
     field.setFieldIdentifier(fieldId);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
-    when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(fieldId))
+    when(fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(fieldId))
         .thenReturn(Optional.empty());
     var securityRuleResult = operatorTeamMembershipInterceptorRule
         .hasRequiredResourceAccessPermissions(

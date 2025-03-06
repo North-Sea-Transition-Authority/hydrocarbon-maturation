@@ -33,24 +33,24 @@ public class LicenceQueryService {
     this.licenceApi = licenceApi;
   }
 
-  public List<LicenceView> getLicencesByReferenceAndStatus(String searchReference, LicenceStatus licenceStatus) {
+  public List<LicenceDto> getLicencesByReferenceAndStatus(String searchReference, LicenceStatus licenceStatus) {
     return getLicenceListBy(searchReference)
         .stream()
         .filter(licence -> licence.getLicenceStatus() == licenceStatus)
-        .map(LicenceView::fromLicence)
+        .map(LicenceDto::fromLicence)
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
   }
 
-  public List<LicenceView> getLiveLicencesBy(String searchReference) {
+  public List<LicenceDto> getLiveLicencesBy(String searchReference) {
     return getLicenceListBy(searchReference)
         .stream()
-        .map(LicenceView::fromLicence)
+        .map(LicenceDto::fromLicence)
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
   }
 
-  public List<LicenceView> getLicencesByIds(List<String> searchIdStrings) {
+  public List<LicenceDto> getLicencesByIds(List<String> searchIdStrings) {
     var searchIds = searchIdStrings.stream()
         .map(Integer::parseInt)
         .distinct()
@@ -61,13 +61,13 @@ public class LicenceQueryService {
         .toList();
   }
 
-  public Map<Integer, LicenceView> getLicenceMapByIds(List<Integer> licences) {
+  public Map<Integer, LicenceDto> getLicenceMapByIds(List<Integer> licences) {
     return findLicencesByIds(licences).stream()
         .filter(Objects::nonNull)
-        .collect(Collectors.toMap(LicenceView::licenceId, Function.identity()));
+        .collect(Collectors.toMap(LicenceDto::licenceId, Function.identity()));
   }
 
-  public List<LicenceView> getExtantLicencesByIds(List<String> searchIdStrings) {
+  public List<LicenceDto> getExtantLicencesByIds(List<String> searchIdStrings) {
     var idList = NumberUtil.toListOfIntegers(searchIdStrings);
 
     return findLicencesByIds(idList).stream()
@@ -77,7 +77,7 @@ public class LicenceQueryService {
         .toList();
   }
 
-  public Optional<LicenceView> getLicenceById(Integer licenceId) {
+  public Optional<LicenceDto> getLicenceById(Integer licenceId) {
     return findLicence(licenceId);
   }
 
@@ -85,23 +85,23 @@ public class LicenceQueryService {
     return licenceStatus == LicenceStatus.EXTANT;
   }
 
-  private Optional<LicenceView> findLicence(Integer licenceId) {
+  private Optional<LicenceDto> findLicence(Integer licenceId) {
     return licenceApi.findLicence(
             licenceId,
             LICENCE_PROJECTION_ROOT,
             new RequestPurpose("Find licence by ID"),
             CorrelationIdUtil.getLogCorrelationId())
-        .map(LicenceView::fromLicence);
+        .map(LicenceDto::fromLicence);
   }
 
-  private List<LicenceView> findLicencesByIds(List<Integer> licenceIds) {
+  private List<LicenceDto> findLicencesByIds(List<Integer> licenceIds) {
     return licenceApi.searchLicencesById(
                 licenceIds,
                 LICENCES_PROJECTION_ROOT,
                 new RequestPurpose("Find licences by IDs"),
                 CorrelationIdUtil.getLogCorrelationId())
         .stream()
-        .map(LicenceView::fromLicence)
+        .map(LicenceDto::fromLicence)
         .toList();
   }
 

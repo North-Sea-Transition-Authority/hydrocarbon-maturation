@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionDe
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -80,7 +80,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected FieldPersistenceService fieldPersistenceService;
 
   @MockBean
-  protected FieldOperatorQueryService fieldOperatorQueryService;
+  protected FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
   protected OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
@@ -198,7 +198,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
     var organisationUnit = mock(OrganisationUnit.class);
-    when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier()))
+    when(fieldOperatorAndLicenceQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier()))
         .thenReturn(Optional.of(organisationUnit));
     when(resourceAccessService.userHasAccessToResourceForOrganisation(
         eq(user),

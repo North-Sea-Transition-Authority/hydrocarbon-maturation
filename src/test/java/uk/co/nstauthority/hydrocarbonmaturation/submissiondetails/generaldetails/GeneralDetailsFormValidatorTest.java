@@ -27,8 +27,8 @@ import org.springframework.validation.BindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
@@ -261,8 +261,8 @@ class GeneralDetailsFormValidatorTest {
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     when(licenceQueryService.getLicencesByIds(List.of("1", "2")))
         .thenReturn(List.of(
-            new LicenceView("Licence1", 1, LicenceStatus.EXTANT),
-            new LicenceView("Licence2", 2, LicenceStatus.SURRENDERED)));
+            new LicenceDto("Licence1", 1, LicenceStatus.EXTANT),
+            new LicenceDto("Licence2", 2, LicenceStatus.SURRENDERED)));
 
 
     var bindingResult = validateOffshoreGeneralDetailsForm(form, validationType);
@@ -282,8 +282,8 @@ class GeneralDetailsFormValidatorTest {
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     when(licenceQueryService.getLicencesByIds(List.of("1", "2")))
         .thenReturn(List.of(
-            new LicenceView("Licence1", 1, LicenceStatus.EXTANT),
-            new LicenceView("Licence2", 2, LicenceStatus.SURRENDERED)));
+            new LicenceDto("Licence1", 1, LicenceStatus.EXTANT),
+            new LicenceDto("Licence2", 2, LicenceStatus.SURRENDERED)));
 
 
     var bindingResult = validateOffshoreGeneralDetailsForm(form, validationType);

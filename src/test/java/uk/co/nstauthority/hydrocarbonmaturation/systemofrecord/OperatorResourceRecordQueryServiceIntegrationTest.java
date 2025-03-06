@@ -28,8 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -71,138 +71,6 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @MockBean
   private LicenceQueryService licenceQueryService;
-
-  @ParameterizedTest
-  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "INDUSTRY_VIEWER"})
-  void getProspectAndDiscoveryRecordSearchResults_whenUserNotRegulator_assertOnlyUserTeamsResourcesDisplayedAndAssertValues(
-      Role role) {
-    var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(role), List.of(organisationUnitIdUserIsInGroupFor));
-
-    var resourceUserIsResponsibleFor = buildProspectResource();
-    var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsResponsibleFOr = "The resource name A";
-    var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor, null);
-    createResourceDetail(
-        submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsInGroupFor);
-    createProspectAndDiscoveryLicence(1, "not relevant", generalDetailUserIsResponsibleFor);
-
-    var resourceUserIsNotResponsibleFor = buildProspectResource();
-    var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsNotResponsibleFor = "The resource name B";
-    var organisationIdUserIsNotResponsibleFor = 48;
-    var generalDetailUserNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor, null);
-    createResourceDetail(
-        submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor);
-    createProspectAndDiscoveryLicence(1, "not relevant", generalDetailUserNotResponsibleFor);
-    when(licenceQueryService.getExtantLicencesByIds(any()))
-        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
-    var form = new SearchResourceRecordsForm();
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-    if (role == Role.MANAGE_TEAM) {
-      assertThat(results).isEmpty();
-    } else {
-      assertThat(results)
-          .extracting(
-              ResourceRecordQueryResult::submissionDetailId,
-              ResourceRecordQueryResult::prePearsOrganisationId
-          )
-          .containsExactly(
-              tuple(
-                  submissionUserIsResponsibleFor.getId(),
-                  organisationUnitIdUserIsInGroupFor
-              )
-          );
-    }
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "INDUSTRY_VIEWER"})
-  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenUserNotInAnyTeams_assertEmpty(
-      Role role) {
-    var organisationUnitIdUserIsNotIn = 46;
-    setUpIndustryTest(Set.of(role), List.of());
-
-    var resourceUserIsResponsibleFor = buildProspectResource();
-    var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsResponsibleFOr = "The resource name A";
-    createGeneralDetail(submissionUserIsResponsibleFor, null);
-    createResourceDetail(
-        submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsNotIn);
-
-    var resourceUserIsNotResponsibleFor = buildProspectResource();
-    var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsNotResponsibleFor = "The resource name B";
-    var organisationIdUserIsNotResponsibleFor2 = 48;
-    createGeneralDetail(submissionUserIsNotResponsibleFor, null);
-    createResourceDetail(
-        submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor2);
-
-    var form = new SearchResourceRecordsForm();
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-    assertThat(results).isEmpty();
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "INDUSTRY_VIEWER"})
-  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasAllRoles_assertDisplayed(Role role) {
-    var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(role), List.of(organisationUnitIdUserIsInGroupFor));
-
-    var resourceUserIsResponsibleFor = buildProspectResource();
-    var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsResponsibleFOr = "The resource name A";
-    var licenceApplicationReferenceResponsibleFor = "RT9";
-    var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor,
-        licenceApplicationReferenceResponsibleFor);
-    createResourceDetail(
-        submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsInGroupFor);
-    var extantLicenceId = 1;
-
-    var extantLicence = createProspectAndDiscoveryLicence(extantLicenceId, "licenceRef", generalDetailUserIsResponsibleFor);
-
-    var resourceUserIsNotResponsibleFor = buildProspectResource();
-    var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsNotResponsibleFor = "The resource name B";
-    var organisationIdUserIsNotResponsibleFor = 48;
-    var licenceApplicationReferenceNotResponsibleFor = "RT10";
-    var generalDetailUserIsNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor,
-        licenceApplicationReferenceNotResponsibleFor);
-    createResourceDetail(
-        submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor);
-
-    createProspectAndDiscoveryLicence(extantLicenceId, "licenceRef", generalDetailUserIsNotResponsibleFor);
-    when(licenceQueryService.getExtantLicencesByIds(any()))
-        .thenReturn(List.of(new LicenceView(
-            extantLicence.getLicenceReference(),
-            extantLicenceId,
-            LicenceStatus.EXTANT)));
-
-    var form = new SearchResourceRecordsForm();
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-    assertThat(results)
-        .extracting(
-            ResourceRecordQueryResult::submissionDetailId,
-            ResourceRecordQueryResult::prePearsOrganisationId,
-            ResourceRecordQueryResult::licenceApplicationReference
-        )
-        .containsExactly(
-            tuple(
-                submissionUserIsResponsibleFor.getId(),
-                organisationUnitIdUserIsInGroupFor,
-                licenceApplicationReferenceResponsibleFor
-            )
-        );
-  }
 
   @Test
   void getProspectAndDiscoveryRecordSearchResults_whenIncompleteResourceName_assertOrderedResultsAllContainTextIgnoreCasing() {
@@ -246,7 +114,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.getEnumName(), ResourceType.DISCOVERY.getEnumName()));
     form.setResourceNameFromResourceDetail("Resourc");
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::resourceName
@@ -254,81 +122,6 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .containsExactly(
             resourceName2, resourceName1
         );
-  }
-
-  @Test
-  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasSubmitterAndViewer_andOnExtantLicence_assertDisplayed() {
-    var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
-
-    var resourceUserIsResponsibleFor = buildProspectResource();
-    var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsResponsibleFOr = "The resource name A";
-    var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor, null);
-    createResourceDetail(
-        submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsInGroupFor);
-    var extantLicenceId = 1;
-
-    var extantLicence = createProspectAndDiscoveryLicence(extantLicenceId, "licenceRef", generalDetailUserIsResponsibleFor);
-
-    var resourceUserIsNotResponsibleFor = buildProspectResource();
-    var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
-    var resourceNameUserIsNotResponsibleFor = "The resource name B";
-    var organisationIdUserIsNotResponsibleFor = 48;
-    var nonExtantLicenceId = 2;
-    var generalDetailUserIsNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor, null);
-    createResourceDetail(
-        submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor);
-    var nonExtantLicence = createProspectAndDiscoveryLicence(nonExtantLicenceId, "licenceRef", generalDetailUserIsNotResponsibleFor);
-
-    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
-        .thenReturn(List.of(
-            new LicenceView(extantLicence.getLicenceReference(), extantLicenceId, LicenceStatus.EXTANT),
-            new LicenceView(nonExtantLicence.getLicenceReference(), nonExtantLicenceId, LicenceStatus.EXTANT)));
-
-    var form = new SearchResourceRecordsForm();
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-    assertThat(results)
-        .extracting(
-            ResourceRecordQueryResult::submissionDetailId,
-            ResourceRecordQueryResult::prePearsOrganisationId)
-        .containsExactly(
-            tuple(
-                submissionUserIsResponsibleFor.getId(),
-                organisationUnitIdUserIsInGroupFor
-            )
-        );
-  }
-
-  @Test
-  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenUserSubmitterAndViewer_andNotOnAlicenceAndNotExtant_assertNoneDisplayed() {
-    var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
-
-    var resourceWithoutLicence = buildProspectResource();
-    var submissionWithoutLicence =
-        buildSubmissionDetail(resourceWithoutLicence, SubmissionType.CREATE_PROSPECT, null);
-    createGeneralDetail(submissionWithoutLicence, null);
-    createResourceDetail(
-        submissionWithoutLicence, "Not relevant name", organisationUnitIdUserIsInGroupFor);
-
-    var resourceWithNotExtantLicence = buildProspectResource();
-    var submissionWithNotExtantLicence =
-        buildSubmissionDetail(resourceWithNotExtantLicence, SubmissionType.CREATE_PROSPECT, null);
-    var nonExtantLicenceId = 2;
-    var generalDetailWithNonExtantLicence = createGeneralDetail(submissionWithNotExtantLicence, null);
-    createResourceDetail(
-        submissionWithNotExtantLicence, "Not relevant name", organisationUnitIdUserIsInGroupFor);
-    var notExtantLicence = createProspectAndDiscoveryLicence(nonExtantLicenceId, "licenceRef", generalDetailWithNonExtantLicence);
-    when(licenceQueryService.getExtantLicencesByIds(List.of(notExtantLicence.getLicenceId().toString())))
-        .thenReturn(List.of());
-    var form = new SearchResourceRecordsForm();
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-    assertThat(results).isEmpty();
   }
 
   @ParameterizedTest
@@ -347,7 +140,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailWithGeographicalArea = createGeneralDetail(submissionWithGeographicalArea, null);
     var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetailWithGeographicalArea);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var resourceWithOnshoreGeographicalArea = buildProspectResource();
     buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE, ResponsibleTeamType.EXPLORATION);
@@ -358,7 +151,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailWithOnshoreGeographicalArea = createGeneralDetail(submissionWithOnshoreGeographicalArea, null);
     var extantLicence2 = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetailWithOnshoreGeographicalArea);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var resourceWithNoGeographicalArea = buildProspectResource();
     buildRegulatorManagedInformation(resourceWithNoGeographicalArea, null, ResponsibleTeamType.EXPLORATION);
@@ -369,12 +162,12 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         submissionWithNoGeographicalArea, "Not relevant name", userOrgUnitId);
     var extantLicence3 = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetailWithNoGeographicalArea);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence3.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var form = new SearchResourceRecordsForm();
     form.setGeographicalArea(List.of(geographicalArea.name()));
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     if (geographicalArea == GeographicalArea.ONSHORE) {
       assertThat(results)
           .extracting(
@@ -410,7 +203,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var preferredViewGeneralDetail = createGeneralDetail(preferredViewSubmissionDetail, null);
     var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var nonPreferredViewResource = buildProspectResource();
     var nonPreferredSubmissionDetail =
@@ -421,12 +214,12 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var nonPreferredGeneralDetail = createGeneralDetail(nonPreferredSubmissionDetail, null);
     var extantLicence2 = createProspectAndDiscoveryLicence(1, "licenceRef", nonPreferredGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(showOnlyPreferredView);
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId)
@@ -459,11 +252,11 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission, null);
     var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     if (BooleanUtils.isTrue(withdrawn)) {
       assertThat(results).isEmpty();
@@ -488,7 +281,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(archivedSubmission, "Not relevant name", organisationUnitIdUserIsInGroupFor);
     var archivedExtantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", archivedGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(archivedExtantLicence.getLicenceId().toString())))
-            .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+            .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
 
     var nonArchivedResource = buildProspectResource();
@@ -497,12 +290,12 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(nonArchivedSubmission, "Not relevant name", organisationUnitIdUserIsInGroupFor);
     var nonArchivedextantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", nonArchivedGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(nonArchivedextantLicence.getLicenceId().toString())))
-            .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+            .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var form = new SearchResourceRecordsForm();
     form.setShowArchivedResources(true);
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results).extracting(
                     ResourceRecordQueryResult::submissionDetailId)
             .containsExactly(
@@ -522,7 +315,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setFieldNameForResourceSubmission("JH Fiel");
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
     var fieldNames = List.of("JH Field", "jh Field 2", "JH Field With More Text");
     assertThat(results)
@@ -546,130 +339,6 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createFieldLicence(1, "relevant", field);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
-  }
-
-
-  @Test
-  void getFieldRecordsSearchResults_asIndustryInResponsibleOrganisation_assertOnlyUserTeamsResourcesDisplayedAndAssertValues() {
-    var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
-
-    var resourceUserIsResponsibleFor = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
-    var fixedInstant = Instant.parse("2022-12-03T10:15:30.00Z");
-    buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_CSR, fixedInstant);
-    var resourceNameUserIsResponsibleFor = "Field A";
-    var regulatorManagedInformationUserIsResponsibleFor = SubmissionIntegrationTestUtils
-        .createRegulatorManagedInformation(resourceUserIsResponsibleFor, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
-    var fieldUserIsResponsibleFor = SubmissionIntegrationTestUtils
-        .createFieldWithParent(resourceUserIsResponsibleFor, resourceNameUserIsResponsibleFor, organisationUnitIdUserIsInGroupFor, entityManager);
-    var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(fieldUserIsResponsibleFor, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
-    createFieldLicence(1, "relevant", fieldUserIsResponsibleFor);
-
-    var resourceUserIsNotResponsibleFor =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
-    buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_CSR, null);
-    var resourceNameUserIsNotResponsibleFor = "The resource name B";
-    var organisationIdUserIsNotResponsibleFor = 48;
-    SubmissionIntegrationTestUtils.createRegulatorManagedInformation(resourceUserIsNotResponsibleFor,
-        ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.CENTRAL_NORTH_SEA,
-        entityManager);
-    var fieldUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
-        .createFieldWithParent(resourceUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor, entityManager);
-    SubmissionIntegrationTestUtils.createFieldStatusHistory(fieldUserIsNotResponsibleFor, FieldStatus.STATUS_300,
-        LocalDate.now(), entityManager);
-    createFieldLicence(2, "not relevant", fieldUserIsNotResponsibleFor);
-    when(licenceQueryService.getExtantLicencesByIds(any()))
-        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
-
-    var form = new SearchResourceRecordsForm();
-    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-
-    assertThat(results)
-        .extracting(
-            ResourceRecordQueryResult::resourceId,
-            ResourceRecordQueryResult::resourceType,
-            ResourceRecordQueryResult::resourceName,
-            ResourceRecordQueryResult::prePearsOrganisationId,
-            ResourceRecordQueryResult::responsibleTeam,
-            ResourceRecordQueryResult::parentFieldName,
-            ResourceRecordQueryResult::fieldStatus,
-            ResourceRecordQueryResult::submissionAcceptedTimestamp
-        )
-        .containsExactly(
-            tuple(
-                resourceUserIsResponsibleFor.getId(),
-                ResourceType.FIELD,
-                resourceNameUserIsResponsibleFor,
-                organisationUnitIdUserIsInGroupFor,
-                regulatorManagedInformationUserIsResponsibleFor.getResponsibleTeamType(),
-                fieldUserIsResponsibleFor.getParentDeterminedField().getCorrectedLegalFieldName(),
-                fieldStatusHistoryForResponsibleField.getFieldStatus(),
-                fixedInstant
-            )
-        );
-  }
-
-  @Test
-  void getFieldRecordsSearchResults_asIndustryInResponsibleOrganisation_assertOnlyResourcesOnExtantLicencesDisplayedAndAssertValues() {
-    var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
-
-    var resource1 = buildFieldResource();
-    buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR, null);
-    var resourceName1 = "Field A";
-    var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
-        .createRegulatorManagedInformation(resource1, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
-    var field1 = SubmissionIntegrationTestUtils
-        .createFieldWithParent(resource1, resourceName1, organisationUnitIdUserIsInGroupFor, entityManager);
-    var fieldStatusHistoryForField1 = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
-    createFieldLicence(1, "relevant", field1);
-
-    var resource2 =  buildFieldResource();
-    buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR, null);
-    var resourceName2 = "The resource name B";
-    SubmissionIntegrationTestUtils.createRegulatorManagedInformation(resource2,
-        ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.NORTHERN_NORTH_SEA,
-        entityManager);
-    var field2 = SubmissionIntegrationTestUtils
-        .createFieldWithParent(resource2, resourceName2, organisationUnitIdUserIsInGroupFor, entityManager);
-    SubmissionIntegrationTestUtils.createFieldStatusHistory(field2, FieldStatus.STATUS_300, LocalDate.now(),
-        entityManager);
-    // no licence created for second result
-
-    when(licenceQueryService.getExtantLicencesByIds(any()))
-        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
-
-    var form = new SearchResourceRecordsForm();
-    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
-
-    assertThat(results)
-        .extracting(
-            ResourceRecordQueryResult::resourceId,
-            ResourceRecordQueryResult::resourceType,
-            ResourceRecordQueryResult::resourceName,
-            ResourceRecordQueryResult::prePearsOrganisationId,
-            ResourceRecordQueryResult::responsibleTeam,
-            ResourceRecordQueryResult::parentFieldName,
-            ResourceRecordQueryResult::fieldStatus,
-            ResourceRecordQueryResult::archived
-        )
-        .containsExactly(
-            tuple(
-                resource1.getId(),
-                ResourceType.FIELD,
-                resourceName1,
-                organisationUnitIdUserIsInGroupFor,
-                regulatorManagedInformation1.getResponsibleTeamType(),
-                field1.getParentDeterminedField().getCorrectedLegalFieldName(),
-                fieldStatusHistoryForField1.getFieldStatus(),
-                false
-            )
-        );
   }
 
   @Test
@@ -706,13 +375,13 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setShowArchivedResources(true);
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
             .extracting(
                     ResourceRecordQueryResult::resourceId,
                     ResourceRecordQueryResult::resourceType,
                     ResourceRecordQueryResult::resourceName,
-                    ResourceRecordQueryResult::prePearsOrganisationId,
+                    ResourceRecordQueryResult::prospectOrDiscoveryOrganisationId,
                     ResourceRecordQueryResult::responsibleTeam,
                     ResourceRecordQueryResult::parentFieldName,
                     ResourceRecordQueryResult::fieldStatus,
@@ -723,7 +392,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                             nonArchivedResource.getId(),
                             ResourceType.FIELD,
                             nonArchivedResourceName,
-                            organisationUnitIdUserIsInGroupFor,
+                            null,
                             nonArchivedRegulatorManagedInformation.getResponsibleTeamType(),
                             nonArchivedField.getParentDeterminedField().getCorrectedLegalFieldName(),
                             fieldStatusHistoryForNonArchivedField.getFieldStatus(),

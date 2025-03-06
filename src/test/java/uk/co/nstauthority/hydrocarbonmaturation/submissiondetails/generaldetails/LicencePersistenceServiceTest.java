@@ -15,9 +15,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +46,7 @@ class LicencePersistenceServiceTest {
             .withLicenceId(25)
             .withLicenceRef("ref")
             .build();
-    var licenceView = new LicenceView(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
+    var licenceView = new LicenceDto(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
 
     when(licenceQueryService.getLicencesByIds(licenceIds))
         .thenReturn(List.of(licenceView));

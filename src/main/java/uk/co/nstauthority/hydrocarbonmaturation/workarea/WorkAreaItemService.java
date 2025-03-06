@@ -6,13 +6,14 @@ import com.google.common.base.Stopwatch;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorAndLicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -25,6 +26,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
@@ -37,7 +41,9 @@ class WorkAreaItemService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
   private final MetricsProvider metricsProvider;
-  private final FieldOperatorQueryService fieldOperatorQueryService;
+  private final FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
+  private final IndustryTeamService industryTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   WorkAreaItemService(SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory,
@@ -47,7 +53,9 @@ class WorkAreaItemService {
                       OrganisationUnitQueryService organisationUnitQueryService,
                       LicenceQueryService licenceQueryService,
                       MetricsProvider metricsProvider,
-                      FieldOperatorQueryService fieldOperatorQueryService
+                      FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService,
+                      IndustryTeamService industryTeamService,
+                      InternalTeamService internalTeamService
   ) {
     this.submissionWorkAreaServiceFactory = submissionWorkAreaServiceFactory;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
@@ -56,7 +64,9 @@ class WorkAreaItemService {
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
     this.metricsProvider = metricsProvider;
-    this.fieldOperatorQueryService = fieldOperatorQueryService;
+    this.fieldOperatorAndLicenceQueryService = fieldOperatorAndLicenceQueryService;
+    this.industryTeamService = industryTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
   List<WorkAreaItem> getWorkAreaItems(User user) {
@@ -68,20 +78,57 @@ class WorkAreaItemService {
     var elapsedMs = checkStopWatch.elapsed(TimeUnit.MILLISECONDS);
     metricsProvider.getWorkAreaQueryTimer().record(elapsedMs, TimeUnit.MILLISECONDS);
 
-    var organisationUnitIds = getOrganisationUnitIdsFromResults(workAreaSubmissionItems);
-    var organisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(organisationUnitIds);
+    var prospectOrDiscoveryOrganisationUnitIds = getProspectOrDiscoveryOrganisationUnitIdsFromResults(workAreaSubmissionItems);
+    var prospectOrDiscoveryOrganisationUnitMap =
+        organisationUnitQueryService.getOrganisationUnitMapByIds(prospectOrDiscoveryOrganisationUnitIds);
 
     var fieldOperatorMap = getFieldOperatorOrganisationUnitDtos(workAreaSubmissionItems);
 
     var licences = getLicencesFromResults(workAreaSubmissionItems);
     var licenceMap = licenceQueryService.getLicenceMapByIds(licences);
 
-    return workAreaSubmissionItems.stream()
+    List<SubmissionWorkAreaQueryResult> userFilteredWorkAreaItems;
+
+    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
+      userFilteredWorkAreaItems = workAreaSubmissionItems;
+    } else {
+      var userOrganisationUnits = industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT));
+
+      userFilteredWorkAreaItems = workAreaSubmissionItems
+          .stream()
+          .filter(item ->
+              prospectOrDiscoveryOrganisationPredicate(item, userOrganisationUnits)
+                  || fieldOrganisationPredicate(item, userOrganisationUnits, fieldOperatorMap)
+          )
+          .toList();
+    }
+
+    return userFilteredWorkAreaItems.stream()
         .map(submissionWorkAreaQueryResult ->
-            getWorkAreaItem(submissionWorkAreaQueryResult, organisationUnitMap, licenceMap, fieldOperatorMap))
+            getWorkAreaItem(
+                submissionWorkAreaQueryResult,
+                prospectOrDiscoveryOrganisationUnitMap,
+                licenceMap,
+                fieldOperatorMap
+            )
+        )
         .toList();
   }
 
+  private boolean prospectOrDiscoveryOrganisationPredicate(SubmissionWorkAreaQueryResult result,
+                                                           List<Integer> userOrganisationUnits) {
+    return (result.getResourceType().equals(ResourceType.PROSPECT)
+        || result.getResourceType().equals(ResourceType.DISCOVERY))
+            && userOrganisationUnits.contains(result.getProspectOrDiscoveryOrganisationResponsibleId());
+  }
+
+  private boolean fieldOrganisationPredicate(SubmissionWorkAreaQueryResult result,
+                                             List<Integer> userOrganisationUnits,
+                                             Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
+    return result.getResourceType().equals(ResourceType.FIELD)
+        && fieldOperatorMap.containsKey(result.getFieldIdentifier())
+        && userOrganisationUnits.contains(fieldOperatorMap.get(result.getFieldIdentifier()).organisationUnitId());
+  }
 
   private List<Integer> getLicencesFromResults(List<SubmissionWorkAreaQueryResult> workAreaSubmissionItems) {
     return workAreaSubmissionItems.stream()
@@ -92,9 +139,11 @@ class WorkAreaItemService {
         .toList();
   }
 
-  private List<Integer> getOrganisationUnitIdsFromResults(List<SubmissionWorkAreaQueryResult> workAreaSubmissionItems) {
+  private List<Integer> getProspectOrDiscoveryOrganisationUnitIdsFromResults(
+      List<SubmissionWorkAreaQueryResult> workAreaSubmissionItems
+  ) {
     return workAreaSubmissionItems.stream()
-        .map(SubmissionWorkAreaQueryResult::getOrganisationResponsibleId)
+        .map(SubmissionWorkAreaQueryResult::getProspectOrDiscoveryOrganisationResponsibleId)
         .filter(Objects::nonNull)
         .distinct()
         .toList();
@@ -109,7 +158,7 @@ class WorkAreaItemService {
         .toList();
 
     if (!fieldIds.isEmpty()) {
-      return fieldOperatorQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
+      return fieldOperatorAndLicenceQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
           .collect(
               StreamUtil.toLinkedHashMap(
                   Map.Entry::getKey,
@@ -123,7 +172,7 @@ class WorkAreaItemService {
 
   private WorkAreaItem getWorkAreaItem(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult,
                                        Map<Integer, OrganisationUnitDto> organisationUnitMap,
-                                       Map<Integer, LicenceView> licenceMap,
+                                       Map<Integer, LicenceDto> licenceMap,
                                        Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
     return new WorkAreaItem(
         WorkAreaItemType.SUBMISSION,
@@ -158,10 +207,10 @@ class WorkAreaItemService {
 
   private WorkAreaItemModelProperties getWorkAreaItemModelProperties(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult,
                                                                      Map<Integer, OrganisationUnitDto> organisationUnitMap,
-                                                                     Map<Integer, LicenceView> licenceMap,
+                                                                     Map<Integer, LicenceDto> licenceMap,
                                                                      Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
     var fieldId = submissionWorkAreaQueryResult.getFieldIdentifier();
-    var organisationResponsibleId = submissionWorkAreaQueryResult.getOrganisationResponsibleId();
+    var organisationResponsibleId = submissionWorkAreaQueryResult.getProspectOrDiscoveryOrganisationResponsibleId();
     var licencesTheResourceIsOn = submissionWorkAreaQueryResult.getLicencesTheResourceIsOn();
     var fieldStatus = submissionWorkAreaQueryResult.getFieldStatus() != null
         ? submissionWorkAreaQueryResult.getFieldStatus().getDisplayName()

@@ -178,8 +178,21 @@ class UndevelopedDiscoveryRemoveInformationControllerTest extends AbstractUndeve
     undevelopedDiscoveryInformation.setInformationDate(LocalDate.of(2002, 1, 11));
     undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
-
-    var resourceRecord = new ResourceRecordSummaryView(null, "name", "coi", "RT9", null, null, null, null, null, null, null);
+    var resourceType = ResourceType.DISCOVERY;
+    var resourceRecord = new ResourceRecordSummaryView(
+        resourceType,
+        null,
+        "name",
+        "coi",
+        "RT9",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null);
 
     var expectedBanner = NotificationBanner.builder()
         .withBannerType(NotificationBannerType.SUCCESS)
@@ -188,7 +201,7 @@ class UndevelopedDiscoveryRemoveInformationControllerTest extends AbstractUndeve
             "The undeveloped discovery information entry for 'name' on date '11 January 2002' has been deleted.")
         .build();
 
-    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, resourceType))
         .thenReturn(resource);
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
         .thenReturn(undevelopedDiscovery);

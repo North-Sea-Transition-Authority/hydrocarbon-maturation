@@ -19,8 +19,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.licence.FieldLicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
@@ -40,8 +40,8 @@ class FieldLicenceServiceTest {
   void getFieldLicences_whenLicencesAdded() {
     var form = new FieldForm();
     form.setLicences(List.of("ref", "ref2"));
-    var licence1 = new LicenceView("ref", 1, LicenceStatus.EXTANT);
-    var licence2 = new LicenceView("ref2", 2, LicenceStatus.EXTANT);
+    var licence1 = new LicenceDto("ref", 1, LicenceStatus.EXTANT);
+    var licence2 = new LicenceDto("ref2", 2, LicenceStatus.EXTANT);
 
     when(licenceQueryService.getLicencesByIds(form.getLicences()))
         .thenReturn(List.of(licence1, licence2));
@@ -50,9 +50,9 @@ class FieldLicenceServiceTest {
 
     assertThat(selectorViews)
         .extracting(
-            LicenceView::getId,
-            LicenceView::getName,
-            LicenceView::licenceStatus)
+            LicenceDto::getId,
+            LicenceDto::getName,
+            LicenceDto::licenceStatus)
         .containsExactly(
             tuple("1", "ref", LicenceStatus.EXTANT),
             tuple("2", "ref2", LicenceStatus.EXTANT)
@@ -80,9 +80,9 @@ class FieldLicenceServiceTest {
 
     assertThat(selectorViews)
         .extracting(
-            LicenceView::getId,
-            LicenceView::getName,
-            LicenceView::licenceStatus)
+            LicenceDto::getId,
+            LicenceDto::getName,
+            LicenceDto::licenceStatus)
         .containsExactly(
             tuple("1", "ref 1", null),
             tuple("2", "ref 2", null)
@@ -100,8 +100,8 @@ class FieldLicenceServiceTest {
   void areAllExtantLicences_andTheyAre_thenTrue() {
     var references = Mockito.mock(List.class);
 
-    var extantLicence1 = new LicenceView("ref 1", 1, LicenceStatus.EXTANT);
-    var extantLicence2 = new LicenceView("ref 2", 2, LicenceStatus.EXTANT);
+    var extantLicence1 = new LicenceDto("ref 1", 1, LicenceStatus.EXTANT);
+    var extantLicence2 = new LicenceDto("ref 2", 2, LicenceStatus.EXTANT);
     var extantLicences = List.of(extantLicence1, extantLicence2);
     when(licenceQueryService.getLicencesByIds(references))
         .thenReturn(extantLicences);
@@ -113,8 +113,8 @@ class FieldLicenceServiceTest {
   void areAllExtantLicences_andTheyAreNot_thenFalse() {
     var references = Mockito.mock(List.class);
 
-    var extantLicence1 = new LicenceView("ref 1", 1, LicenceStatus.EXTANT);
-    var extantLicence2 = new LicenceView("ref 2", 2, LicenceStatus.EXPIRED);
+    var extantLicence1 = new LicenceDto("ref 1", 1, LicenceStatus.EXTANT);
+    var extantLicence2 = new LicenceDto("ref 2", 2, LicenceStatus.EXPIRED);
     var extantLicences = List.of(extantLicence1, extantLicence2);
     when(licenceQueryService.getLicencesByIds(references))
         .thenReturn(extantLicences);
@@ -129,8 +129,8 @@ class FieldLicenceServiceTest {
     var licenceReferences = List.of("ref 1", "ref 2");
 
     var licenceViews = List.of(
-        new LicenceView("ref 1", 1, LicenceStatus.EXTANT),
-        new LicenceView("ref 2", 2, LicenceStatus.EXTANT));
+        new LicenceDto("ref 1", 1, LicenceStatus.EXTANT),
+        new LicenceDto("ref 2", 2, LicenceStatus.EXTANT));
     when(licenceQueryService.getLicencesByIds(licenceReferences))
         .thenReturn(licenceViews);
 
@@ -164,8 +164,8 @@ class FieldLicenceServiceTest {
   @Test
   void fieldHasPearsLicences_NonEmptyList_ReturnsTrue() {
     var pearsLicenceList = List.of(
-        new LicenceView("ref1", 1, LicenceStatus.EXTANT),
-        new LicenceView("ref2", 2, LicenceStatus.EXTANT)
+        new LicenceDto("ref1", 1, LicenceStatus.EXTANT),
+        new LicenceDto("ref2", 2, LicenceStatus.EXTANT)
     );
     assertThat(fieldLicenceService.fieldHasPearsLicences(pearsLicenceList)).isTrue();
   }
@@ -181,8 +181,8 @@ class FieldLicenceServiceTest {
 
   @Test
   void filterExtantLicences_WithPearsLicencesAndFieldPearsLicences_ShouldReturnExtantLicenceRefs() {
-    var licenceExpired = new LicenceView("ref1-expired", 1, LicenceStatus.EXPIRED);
-    var licenceExtant = new LicenceView("ref2-extant", 2, LicenceStatus.EXTANT);
+    var licenceExpired = new LicenceDto("ref1-expired", 1, LicenceStatus.EXPIRED);
+    var licenceExtant = new LicenceDto("ref2-extant", 2, LicenceStatus.EXTANT);
     var pearsLicenceList = List.of(licenceExpired, licenceExtant);
 
     var result = fieldLicenceService.filterExtantLicences(pearsLicenceList);

@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
@@ -34,7 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementS
 @Transactional
 @IntegrationTest
 public class CommonFieldRecordQueryServiceIntegrationTest {
-  private static final User USER = UserTestUtil.Builder().build();
   @Autowired
   private DSLContext dslContext;
 
@@ -72,7 +70,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
       var statusUpdatedFirst = FieldIntegrationTestUtils.createField("Field status 300 2", entityManager);
       FieldIntegrationTestUtils.addFieldStatusHistory(statusUpdatedFirst, FieldStatus.STATUS_500, FIXED_DATE.minusMonths(1), entityManager);
 
-      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
       assertThat(results)
           .extracting(ResourceRecordQueryResult::resourceId)
@@ -95,7 +93,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
       var fieldAlpha1 = FieldIntegrationTestUtils.createField("Field alpha 1", entityManager);
       FieldIntegrationTestUtils.addFieldStatusHistory(fieldAlpha1, FieldStatus.STATUS_500, FIXED_DATE, entityManager);
 
-      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
       assertThat(results)
           .extracting(ResourceRecordQueryResult::resourceId)
@@ -139,7 +137,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     @Test
     void whenNoFieldStatusSelected_thenAllReturned() {
       form.setFieldStatuses(List.of());
-      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
       assertThat(results)
           .extracting(ResourceRecordQueryResult::resourceId)
@@ -156,7 +154,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenOneFieldStatusSelected_thenAllWithFieldStatusReturned() {
       form.setFieldStatuses(List.of(FieldStatus.STATUS_300.getEnumName()));
 
-      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
       assertThat(results)
           .extracting(ResourceRecordQueryResult::resourceName)
@@ -169,7 +167,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenMultipleFieldStatusesSelected_thenAllWithFieldStatusesReturned() {
       form.setFieldStatuses(List.of(FieldStatus.STATUS_200.getEnumName(), FieldStatus.STATUS_700.getEnumName()));
 
-      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
       assertThat(results)
           .extracting(ResourceRecordQueryResult::resourceName)
@@ -192,7 +190,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
       form.setFieldStatuses(List.of(FieldStatus.STATUS_200.getEnumName()));
       form.setFieldNameForResourceSubmission("Duplicated name");
 
-      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
       assertThat(results)
           .extracting(ResourceRecordQueryResult::resourceName)
@@ -229,7 +227,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenNoGeographicalAreaSelected_thenAllReturned() {
       form.setGeographicalArea(new ArrayList<>());
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactlyInAnyOrder(
               nnsField1.getCorrectedLegalFieldName(),
@@ -243,7 +241,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenOneGeographicalAreaSelected_thenAllWithAreaTypeReturned() {
       form.setGeographicalArea(List.of(GeographicalArea.NORTHERN_NORTH_SEA.getEnumName()));
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactlyInAnyOrder(
               nnsField1.getCorrectedLegalFieldName(),
@@ -258,7 +256,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
           GeographicalArea.WEST_OF_SHETLAND.getEnumName())
       );
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactlyInAnyOrder(
               nnsField1.getCorrectedLegalFieldName(),
@@ -272,7 +270,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
       form.setFieldNameForResourceSubmission("Field 1");
       form.setGeographicalArea(List.of(GeographicalArea.NORTHERN_NORTH_SEA.getEnumName()));
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactly(
               nnsField1.getCorrectedLegalFieldName()
@@ -287,7 +285,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
       FieldIntegrationTestUtils.addFieldStatusHistory(nnsField1, FieldStatus.STATUS_300, entityManager);
       form.setFieldStatuses(List.of(FieldStatus.STATUS_300.getEnumName()));
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactly(
               nnsField1.getCorrectedLegalFieldName()
@@ -319,7 +317,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenNoParentFieldSelected_thenReturnAll() {
       form.setParentFieldName(null);
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactlyInAnyOrder(
               childField1.getCorrectedLegalFieldName(),
@@ -333,7 +331,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenParentFieldSelected_andParentHasChildren_thenReturnAllChildrenOfParent() {
       form.setParentFieldName(parentField.getCorrectedLegalFieldName());
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactlyInAnyOrder(
               childField1.getCorrectedLegalFieldName(),
@@ -345,7 +343,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     void whenParentFieldSelected_andParentHasNoChildren_thenReturnEmpty() {
       form.setParentFieldName(fieldWithNoChildren.getCorrectedLegalFieldName());
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .isEmpty();
     }
 
@@ -356,7 +354,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
       FieldIntegrationTestUtils.addFieldStatusHistory(childField1, FieldStatus.STATUS_300, entityManager);
       form.setFieldStatuses(List.of(FieldStatus.STATUS_300.getEnumName()));
 
-      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactly(childField1.getCorrectedLegalFieldName());
     }
@@ -368,7 +366,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(field1.getResource(), entityManager);
     SubmissionIntegrationTestUtils.createSubmissionDetail(submission, SubmissionType.CREATE_CSR, entityManager);
     var field2 = FieldIntegrationTestUtils.createField("Field 2", entityManager);
-    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
         .extracting(ResourceRecordQueryResult::resourceId)
         .containsExactlyInAnyOrder(
             field1.getResource().getId(),
@@ -392,7 +390,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
         entityManager
     );
     var field3 = FieldIntegrationTestUtils.createField("Field 3", entityManager);
-    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
         .extracting(ResourceRecordQueryResult::resourceId)
         .containsExactlyInAnyOrder(
             field1.getResource().getId(),
