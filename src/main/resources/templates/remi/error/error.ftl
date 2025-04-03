@@ -16,7 +16,9 @@
   <p class="govuk-body">Try again later.</p>
   <p class="govuk-body">
     If you continue to experience this problem, contact the service desk using the
-    details below. Be sure to include the error reference below in any correspondence.
+    details below. Be sure to include the error reference below in any correspondence,
+    along with a description of what you were trying to do and, if relevant,
+    the reference number for the activity or information you were working on.
   </p>
     <@errorReference reference=errorRef!>
       <ul class="govuk-list">

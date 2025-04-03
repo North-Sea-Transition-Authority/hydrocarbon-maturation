@@ -21,6 +21,7 @@ CVE-2025-24970
 CVE-2024-52317
 CVE-2024-50379
 CVE-2024-56337
+CVE-2025-24813
 
 # spring
 CVE-2024-38827
@@ -34,3 +35,6 @@ CVE-2024-38819
 
 # net.minidev:json-smart
 CVE-2024-57699
+
+# spring-security-crypto
+CVE-2025-22228
