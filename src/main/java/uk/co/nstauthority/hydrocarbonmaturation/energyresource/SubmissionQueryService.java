@@ -6,7 +6,7 @@ import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_STATUS_HISTORY;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_REPORTING_VIEW;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUP_LINKS;
@@ -101,9 +101,9 @@ class SubmissionQueryService {
         .and(RESOURCES.ARCHIVED.isFalse())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
-                LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
-                      .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.TYPE.eq(ResourceType.PROSPECT.name()))
+                LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID)
+                      .from(LATEST_SUBMISSION_DETAIL_VIEW)
+                .where(LATEST_SUBMISSION_DETAIL_VIEW.TYPE.eq(ResourceType.PROSPECT.name()))
             )
         )
         .and(notExists(select(one())
@@ -169,9 +169,9 @@ class SubmissionQueryService {
         .and(RESOURCES.ARCHIVED.isFalse())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
-                LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
-                .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.TYPE.eq(ResourceType.DISCOVERY.name()))
+                LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID)
+                .from(LATEST_SUBMISSION_DETAIL_VIEW)
+                .where(LATEST_SUBMISSION_DETAIL_VIEW.TYPE.eq(ResourceType.DISCOVERY.name()))
             )
         )
         .and(notExists(select(one())
