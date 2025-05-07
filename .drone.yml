@@ -193,7 +193,8 @@ steps:
   - name: slack
     image: plugins/slack
     settings:
-      webhook: https://hooks.slack.com/services/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
+      webhook:
+        from_secret: slack_webhook
       channel: hydrocarbon-maturation-builds
       template: "*{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>\nReports published to: http://drone-assets.fivium.local:9090/hydrocarbon-maturation/{{build.number}}/"
     when:
@@ -372,3 +373,9 @@ data: mfm1f1crcixgqAtI3C1vfwnpWmOxB5wc+u8RNFXU0CN37ZX80P95qxQtsWdD+ZrXPnR9i0Iz+f
 kind: secret
 name: nexus_password
 data: r0b/stEyHEnEYGFBcNyXAfjEsMr0pbVEwj7yVBF6nPpT2CeQDQ==
+
+---
+
+kind: secret
+name: slack_webhook
+data: 7IKtrnP4ltl5r2K/enfWRk+lRLBHdOAfNnqoi73OX/bDHzIr6SpzwxKvFOcTi4D5sAf+EbHoQuumRoFQgz5MLZPuyN7NOyTbNiHRjQIZg6FI0so+j/kZ57DBQ9NrivkIqNQI6me/7d3M+TY=
