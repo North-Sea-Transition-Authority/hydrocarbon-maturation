@@ -427,7 +427,7 @@ class SubmissionEstimateSummaryServiceTest {
     lastCreatedEstimates.setLatestDate(getRandomDate());
 
     var createdEstimates = Stream.of(firstCreatedEstimates, secondCreatedEstimates, lastCreatedEstimates)
-        .sorted(Comparator.comparing(SubmissionEstimate::getDateWhenEstimated))
+        .sorted(Comparator.comparing(SubmissionEstimate::getMostLikelyDate))
         .toList();
 
     when(submissionEstimateService.getCreatedEstimates(project, type))

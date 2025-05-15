@@ -70,7 +70,7 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
 
     submissionEstimateService.getCreatedEstimates(project, type)
         .stream()
-        .sorted(Comparator.comparing(SubmissionEstimate::getDateWhenEstimated))
+        .sorted(Comparator.comparing(SubmissionEstimate::getMostLikelyDate))
         .forEach(
             submissionEstimate -> {
               var row = SummaryTableRow.builder()

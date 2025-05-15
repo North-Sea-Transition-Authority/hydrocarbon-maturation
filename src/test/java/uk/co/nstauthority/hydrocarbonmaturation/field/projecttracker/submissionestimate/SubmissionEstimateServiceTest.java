@@ -192,19 +192,19 @@ class SubmissionEstimateServiceTest {
   @Test
   void getCreatedEstimates_assertOrderedOnlyCreatedEstimatesReturned() {
     var firstEstimates = new SubmissionEstimate();
-    firstEstimates.setDateWhenEstimated(FIXED_DATE);
+    firstEstimates.setMostLikelyDate(FIXED_DATE);
     firstEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
     var laterEstimates = new SubmissionEstimate();
-    laterEstimates.setDateWhenEstimated(FIXED_DATE.plusDays(1));
+    laterEstimates.setMostLikelyDate(FIXED_DATE.plusDays(1));
     laterEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
     var removedEstimates = new SubmissionEstimate();
-    removedEstimates.setDateWhenEstimated(FIXED_DATE.plusDays(5));
+    removedEstimates.setMostLikelyDate(FIXED_DATE.plusDays(5));
     removedEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.REMOVED);
 
     var latestEstimates = new SubmissionEstimate();
-    latestEstimates.setDateWhenEstimated(FIXED_DATE.plusDays(10));
+    latestEstimates.setMostLikelyDate(FIXED_DATE.plusDays(10));
     latestEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
     when(submissionEstimateRepository.getAllByProjectAndSubmissionEstimateType(project, submissionEstimateType))

@@ -84,7 +84,7 @@ class SubmissionEstimateService {
     return submissionEstimateRepository.getAllByProjectAndSubmissionEstimateType(project, type)
         .stream()
         .filter(submissionEstimate -> SubmissionEstimateStatus.CREATED.equals(submissionEstimate.getSubmissionEstimateStatus()))
-        .sorted(Comparator.comparing(SubmissionEstimate::getDateWhenEstimated))
+        .sorted(Comparator.comparing(SubmissionEstimate::getMostLikelyDate))
         .toList();
   }
 
