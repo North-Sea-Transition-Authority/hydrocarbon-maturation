@@ -93,7 +93,18 @@ track changes over time.
 | REMI_EPMQ_AWS_SECRET_ACCESS_KEY             | AWS secret access key for SNS/SQS. <ul><li>[Dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[ST](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[Pre-prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li><li>[Prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li></ul> |
 | REMI_EPMQ_ENVIRONMENT_SUFFIX                | Something unique per environment, e.g. `dev`.                                                                                                                                                                                                                                                                   |
 
-## Logging
+### Energy Portal accounts service integration
+
+In order to integrate with the Energy Portal accounts service as the IDP you need to include the `use-epas` profile. If running Energy Portal accounts service
+locally add the `use-epas-development` profile as well.
+
+For deployed environments we require the following environment variables to be set
+- EPAS_SAML_ENTITY_ID
+- EPAS_SAML_LOGIN_URL
+- EPAS_LOGOUT_REQUEST_URL
+- EPAS_SAML_BASE_URL (e.g. https://nsta.itportal.dev.fivium.co.uk)
+
+### Logging
 ReMI can log in either JSON or text mode.
 In order to turn on JSON logging, set the profile 'json-logging'. This will automatically include any MDC attributes.
 

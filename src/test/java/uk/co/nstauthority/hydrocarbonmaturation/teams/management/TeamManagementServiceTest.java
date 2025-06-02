@@ -24,10 +24,12 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
@@ -68,6 +70,12 @@ public class TeamManagementServiceTest {
 
   @Mock
   private UserService userService;
+
+  @Mock
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
+
+  @Mock
+  private Environment environment;
 
   @InjectMocks
   private TeamManagementService teamManagementService;
@@ -395,7 +403,7 @@ public class TeamManagementServiceTest {
         resourceTypeArgumentCaptor.capture(),
         targetWebUserAccountIdArgumentCaptor.capture(),
         instigatingWebUserAccountIdArgumentCaptor.capture()
-        );
+    );
 
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
         .contains(regTeam, regTeam);
@@ -406,6 +414,48 @@ public class TeamManagementServiceTest {
     assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
     assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
     assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(instigatingUser.wuaId());
+  }
+
+  @Test
+  void setUserTeamRoles_newUser_epas() {
+    when(environment.matchesProfiles("use-epas")).thenReturn(true);
+
+    var teamManagementService = new TeamManagementService(
+        teamRepository,
+        teamRoleRepository,
+        userApi,
+        teamQueryService,
+        energyPortalAccessService,
+        energyPortalAccessApiConfiguration,
+        userService,
+        energyPortalServiceAccessService,
+        environment
+    );
+
+    var expectedProjection = new UserProjectionRoot()
+        .isAccountShared()
+        .canLogin();
+    when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
+        .thenReturn(Optional.of(user1));
+    when(teamRoleRepository.findByTeam(regTeam))
+        .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
+    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(Collections.emptyList());
+    when(userService.getUser()).thenReturn(instigatingUser);
+    var resourceTypeName = "REMI_ACCESS_TEAM";
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(resourceTypeName);
+
+    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS));
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
+    verify(energyPortalServiceAccessService).addUser(user1WuaId);
+
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
+        .contains(regTeam, regTeam);
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getWuaId)
+        .contains(user1WuaId, user1WuaId);
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getRole)
+        .contains(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS);
   }
 
   @Test
@@ -517,6 +567,42 @@ public class TeamManagementServiceTest {
     assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
     assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user2WuaId);
     assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(instigatingUser.wuaId());
+  }
+
+  @Test
+  void removeUserFromTeam_inNoMoreTeams_useEpas() {
+    when(environment.matchesProfiles("use-epas")).thenReturn(true);
+
+    var teamManagementService = new TeamManagementService(
+        teamRepository,
+        teamRoleRepository,
+        userApi,
+        teamQueryService,
+        energyPortalAccessService,
+        energyPortalAccessApiConfiguration,
+        userService,
+        energyPortalServiceAccessService,
+        environment
+    );
+
+    when(teamRoleRepository.findByTeam(regTeam))
+        .thenReturn(List.of(regTeamUser1RoleManage));
+
+    when(teamRoleRepository.findAllByWuaId(user2WuaId))
+        .thenReturn(Collections.emptyList());
+
+    when(userService.getUser())
+        .thenReturn(instigatingUser);
+
+    var resourceTypeName = "REMI_ACCESS_TEAM";
+    when(energyPortalAccessApiConfiguration.resourceType())
+        .thenReturn(resourceTypeName);
+
+    teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+
+    verify(energyPortalServiceAccessService).removeUser(user2WuaId);
   }
 
   @Test
