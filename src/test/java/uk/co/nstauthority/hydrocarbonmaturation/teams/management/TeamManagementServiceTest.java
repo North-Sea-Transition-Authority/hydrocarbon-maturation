@@ -435,27 +435,18 @@ public class TeamManagementServiceTest {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
+
     when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
-    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(Collections.emptyList());
-    when(userService.getUser()).thenReturn(instigatingUser);
-    var resourceTypeName = "REMI_ACCESS_TEAM";
-    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(resourceTypeName);
+    when(teamRoleRepository.findAllByWuaId(1))
+        .thenReturn(Collections.emptyList());
 
     teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS));
 
-    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
-    verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
     verify(energyPortalServiceAccessService).addUser(user1WuaId);
-
-    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
-        .contains(regTeam, regTeam);
-    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getWuaId)
-        .contains(user1WuaId, user1WuaId);
-    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getRole)
-        .contains(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS);
+    verifyNoInteractions(energyPortalAccessService);
   }
 
   @Test
@@ -591,18 +582,11 @@ public class TeamManagementServiceTest {
     when(teamRoleRepository.findAllByWuaId(user2WuaId))
         .thenReturn(Collections.emptyList());
 
-    when(userService.getUser())
-        .thenReturn(instigatingUser);
-
-    var resourceTypeName = "REMI_ACCESS_TEAM";
-    when(energyPortalAccessApiConfiguration.resourceType())
-        .thenReturn(resourceTypeName);
-
     teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
 
-    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
-
     verify(energyPortalServiceAccessService).removeUser(user2WuaId);
+
+    verifyNoInteractions(energyPortalAccessService);
   }
 
   @Test

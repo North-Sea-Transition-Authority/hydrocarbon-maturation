@@ -263,6 +263,7 @@ public class TeamManagementService {
 
     if (useEpas) {
       energyPortalServiceAccessService.addUser(wuaId);
+      return;
     }
 
     energyPortalAccessService.addUserToAccessTeam(
@@ -285,6 +286,7 @@ public class TeamManagementService {
 
     if (useEpas) {
       energyPortalServiceAccessService.removeUser(wuaId);
+      return;
     }
 
     energyPortalAccessService.removeUserFromAccessTeam(
