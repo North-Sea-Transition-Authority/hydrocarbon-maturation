@@ -9,6 +9,7 @@ CVE-2024-38820
 
 # spring-security-web
 CVE-2024-38821
+CVE-2025-41234
 
 # io.netty:netty-common
 CVE-2024-47535
@@ -22,6 +23,8 @@ CVE-2024-52317
 CVE-2024-50379
 CVE-2024-56337
 CVE-2025-24813
+CVE-2025-48988
+CVE-2025-49125
 
 # spring
 CVE-2024-38827
@@ -41,3 +44,6 @@ CVE-2025-22228
 
 # spring boot. Fixed in 3.4.5
 CVE-2025-22235
+
+# org.postgresql:postgresql
+CVE-2025-49146
