@@ -22,6 +22,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
@@ -35,6 +38,7 @@ public class RegulatorManagedInformationSummaryService {
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
   private final ResourceLinkService resourceLinkService;
   private final FieldPersistenceService fieldPersistenceService;
+  private final UndevelopedDiscoveryService undevelopedDiscoveryService;
 
   @Autowired
   public RegulatorManagedInformationSummaryService(
@@ -43,7 +47,8 @@ public class RegulatorManagedInformationSummaryService {
       ResourceSupportingDocumentService resourceSupportingDocumentService,
       PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
       ResourceLinkService resourceLinkService,
-      FieldPersistenceService fieldPersistenceService
+      FieldPersistenceService fieldPersistenceService,
+      UndevelopedDiscoveryService undevelopedDiscoveryService
   ) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionDetailService = submissionDetailService;
@@ -51,6 +56,7 @@ public class RegulatorManagedInformationSummaryService {
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
     this.resourceLinkService = resourceLinkService;
     this.fieldPersistenceService = fieldPersistenceService;
+    this.undevelopedDiscoveryService = undevelopedDiscoveryService;
   }
 
   public RegulatorManagedInformationSummaryView getRegulatorManagedInformationSummaryFromResource(
@@ -59,8 +65,11 @@ public class RegulatorManagedInformationSummaryService {
         .getRegulatorManagedInformationByResource(resource);
     var isBeingRelinquished = submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource);
     return regulatorManagedInformation
-        .map(regulatorManagedInfo -> createSummaryViewFromRegulatorManagedInformation(regulatorManagedInfo,
-            isBeingRelinquished))
+        .map(regulatorManagedInfo -> createSummaryViewFromRegulatorManagedInformation(
+            resource,
+            regulatorManagedInfo,
+            isBeingRelinquished
+        ))
         .orElse(RegulatorManagedInformationSummaryView.empty(isBeingRelinquished));
   }
 
@@ -76,7 +85,10 @@ public class RegulatorManagedInformationSummaryService {
   }
 
   private RegulatorManagedInformationSummaryView createSummaryViewFromRegulatorManagedInformation(
-      RegulatorManagedInformation regulatorManagedInformation, boolean isBeingRelinquished) {
+      Resource resource,
+      RegulatorManagedInformation regulatorManagedInformation,
+      boolean isBeingRelinquished
+  ) {
     var linkedToFieldName = "";
     var linkedToFieldUrl = "";
 
@@ -89,6 +101,11 @@ public class RegulatorManagedInformationSummaryService {
       }
     }
 
+    var isUndevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource)
+        .map(UndevelopedDiscovery::getIsUndevelopedDiscovery)
+        .orElse(false);
+
+
     return new RegulatorManagedInformationSummaryView(
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getResponsibleTeamType()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getGeographicalArea()),
@@ -96,7 +113,8 @@ public class RegulatorManagedInformationSummaryService {
         isBeingRelinquished ? getRelinquishmentReportUploads(regulatorManagedInformation) : List.of(),
         linkedToFieldName,
         linkedToFieldUrl,
-        regulatorManagedInformation.getWellReference() != null ? regulatorManagedInformation.getWellReference() : ""
+        regulatorManagedInformation.getWellReference() != null ? regulatorManagedInformation.getWellReference() : "",
+        BooleanUtil.yesNoFromBoolean(isUndevelopedDiscovery)
     );
   }
 

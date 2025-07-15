@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
@@ -50,7 +51,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 public class RegulatorManagedInformationController {
-  private static final String PAGE_NAME = "Regulator managed information";
+
   private final RegulatorManagedInformationFormService regulatorManagedInformationFormService;
   private final ControllerHelperService controllerHelperService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -60,6 +61,7 @@ public class RegulatorManagedInformationController {
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
   private final ResponsibleTeamService responsibleTeamService;
   private final InternalTeamService internalTeamService;
+  private final CustomerConfigurationProperties customerConfigurationProperties;
 
   @Autowired
   public RegulatorManagedInformationController(
@@ -71,7 +73,8 @@ public class RegulatorManagedInformationController {
       ResourceService resourceService,
       ResourceSupportingDocumentService resourceSupportingDocumentService,
       ResponsibleTeamService responsibleTeamService,
-      InternalTeamService internalTeamService) {
+      InternalTeamService internalTeamService,
+      CustomerConfigurationProperties customerConfigurationProperties) {
     this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -81,6 +84,7 @@ public class RegulatorManagedInformationController {
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
     this.responsibleTeamService = responsibleTeamService;
     this.internalTeamService = internalTeamService;
+    this.customerConfigurationProperties = customerConfigurationProperties;
   }
 
   @GetMapping
@@ -168,8 +172,10 @@ public class RegulatorManagedInformationController {
                                                                   Resource resource,
                                                                   boolean isResourceBeingRelinquished,
                                                                   User user) {
+    var pageName = customerConfigurationProperties.mnemonic() + " managed information";
     var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
         .addObject("form", form)
+        .addObject("pageName", pageName)
         .addObject("geographicalAreas", DisplayableEnumOptionUtil
             .getDisplayableOptions(GeographicalArea.class))
         .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
@@ -190,7 +196,7 @@ public class RegulatorManagedInformationController {
           .addObject("responsibleTeamTypes", DisplayableEnumOptionUtil
               .getDisplayableOptions(ResponsibleTeamType.class));
     }
-    addBreadcrumbsAndCancelUrl(modelAndView, resource);
+    addBreadcrumbsAndCancelUrl(modelAndView, resource, pageName);
 
     if (resource.getType() == ResourceType.DISCOVERY && internalTeamService.isAreaTeamUser(user)) {
       modelAndView.addObject("shelvedCopFieldApiEndpoint",
@@ -202,7 +208,7 @@ public class RegulatorManagedInformationController {
     return modelAndView;
   }
 
-  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource) {
+  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource, String pageName) {
     var submissionOnResource = submissionDetailService
         .getMostRecentlySubmittedSubmissionDetailForResource(resource)
         .orElseThrow(() ->
@@ -215,7 +221,7 @@ public class RegulatorManagedInformationController {
       // then breadcrumbs go to system of record
       cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
           .showResourceRecord(resource.getId(), null));
-      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
+      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
           .addBreadcrumb(
               SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
               ReverseRouter.route(
@@ -228,7 +234,7 @@ public class RegulatorManagedInformationController {
       // then breadcrumbs go to work area
       cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
           .showReviewPage(resource.getId(), null));
-      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
+      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
           .addWorkAreaBreadcrumb()
           .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
                   submissionOnResource),

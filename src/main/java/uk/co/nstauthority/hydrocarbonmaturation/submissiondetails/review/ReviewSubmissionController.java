@@ -221,6 +221,7 @@ public class ReviewSubmissionController {
 
     return modelAndView
         .addObject("form", form)
+        .addObject("resourceType", resource.getType())
         .addObject("submissionRecord", submissionRecord)
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("canReview",

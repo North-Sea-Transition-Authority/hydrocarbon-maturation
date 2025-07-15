@@ -180,6 +180,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
@@ -229,6 +230,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
@@ -285,6 +287,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
@@ -331,6 +334,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("isFieldResource",
@@ -419,6 +423,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -507,6 +512,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -595,6 +601,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -670,6 +677,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("isFieldResource", true),
             entry("canManageRegulatorManagementInfo", true),
@@ -768,6 +776,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -840,6 +849,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -914,6 +924,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -988,6 +999,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
@@ -1068,6 +1080,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),

@@ -183,6 +183,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionRecord", submissionRecordSummaryView),
             entry("canReview", false),
             entry("isInResponsibleTeam", false),
@@ -250,6 +251,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionRecord", submissionRecordSummaryView),
             entry("canReview", false),
             entry("submissionType", submissionDetail.getSubmissionType()),
@@ -294,6 +296,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("resourceType", resource.getType()),
             entry("submissionRecord", submissionRecordSummaryView),
             entry("canReview", true),
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),

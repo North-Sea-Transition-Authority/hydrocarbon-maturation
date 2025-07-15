@@ -2,7 +2,6 @@
 <#import '../coordinates/coordinateInput.ftl' as coordinateInput/>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
-<#assign pageTitle = "Regulator managed information" />
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelurl" type="String" -->
 <#-- @ftlvariable name="geographicalAreas" type="java.util.Map<String, String>" -->
@@ -12,8 +11,8 @@
 <#-- @ftlvariable name="responsibleTeamTypes" type="java.util.Map<String, String>" -->
 
 <@defaultPage
-  htmlTitle=pageTitle
-  pageHeading=pageTitle
+  htmlTitle=pageName
+  pageHeading=pageName
   pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -36,6 +37,7 @@ import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
@@ -73,6 +75,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
   @MockBean
   private ResponsibleTeamService responsibleTeamService;
+
+  @Autowired
+  private CustomerConfigurationProperties customerConfigurationProperties;
 
   private RegulatorManagedInformationForm form;
   private BindingResult bindingResult;
@@ -197,6 +202,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertEquals(RegulatorManagedInformationForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
+            entry("pageName", customerConfigurationProperties.mnemonic() + " managed information"),
             entry("geographicalAreas", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(resource.getId(), null))),
@@ -241,6 +247,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertEquals(RegulatorManagedInformationForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
+            entry("pageName", customerConfigurationProperties.mnemonic() + " managed information"),
             entry("canUpdateResponsibleTeam", true),
             entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class)),
             entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
@@ -593,6 +600,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .getModelMap();
     assertEquals(RegulatorManagedInformationForm.class, modelMap.get("form").getClass());
     assertThat(modelMap).contains(
+            entry("pageName", customerConfigurationProperties.mnemonic() + " managed information"),
             entry("geographicalAreas", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(resourceId, null))),

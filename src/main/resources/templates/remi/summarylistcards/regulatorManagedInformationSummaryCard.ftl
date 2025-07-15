@@ -4,6 +4,7 @@
 <#-- @ftlvariable name="regulatorManagedInformationValues" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsValues" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
+<#-- @ftlvariable name="resourceType" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType" -->
 
 <#macro regulatorManagedInformationSummaryCard regulatorManagedInformationValues resourceGroupsValues associatedFieldMap canSeePostFieldLink=false>
   <@fdsSummaryList.summaryListCard headingText="${customerBranding.mnemonic()} managed information" summaryListId="regulatormanagedinformation">
@@ -48,6 +49,11 @@
         <@fdsAction.link linkText=regulatorManagedInformationValues.linkedToFieldName()
         linkUrl=springUrl(regulatorManagedInformationValues.linkedToFieldUrl())/>
       </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
+    <#if resourceType = "DISCOVERY">
+        <@fdsSummaryList.summaryListRowNoAction keyText="Undeveloped discovery">
+            ${regulatorManagedInformationValues.isUndevelopedDiscovery()}
+        </@fdsSummaryList.summaryListRowNoAction>
     </#if>
   </@fdsSummaryList.summaryListCard>
 </#macro>

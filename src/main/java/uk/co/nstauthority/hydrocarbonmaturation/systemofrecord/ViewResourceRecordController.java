@@ -333,10 +333,12 @@ public class ViewResourceRecordController {
               resource.getId()
           );
 
-          var resourceTypeDisplayName = resource.getType().getDisplayName();
+          var resourceType = resource.getType();
+          var resourceTypeDisplayName = resourceType.getDisplayName();
 
           modelAndViewForSubmissionType
               .addObject("submissionType", submissionDetailSelected.getSubmissionType())
+              .addObject("resourceType", resourceType)
               .addObject("resourceTypeDisplayName", resourceTypeDisplayName)
               .addObject("resourceTypeDisplayNameLower", resourceTypeDisplayName.toLowerCase())
               .addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
@@ -349,6 +351,7 @@ public class ViewResourceRecordController {
         }
     ).orElse(new ModelAndView("remi/systemofrecord/viewResourceRecord")
             .addObject("resourceTypeDisplayNameLower", resource.getType().getDisplayName().toLowerCase())
+        .addObject("resourceType", resource.getType())
     );
   }
 }

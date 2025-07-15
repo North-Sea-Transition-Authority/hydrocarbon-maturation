@@ -33,6 +33,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationSummaryServiceTest {
@@ -49,6 +51,8 @@ class RegulatorManagedInformationSummaryServiceTest {
   private ResourceLinkService resourceLinkService;
   @Mock
   private FieldPersistenceService fieldPersistenceService;
+  @Mock
+  private UndevelopedDiscoveryService undevelopedDiscoveryService;
   @InjectMocks
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
@@ -70,6 +74,8 @@ class RegulatorManagedInformationSummaryServiceTest {
         .thenReturn(false);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInfo));
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
+        .thenReturn(Optional.empty());
 
     var regulatorManagedInformationSummaryView = regulatorManagedInformationSummaryService
         .getRegulatorManagedInformationSummaryFromResource(resource);
@@ -82,7 +88,8 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference)
+            RegulatorManagedInformationSummaryView::wellReference,
+            RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             geographicalArea.getDisplayName(),
             false,
@@ -90,7 +97,8 @@ class RegulatorManagedInformationSummaryServiceTest {
             List.of(),
             "",
             "",
-            wellRef
+            wellRef,
+            "No"
         );
     verifyNoInteractions(resourceSupportingDocumentService);
   }
@@ -115,6 +123,8 @@ class RegulatorManagedInformationSummaryServiceTest {
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInfo));
     when(postFieldDiscoveryLinkService.getFieldLinkedToDiscoveryIfExists(resource)).thenReturn(Optional.of(field));
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
+        .thenReturn(Optional.empty());
 
     var regulatorManagedInformationSummaryView = regulatorManagedInformationSummaryService
         .getRegulatorManagedInformationSummaryFromResource(resource);
@@ -127,7 +137,8 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference)
+            RegulatorManagedInformationSummaryView::wellReference,
+            RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             GeographicalArea.NORTHERN_NORTH_SEA.getDisplayName(),
             false,
@@ -135,7 +146,8 @@ class RegulatorManagedInformationSummaryServiceTest {
             List.of(),
             "Name",
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource.getId(), null)),
-            ""
+            "",
+            "No"
         );
     verifyNoInteractions(resourceSupportingDocumentService);
   }
@@ -154,6 +166,8 @@ class RegulatorManagedInformationSummaryServiceTest {
         .thenReturn(isBeingRelinquished);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInfo));
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
+        .thenReturn(Optional.empty());
 
     var expectedFileViews = new ArrayList<SummaryFileViewRow>();
 
@@ -189,14 +203,16 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference)
+            RegulatorManagedInformationSummaryView::wellReference,
+            RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             GeographicalArea.ONSHORE.getDisplayName(),
             isBeingRelinquished,
             ResponsibleTeamType.EXPLORATION.getDisplayName(),
             "",
             "",
-            ""
+            "",
+            "No"
         );
 
     if (isBeingRelinquished) {
@@ -229,12 +245,14 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference)
+            RegulatorManagedInformationSummaryView::wellReference,
+            RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             "",
             isBeingRelinquished,
             "",
             List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
+            "",
             "",
             "",
             ""
@@ -273,5 +291,29 @@ class RegulatorManagedInformationSummaryServiceTest {
             field2.getCorrectedLegalFieldName()
         )
     );
+  }
+
+  @Test
+  void getRegulatorManagedInformationSummaryFromResource_whenUndevelopedDiscovery() {
+    var regulatorManagedInfo = new RegulatorManagedInformation();
+    regulatorManagedInfo.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
+    regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    regulatorManagedInfo.setResource(resource);
+
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
+        .thenReturn(false);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
+        .thenReturn(Optional.of(regulatorManagedInfo));
+
+    var undevelopedDiscovery = new UndevelopedDiscovery();
+    undevelopedDiscovery.setIsUndevelopedDiscovery(true);
+    undevelopedDiscovery.setResource(resource);
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
+        .thenReturn(Optional.of(undevelopedDiscovery));
+
+    var regulatorManagedInformationSummaryView = regulatorManagedInformationSummaryService
+        .getRegulatorManagedInformationSummaryFromResource(resource);
+
+    assertThat(regulatorManagedInformationSummaryView.isUndevelopedDiscovery()).isEqualTo("Yes");
   }
 }
