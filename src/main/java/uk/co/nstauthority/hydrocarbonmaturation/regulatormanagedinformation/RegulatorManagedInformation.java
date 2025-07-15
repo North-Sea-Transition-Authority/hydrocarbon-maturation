@@ -35,6 +35,8 @@ public class RegulatorManagedInformation {
   @Enumerated(EnumType.STRING)
   private GeographicalArea geographicalArea;
 
+  private String resourceName;
+
   private Boolean linkedToShelvedCopField;
 
   private Integer wellId;
@@ -69,6 +71,14 @@ public class RegulatorManagedInformation {
   public void setGeographicalArea(
       GeographicalArea geographicalArea) {
     this.geographicalArea = geographicalArea;
+  }
+
+  public String getResourceName() {
+    return resourceName;
+  }
+
+  public void setResourceName(String resourceName) {
+    this.resourceName = resourceName;
   }
 
   public Boolean getLinkedToShelvedCopField() {

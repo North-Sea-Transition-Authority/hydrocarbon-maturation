@@ -808,6 +808,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     var regulatorView = new RegulatorManagedInformationSummaryView(
         null,
         "area",
+        "",
         false,
         List.of(SummaryFileViewRow.empty("")),
         "",

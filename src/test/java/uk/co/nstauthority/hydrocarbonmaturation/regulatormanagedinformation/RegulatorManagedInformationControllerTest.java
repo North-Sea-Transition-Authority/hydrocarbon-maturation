@@ -288,6 +288,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertEquals(RegulatorManagedInformationForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
+            entry("resourceDisplay", resourceName),
             entry("canUpdateResponsibleTeam", true),
             entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class)),
             entry("shelvedCopFieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)

@@ -109,6 +109,7 @@ public class RegulatorManagedInformationSummaryService {
     return new RegulatorManagedInformationSummaryView(
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getResponsibleTeamType()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getGeographicalArea()),
+        regulatorManagedInformation.getResourceName() != null ? regulatorManagedInformation.getResourceName() : "",
         isBeingRelinquished,
         isBeingRelinquished ? getRelinquishmentReportUploads(regulatorManagedInformation) : List.of(),
         linkedToFieldName,

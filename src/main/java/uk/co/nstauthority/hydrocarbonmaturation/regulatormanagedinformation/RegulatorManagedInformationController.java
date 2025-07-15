@@ -196,7 +196,7 @@ public class RegulatorManagedInformationController {
           .addObject("responsibleTeamTypes", DisplayableEnumOptionUtil
               .getDisplayableOptions(ResponsibleTeamType.class));
     }
-    addBreadcrumbsAndCancelUrl(modelAndView, resource, pageName);
+    addBreadcrumbsAndCancelUrl(modelAndView, resource, pageName, user);
 
     if (resource.getType() == ResourceType.DISCOVERY && internalTeamService.isAreaTeamUser(user)) {
       modelAndView.addObject("shelvedCopFieldApiEndpoint",
@@ -208,12 +208,17 @@ public class RegulatorManagedInformationController {
     return modelAndView;
   }
 
-  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource, String pageName) {
+  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource, String pageName, User user) {
     var submissionOnResource = submissionDetailService
         .getMostRecentlySubmittedSubmissionDetailForResource(resource)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find find an accepted or submitted submission for resource %s"
                 .formatted(resource.getId())));
+
+    var resourceDisplay = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+        submissionOnResource);
+
+    modelAndView.addObject("resourceDisplay", resourceDisplay);
 
     String cancelUrl;
     Breadcrumbs breadcrumbs;
@@ -226,9 +231,7 @@ public class RegulatorManagedInformationController {
               SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
               ReverseRouter.route(
                   on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
-          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
-                  submissionOnResource),
-              cancelUrl)
+          .addBreadcrumb(resourceDisplay, cancelUrl)
           .build();
     } else {
       // then breadcrumbs go to work area
@@ -236,14 +239,19 @@ public class RegulatorManagedInformationController {
           .showReviewPage(resource.getId(), null));
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
           .addWorkAreaBreadcrumb()
-          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
-                  submissionOnResource),
-              cancelUrl)
+          .addBreadcrumb(resourceDisplay, cancelUrl)
           .build();
     }
 
     modelAndView.addObject("cancelUrl", cancelUrl);
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+
+    if (resource.getType() == ResourceType.DISCOVERY && internalTeamService.isAreaTeamUser(user)) {
+      modelAndView.addObject("shelvedCopFieldApiEndpoint",
+          SearchSelectorService.route(on(ResourceRestController.class)
+              .searchShelvedAndCopFields(null, null)))
+          .addObject("preSelectedFieldOption", regulatorManagedInformationFormService.getPreSelectedFieldOption(resource));
+    }
   }
 }

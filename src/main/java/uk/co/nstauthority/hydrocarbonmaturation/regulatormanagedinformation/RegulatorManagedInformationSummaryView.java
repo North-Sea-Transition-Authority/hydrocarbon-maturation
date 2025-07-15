@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 public record RegulatorManagedInformationSummaryView(String responsibleTeamType,
                                                      String geographicalArea,
+                                                     String resourceName,
                                                      boolean isBeingRelinquished,
                                                      List<SummaryFileViewRow> relinquishmentReport,
                                                      String linkedToFieldName,
@@ -15,6 +16,7 @@ public record RegulatorManagedInformationSummaryView(String responsibleTeamType,
                                                      String isUndevelopedDiscovery) {
   public static RegulatorManagedInformationSummaryView empty(boolean isBeingRelinquished) {
     return new RegulatorManagedInformationSummaryView(
+        "",
         "",
         "",
         isBeingRelinquished,

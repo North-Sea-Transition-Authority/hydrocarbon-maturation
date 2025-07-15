@@ -66,6 +66,8 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(geographicalArea);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     regulatorManagedInfo.setResource(resource);
+    var regulatorResourceName = "regulator resource name";
+    regulatorManagedInfo.setResourceName(regulatorResourceName);
     regulatorManagedInfo.setLinkedToShelvedCopField(false);
     var wellRef = "well-ref";
     regulatorManagedInfo.setWellReference(wellRef);
@@ -85,6 +87,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
+            RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
@@ -94,6 +97,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             geographicalArea.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
+            regulatorResourceName,
             List.of(),
             "",
             "",
@@ -109,6 +113,8 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     regulatorManagedInfo.setResource(resource);
+    var regulatorResourceName = "regulator resource name";
+    regulatorManagedInfo.setResourceName(regulatorResourceName);
     regulatorManagedInfo.setLinkedToShelvedCopField(true);
 
     var fieldResource = new Resource();
@@ -134,6 +140,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
+            RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
@@ -143,6 +150,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             GeographicalArea.NORTHERN_NORTH_SEA.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
+            regulatorResourceName,
             List.of(),
             "Name",
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource.getId(), null)),
@@ -160,6 +168,8 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(GeographicalArea.ONSHORE);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInfo.setResource(resource);
+    var regulatorResourceName = "regulator resource name";
+    regulatorManagedInfo.setResourceName(regulatorResourceName);
     regulatorManagedInfo.setLinkedToShelvedCopField(false);
 
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
@@ -201,6 +211,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
+            RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
             RegulatorManagedInformationSummaryView::wellReference,
@@ -209,6 +220,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             GeographicalArea.ONSHORE.getDisplayName(),
             isBeingRelinquished,
             ResponsibleTeamType.EXPLORATION.getDisplayName(),
+            regulatorResourceName,
             "",
             "",
             "",
@@ -242,6 +254,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
+            RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
@@ -250,6 +263,7 @@ class RegulatorManagedInformationSummaryServiceTest {
         .containsExactly(
             "",
             isBeingRelinquished,
+            "",
             "",
             List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
             "",

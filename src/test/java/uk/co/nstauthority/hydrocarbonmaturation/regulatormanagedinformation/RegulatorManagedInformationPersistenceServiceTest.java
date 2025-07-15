@@ -62,6 +62,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -69,12 +70,14 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.EXPLORATION,
+            null,
             null,
             null,
             null,
@@ -98,6 +101,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -105,12 +109,14 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
             null,
             null,
             null,
@@ -134,6 +140,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -141,12 +148,14 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
             null,
             true,
             null,
@@ -159,6 +168,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
+    var regulatorResourceName = "regulator resource name";
+    form.setResourceName(regulatorResourceName);
     form.setLinkedToShelvedCopField(true);
     var wellId = "1";
     form.setWell(wellId);
@@ -185,6 +196,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference"
@@ -193,6 +205,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -200,6 +213,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             null,
             GeographicalArea.ONSHORE,
+            regulatorResourceName,
             true,
             Integer.valueOf(form.getWell()),
             wellView.reference()
@@ -212,6 +226,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
+    var regulatorResourceName = "regulator resource name";
+    form.setResourceName(regulatorResourceName);
     form.setLinkedToShelvedCopField(false);
     var wellId = "1";
     form.setWell(wellId);
@@ -238,6 +254,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference"
@@ -246,6 +263,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -253,6 +271,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             null,
             GeographicalArea.ONSHORE,
+            regulatorResourceName,
             false,
             Integer.valueOf(form.getWell()),
             wellView.reference());
@@ -267,6 +286,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+    var regulatorResourceName = "regulator resource name";
+    form.setResourceName(regulatorResourceName);
     form.setLinkedToShelvedCopField(false);
     var wellId = "1";
     form.setWell(wellId);
@@ -289,6 +310,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -296,6 +318,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -303,6 +326,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
+            regulatorResourceName,
             false,
             Integer.valueOf(form.getWell()),
             wellView.reference());
@@ -317,6 +341,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(null);
+    var regulatorResourceName = "regulator resource name";
+    form.setResourceName(regulatorResourceName);
     form.setLinkedToShelvedCopField(false);
     var wellId = "1";
     form.setWell(wellId);
@@ -339,6 +365,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -346,6 +373,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -353,6 +381,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
+            regulatorResourceName,
             false,
             Integer.valueOf(form.getWell()),
             wellView.reference());
@@ -375,6 +404,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
+            "resourceName",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -382,6 +412,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -389,6 +420,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             responsibleTeamType,
             geographicalArea,
+            null,
             null,
             null,
             null

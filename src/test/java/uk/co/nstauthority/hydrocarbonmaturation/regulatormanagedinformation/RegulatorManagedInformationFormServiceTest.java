@@ -59,6 +59,8 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
+    var resourceName = "regulator resource name";
+    regulatorManagedInformation.setResourceName(resourceName);
     regulatorManagedInformation.setLinkedToShelvedCopField(false);
     regulatorManagedInformation.setWellId(1);
     var relinquishmentReportForms = List.of(mock(UploadedFileForm.class));
@@ -75,14 +77,16 @@ class RegulatorManagedInformationFormServiceTest {
             RegulatorManagedInformationForm::getRelinquishmentReport,
             RegulatorManagedInformationForm::getResponsibleTeamType,
             RegulatorManagedInformationForm::getLinkedToShelvedCopField,
-            RegulatorManagedInformationForm::getWell
+            RegulatorManagedInformationForm::getWell,
+            RegulatorManagedInformationForm::getResourceName
         )
         .containsExactly(
             geographicalArea,
             relinquishmentReportForms,
             regulatorManagedInformation.getResponsibleTeamType(),
             regulatorManagedInformation.getLinkedToShelvedCopField(),
-            regulatorManagedInformation.getWellId().toString()
+            regulatorManagedInformation.getWellId().toString(),
+            regulatorManagedInformation.getResourceName()
         );
   }
 

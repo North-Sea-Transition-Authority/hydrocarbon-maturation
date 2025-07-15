@@ -15,7 +15,8 @@
   pageHeading=pageName
   pageSize=PageSize.TWO_THIRDS_COLUMN
   errorItems=errorList
-  breadcrumbsMap=breadcrumbsMap>
+  breadcrumbsMap=breadcrumbsMap
+  caption=resourceDisplay>
   <@fdsForm.htmlForm>
     <@fdsRadio.radioGroup path="form.geographicalArea" labelText="Geographical area">
       <#assign firstItem=true/>
@@ -68,6 +69,10 @@
         <@fdsRadio.radioNo path="form.linkedToShelvedCopField" />
       </@fdsRadio.radioGroup>
     </#if>
+      <@fdsTextInput.textInput
+       path="form.resourceName"
+       labelText="Resource name"
+       optionalLabel=true/>
       <@fdsSearchSelector.searchSelectorRest
       path="form.well"
       restUrl=springUrl(wellEndpoint)

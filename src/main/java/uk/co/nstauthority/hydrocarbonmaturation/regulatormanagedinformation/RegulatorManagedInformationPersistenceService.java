@@ -61,6 +61,7 @@ public class RegulatorManagedInformationPersistenceService {
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setGeographicalArea(regulatorManagedInformationForm.getGeographicalArea());
+    regulatorManagedInformation.setResourceName(regulatorManagedInformationForm.getResourceName());
     regulatorManagedInformation.setLinkedToShelvedCopField(regulatorManagedInformationForm.getLinkedToShelvedCopField());
 
     if (canUpdateResponsibleTeam(resource)) {

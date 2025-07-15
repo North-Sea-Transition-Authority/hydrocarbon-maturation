@@ -47,3 +47,6 @@ CVE-2025-22235
 
 # org.postgresql:postgresql
 CVE-2025-49146
+
+# org.apache.commons:commons-lang3
+CVE-2025-48924

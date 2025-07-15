@@ -79,6 +79,7 @@ public class RegulatorManagedInformationFormService {
     form.setGeographicalArea(regulatorManagedInformation.getGeographicalArea());
     form.setRelinquishmentReport(relinquishmentReportUploads);
     form.setResponsibleTeamType(regulatorManagedInformation.getResponsibleTeamType());
+    form.setResourceName(regulatorManagedInformation.getResourceName());
     form.setLinkedToShelvedCopField(regulatorManagedInformation.getLinkedToShelvedCopField());
     if (regulatorManagedInformation.getWellId() != null) {
       form.setWell(regulatorManagedInformation.getWellId().toString());
