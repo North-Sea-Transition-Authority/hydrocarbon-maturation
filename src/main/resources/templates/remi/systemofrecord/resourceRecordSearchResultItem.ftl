@@ -1,9 +1,11 @@
 <#include '../layout/layout.ftl'>
+<#import '../../fds/components/tag/tag.ftl' as fdsTag>
+
 
 <#macro prospectAndDiscoveryRecordSearchResultItem resultItem>
   <#assign modelProperties = resultItem.modelProperties().properties />
 
-    <#assign archivedTag><@fdsResultList.resultListTag tagText="Archived" tagClass="" /></#assign>
+    <#assign archivedTag><@fdsTag.tag>Archived</@fdsTag.tag></#assign>
 
     <@fdsResultList.resultListItem
       captionHeadingText=resultItem.captionText()!""

@@ -43,6 +43,6 @@ class UserTest {
     assertThat(user.displayName())
         .isEqualTo("Alex Brown");
     assertThat(user.displayNameIncludingAnyProxyUser())
-        .isEqualTo("Master Alex/Alex Brown");
+        .isEqualTo("Master Alex as Alex Brown");
   }
 }

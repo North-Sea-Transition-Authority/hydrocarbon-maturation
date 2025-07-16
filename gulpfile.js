@@ -52,7 +52,6 @@ const babelOptions =
         "debug": false,
         "targets": {
           "chrome": 65,
-          "ie": 11,
           "firefox": 52,
           "safari": 11,
           "ios": 12,
@@ -140,14 +139,8 @@ gulp.task('copyVendorCss', () => {
     .pipe(gulp.dest('src/main/resources/public/assets/static/css'));
 });
 
-// copy govuk-frontend dependency into public/assets
-gulp.task('copyHtml5Shiv', () => {
-  return gulp.src(['fivium-design-system-core/node_modules/html5shiv/dist/html5shiv.min.js'])
-    .pipe(gulp.dest('src/main/resources/public/assets/html5shiv'))
-});
-
 // Init all appropriate resources into project's public/assets
-gulp.task('initFds', gulp.series(['copyFdsResources', 'copyFdsImages', 'copyGovukResources', 'copyHtml5Shiv', 'copyJs', 'copyVendorJs', 'copyVendorCss']))
+gulp.task('initFds', gulp.series(['copyFdsResources', 'copyFdsImages', 'copyGovukResources', 'copyJs', 'copyVendorJs', 'copyVendorCss']))
 
 gulp.task('sassCi', gulp.series(['initFds'], () => {
   return compileSass(true);

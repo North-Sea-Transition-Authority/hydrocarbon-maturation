@@ -1,4 +1,5 @@
 <#include '../layout/layout.ftl'>
+<#import '../../fds/components/tag/tag.ftl' as fdsTag>
 <#-- @ftlvariable name="workAreaItem" type="uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaItem" -->
 
 
@@ -7,9 +8,7 @@
   <#assign modelProperties = workAreaItem.modelProperties().properties />
     <#assign updateRequestedTag>
       <#if modelProperties["updateRequested"]>
-        <@fdsResultList.resultListTag
-          tagText="Update requested"
-          tagClass="govuk-tag--blue govuk-tag--float-right"/>
+        <@fdsTag.tag tagClass="govuk-tag--blue govuk-tag--float-right">Update requested</@fdsTag.tag>
       </#if>
     </#assign>
     <@fdsResultList.resultListItem
@@ -43,9 +42,7 @@
   <#assign modelProperties = workAreaItem.modelProperties().properties />
   <#assign updateRequestedTag>
     <#if modelProperties["updateRequested"]>
-      <@fdsResultList.resultListTag
-      tagText="Update requested"
-      tagClass="govuk-tag--blue govuk-tag--float-right"/>
+      <@fdsTag.tag tagClass="govuk-tag--blue govuk-tag--float-right">Update requested</@fdsTag.tag>
     </#if>
   </#assign>
   <@fdsResultList.resultListItem

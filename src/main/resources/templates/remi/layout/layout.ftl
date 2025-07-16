@@ -3,6 +3,7 @@
 <#import '/spring.ftl' as spring>
 <#import '_header.ftl' as pageHeader>
 <#import '../cookies/_cookieBanner.ftl' as cookies>
+<#import '../../fds/components/header/energyPortalHeader.ftl' as fdsEnergyPortalHeader>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
@@ -107,7 +108,7 @@
       <link rel="stylesheet" href="<@spring.url'/assets/static/css/ol.css'/>">
 
       <#assign analyticsScript>
-        <script src="<@spring.url'/assets/javascript/googleAnalyticsEventTracking.js'/>"></script>
+        <script type="module" src="<@spring.url'/assets/javascript/googleAnalyticsEventTracking.js'/>"></script>
       </#assign>
     </#assign>
 
@@ -125,14 +126,11 @@
     </#assign>
 
     <#assign serviceHeader>
-        <@pageHeader.header
-          serviceName=SERVICE_NAME
-          customerMnemonic=CUSTOMER_MNEMONIC
-          serviceHomeUrl=SERVICE_HOME_URL
-          signedInUserName=(loggedInUser?has_content)?then(loggedInUser.displayNameIncludingAnyProxyUser(), "")
-          signOutUrl=springUrl("/logout")
-          wrapperWidth=wrapperWidth
-        />
+      <@fdsEnergyPortalHeader.energyPortalHeader
+        headerLogo="NSTA"
+        userDisplayName=(loggedInUser?has_content)?then(loggedInUser.displayNameIncludingAnyProxyUser(), "")
+        signOutUrl=springUrl("/logout") wrapperWidth=wrapperWidth
+      />
     </#assign>
 
     <@fdsDefaultPageTemplate
@@ -154,6 +152,8 @@
       twoThirdsOneThirdColumn=twoThirdsOneThirdColumn
       oneQuarterColumn=oneQuarterColumn
       topNavigation=topNavigation
+      topNavigationServiceName=SERVICE_NAME
+      topNavigationServiceUrl=SERVICE_HOME_URL
       errorItems=errorItems
       backLink=backLink
       backLinkUrl=backLinkUrl
