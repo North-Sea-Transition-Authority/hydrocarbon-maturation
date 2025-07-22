@@ -93,7 +93,7 @@ class NewFieldController {
             .getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
         .addObject("discoveriesApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchDiscoveriesNotInGroupOrPreferredView(null)))
+                .searchDiscoveriesForFields(null)))
         .addObject("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))

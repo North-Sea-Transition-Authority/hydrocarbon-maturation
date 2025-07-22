@@ -36,7 +36,7 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
 
   private List<Condition> getFormFilterConditions(SearchResourceRecordsForm form) {
     var conditionList = new ArrayList<>(resourceQueryCommonService.getFormFilterConditions(form));
-    conditionList.add(RESOURCES.ARCHIVED.eq(false));
+    conditionList.add(RESOURCES.ACTIVE.eq(true));
 
     return conditionList;
   }

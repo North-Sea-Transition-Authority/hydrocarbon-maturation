@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUP_LINKS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +37,8 @@ public class RegulatorResourceRecordQueryService implements ResourceRecordQueryS
 
   private List<Condition> getRegulatorConditions(SearchResourceRecordsForm form) {
     var conditionList = new ArrayList<>(resourceQueryCommonService.getFormFilterConditions(form));
-    if (BooleanUtils.isTrue(form.isShowOnlyPreferredViews())) {
-      //ensures only preferred views are displayed
-      //resources with no resource group link are considered preferred views
-      conditionList.add(RESOURCE_GROUP_LINKS.PREFERRED_VIEW.eq(true).or(RESOURCE_GROUP_LINKS.ID.isNull()));
-    }
-    if (BooleanUtils.isFalse(form.isShowArchivedResources())) {
-      conditionList.add(RESOURCES.ARCHIVED.eq(false));
+    if (BooleanUtils.isNotTrue(form.getShowArchivedResources())) {
+      conditionList.add((RESOURCES.ACTIVE.eq(true)));
     }
 
     return conditionList;

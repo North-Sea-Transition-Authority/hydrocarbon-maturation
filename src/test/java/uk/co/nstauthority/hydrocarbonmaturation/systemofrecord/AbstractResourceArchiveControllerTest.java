@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,6 +17,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
@@ -58,12 +62,21 @@ public abstract class AbstractResourceArchiveControllerTest extends AbstractCont
   @MockBean
   protected ResponsibleTeamService responsibleTeamService;
 
+  @MockBean
+  protected SubmissionResourceService submissionResourceService;
+
   @BeforeEach
   void setUp() {
     doCallRealMethod().when(userService).getUser();
 
     resource = new Resource();
     resource.setId(RESOURCE_ID);
+    resource.setType(ResourceType.PROSPECT);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT, resource);
+    when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+        .thenReturn("resource name");
   }
 
   protected void setUpResourceRecords() {

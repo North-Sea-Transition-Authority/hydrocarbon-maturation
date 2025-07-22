@@ -7,8 +7,6 @@ public class RelatedResourcesForm implements SubmissionForm {
 
   private String submissionDetailIdOfRelatedResource;
 
-  private Boolean preferredView;
-
   public Boolean getRelatedToAnotherResource() {
     return relatedToAnotherResource;
   }
@@ -23,13 +21,5 @@ public class RelatedResourcesForm implements SubmissionForm {
 
   public void setSubmissionDetailIdOfRelatedResource(String submissionDetailIdOfRelatedResource) {
     this.submissionDetailIdOfRelatedResource = submissionDetailIdOfRelatedResource;
-  }
-
-  public Boolean getPreferredView() {
-    return preferredView;
-  }
-
-  public void setPreferredView(Boolean preferredView) {
-    this.preferredView = preferredView;
   }
 }

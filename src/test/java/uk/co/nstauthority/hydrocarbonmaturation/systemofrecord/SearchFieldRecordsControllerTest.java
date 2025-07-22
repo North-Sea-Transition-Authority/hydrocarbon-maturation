@@ -55,7 +55,6 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
 
   @Test
   void showSearchFieldRecordsScreen_whenOperator_assertStatusOk() throws Exception {
-    var form = new SearchResourceRecordsForm();
     when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(
@@ -63,12 +62,10 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
                 .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
-    assertThat(form.isShowOnlyPreferredViews()).isFalse();
   }
 
   @Test
   void showSearchFieldRecordsScreen_whenRegulator_assertStatusOk() throws Exception {
-    var form = new SearchResourceRecordsForm();
     when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     mockMvc.perform(
@@ -76,7 +73,6 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
                 .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
-    assertThat(form.isShowOnlyPreferredViews()).isFalse();
   }
 
   @SecurityTest

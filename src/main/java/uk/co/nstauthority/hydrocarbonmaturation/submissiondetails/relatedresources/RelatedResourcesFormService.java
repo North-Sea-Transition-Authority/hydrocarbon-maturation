@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLinksRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupQueryService;
@@ -16,14 +14,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class RelatedResourcesFormService implements SubmissionFormService {
-  private final RelatedResourcesFormValidator relatedResourcesFormValidator;
+public class RelatedResourcesFormService {
+
   private final RelatedResourcesPersistenceService relatedResourcesPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final SearchSelectorService searchSelectorService;
@@ -31,13 +25,11 @@ public class RelatedResourcesFormService implements SubmissionFormService {
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
 
   @Autowired
-  public RelatedResourcesFormService(RelatedResourcesFormValidator relatedResourcesFormValidator,
-                                     RelatedResourcesPersistenceService relatedResourcesPersistenceService,
+  public RelatedResourcesFormService(RelatedResourcesPersistenceService relatedResourcesPersistenceService,
                                      SubmissionDetailService submissionDetailService,
                                      SearchSelectorService searchSelectorService,
                                      ResourceGroupQueryService resourceGroupQueryService,
                                      ResourceGroupLinksRepository resourceGroupLinksRepository) {
-    this.relatedResourcesFormValidator = relatedResourcesFormValidator;
     this.relatedResourcesPersistenceService = relatedResourcesPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.searchSelectorService = searchSelectorService;
@@ -64,18 +56,8 @@ public class RelatedResourcesFormService implements SubmissionFormService {
                 resourceGroupQueryService.getResourceGroupViewForSubmissionDetail(submissionDetail, null);
             if (resourceGroupViewOptional.isPresent()) {
               form.setSubmissionDetailIdOfRelatedResource(submissionDetail.getId().toString());
-            } else {
-              resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource())
-                  .map(ResourceGroupLink::getResourceGroupId)
-                  .flatMap(resourceGroupLinksRepository::findByResourceGroupIdAndPreferredViewIsTrue)
-                  .map(ResourceGroupLink::getResource)
-                  .flatMap(submissionDetailService::getLatestApprovedSubmissionDetailForResource)
-                  .ifPresent(latestSubmissionDetail ->
-                      form.setSubmissionDetailIdOfRelatedResource(latestSubmissionDetail.getId().toString()));
             }
           });
-
-      form.setPreferredView(relatedResource.getPreferredView());
     }
 
     return form;
@@ -103,15 +85,15 @@ public class RelatedResourcesFormService implements SubmissionFormService {
         Map.of(submissionDetailId, key));
   }
 
-  @Override
-  public BindingResult validate(SubmissionForm form,
-                                BindingResult bindingResult,
-                                ValidationType validationType,
-                                SubmissionDetail submissionDetail,
-                                User user) {
-    relatedResourcesFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(
-            validationType, submissionDetail));
-    return bindingResult;
+  public UUID getSelectedResourceGroupIdOrNull(RelatedResourcesForm form) {
+    if (form.getSubmissionDetailIdOfRelatedResource() != null) {
+      return resourceGroupLinksRepository.findByResource(submissionDetailService
+              .getSubmissionDetailForIdOrError(UUID.fromString(form.getSubmissionDetailIdOfRelatedResource()))
+              .getSubmission().getResource())
+          .map(ResourceGroupLink::getResourceGroupId)
+          .orElse(null);
+    } else {
+      return null;
+    }
   }
 }

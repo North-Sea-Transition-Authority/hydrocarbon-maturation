@@ -1,35 +1,38 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesForm;
 
 @Service
 class ResourceGroupsFormValidator implements SmartValidator {
 
-  private static final Integer TWO_IN_GROUP = 2;
+  static final String SELECTED_SUBMISSION_DETAIL_ID = "submissionDetailIdOfRelatedResource";
+  private final ResourceGroupQueryService resourceGroupQueryService;
 
+  private Resource resource;
   private String resourceType;
-  private ResourceGroupLink existingGroupLink;
   private UUID selectedGroupId;
-  private List<ResourceGroupLink> resourceGroupLinks;
+
+  @Autowired
+  ResourceGroupsFormValidator(ResourceGroupQueryService resourceGroupQueryService) {
+    this.resourceGroupQueryService = resourceGroupQueryService;
+  }
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (SubmissionForm) target;
     var hints = extractResourceGroupsValidatorHints(validationHints);
-    existingGroupLink = hints.currentResourceGroupLink();
-    resourceGroupLinks = hints.linksWithResource();
-    resourceType = hints.resource().getType().getDisplayName().toLowerCase();
+    resource = hints.resource();
+    resourceType = resource.getType().getDisplayName().toLowerCase();
     selectedGroupId = hints.selectedGroupId();
 
     validate(form, errors);
@@ -49,41 +52,19 @@ class ResourceGroupsFormValidator implements SmartValidator {
             .formatted(resourceType, resourceType));
 
     if (BooleanUtils.isTrue(form.getRelatedToAnotherResource())) {
-      ValidationUtils.rejectIfEmpty(errors, "preferredView", "preferredView.required",
-          "Select whether this is the regulator preferred view of the %s?".formatted(resourceType));
-
       ValidationUtils.rejectIfEmpty(
           errors,
-          "submissionDetailIdOfRelatedResource",
-          "submissionDetailIdOfRelatedResource.required",
+          SELECTED_SUBMISSION_DETAIL_ID,
+          SELECTED_SUBMISSION_DETAIL_ID + ".required",
           "Select a %s or %s group".formatted(resourceType, resourceType));
 
-      if (BooleanUtils.isFalse(form.getPreferredView())
-          && isResourcePreferredViewAndGroupHasMoreThanTwo(existingGroupLink, resourceGroupLinks)) {
-        //cannot remove the preferred view on the resource if there are more than two resources in the group
+      if (resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId).isPresent()
+          && BooleanUtils.isTrue(resource.getActive())) {
         errors.rejectValue(
-            "preferredView",
-            "preferredView.mustHavePreferredView",
-            "To change whether this %s is the preferred view you must set another resource as the preferred view"
-                .formatted(resourceType)
-        );
+            SELECTED_SUBMISSION_DETAIL_ID,
+            SELECTED_SUBMISSION_DETAIL_ID + ".cannotHaveSeveralActiveResourcesInGroup",
+            "This resource cannot be added to the group as there is already an active resource in the group");
       }
-      if (Objects.nonNull(form.getSubmissionDetailIdOfRelatedResource())
-          && !isTheSelectedGroupTheSameAsPrevious()
-          && isResourcePreferredViewAndGroupHasMoreThanTwo(existingGroupLink, resourceGroupLinks)) {
-        //if the group has been changed and the resource was the preferred view
-        errors.rejectValue(
-            "submissionDetailIdOfRelatedResource",
-            "submissionDetailIdOfRelatedResource.mustHavePreferredView",
-            "You cannot change the group of this %s if it is the preferred view."
-                .formatted(resourceType));
-      }
-    } else if (isResourcePreferredViewAndGroupHasMoreThanTwo(existingGroupLink, resourceGroupLinks)) {
-      //cannot remove the resource from group if it is the preferred view and there are more than two resources in the group
-      errors.rejectValue("relatedToAnotherResource",
-          "relatedToAnotherResource.mustHavePreferredView",
-          "To remove this %s you must first set another resource as the preferred view"
-              .formatted(resourceType));
     }
   }
 
@@ -93,18 +74,5 @@ class ResourceGroupsFormValidator implements SmartValidator {
         .map(ResourceGroupsValidatorHints.class::cast)
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Cannot get ResourceGroupsValidatorHints"));
-  }
-
-  private boolean isTheSelectedGroupTheSameAsPrevious() {
-    //returns true if the selected resource group is different to the saved resource group
-    return ((selectedGroupId != null && existingGroupLink.getResourceGroupId() != null)
-        && selectedGroupId.equals(existingGroupLink.getResourceGroupId()))
-        || ObjectUtils.allNull(existingGroupLink.getResourceGroupId());
-  }
-
-  private boolean isResourcePreferredViewAndGroupHasMoreThanTwo(
-      ResourceGroupLink existingGroupLink, List<ResourceGroupLink> resourceGroupLinks) {
-    //returns true if the resource was the preferred view and there are more than two in its group
-    return BooleanUtils.isTrue(existingGroupLink.getPreferredView()) && resourceGroupLinks.size() > TWO_IN_GROUP;
   }
 }

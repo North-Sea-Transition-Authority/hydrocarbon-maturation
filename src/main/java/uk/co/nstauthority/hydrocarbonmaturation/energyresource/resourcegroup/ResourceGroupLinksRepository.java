@@ -12,11 +12,7 @@ public interface ResourceGroupLinksRepository extends CrudRepository<ResourceGro
 
   Optional<ResourceGroupLink> findByResource(Resource resource);
 
-  Optional<ResourceGroupLink> findByResourceGroupIdAndPreferredViewIsTrue(UUID resourceGroupId);
-
   List<ResourceGroupLink> findByResourceGroupId(UUID resourceGroupId);
-
-  boolean existsResourceGroupLinkByResourceAndPreferredViewIs(Resource resource, boolean isPreferredView);
 
   List<ResourceGroupLink> findAllByResourceIn(List<Resource> resources);
 }

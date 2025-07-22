@@ -95,7 +95,7 @@ public class FieldQueryService {
   }
 
   /** Returns List of all field views that match the search term based on the following rules
-   * 1. The field is not archived
+   * 1. The field is not active
    * 2. There are no open (not withdrawn) submissions of draft or submitted status against the field
    * 3. The latest field status is in the set of allowed statuses
    * 4. If the user is an operator user, only show fields from organisation units the user has permissions for
@@ -136,7 +136,7 @@ public class FieldQueryService {
         )
         .where(conditionList)
             .and(FIELDS.CORRECTED_LEGAL_FIELD_NAME.containsIgnoreCase(name))
-            .and(RESOURCES.ARCHIVED.isFalse())
+            .and(RESOURCES.ACTIVE.isTrue())
             .and(notExists(select(one())
                 .from(SUBMISSIONS_2
                     .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))

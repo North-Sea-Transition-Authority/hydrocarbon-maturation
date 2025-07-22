@@ -202,7 +202,7 @@ public class FieldRegulatorManagedInformationController {
             .getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
         .addObject("discoveriesApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchDiscoveriesNotInGroupOrPreferredView(null)))
+                .searchDiscoveriesForFields(null)))
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
         .addObject("alreadyAddedLicences", fieldLicenceService.getFieldLicenceViews(form));

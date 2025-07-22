@@ -272,7 +272,7 @@ public class ViewResourceRecordController {
 
   private void addArchiveProperties(ModelAndView modelAndView, Resource resource) {
     var resourceId = resource.getId();
-    var isArchived = BooleanUtils.isTrue(resource.getArchived());
+    var isArchived = BooleanUtils.isFalse(resource.getActive());
 
     var urlObjectKey = isArchived
         ? "unarchiveUrl"

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresour
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
+import org.jooq.tools.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,16 +31,15 @@ public class RelatedResourcesPersistenceService {
 
     relatedResource.setRelatedToAnotherResource(form.getRelatedToAnotherResource());
     if (BooleanUtils.isTrue(form.getRelatedToAnotherResource())) {
-
+      if (StringUtils.isEmpty(form.getSubmissionDetailIdOfRelatedResource())) {
+        relatedResource.setRelatedSubmissionDetail(null);
+      }
       Optional.ofNullable(form.getSubmissionDetailIdOfRelatedResource())
           .map(UUID::fromString)
           .map(submissionDetailService::getSubmissionDetailForIdOrError)
           .ifPresent(relatedResource::setRelatedSubmissionDetail);
-
-      relatedResource.setPreferredView(form.getPreferredView());
     } else {
       relatedResource.setRelatedSubmissionDetail(null);
-      relatedResource.setPreferredView(null);
     }
 
     relatedResourcesRepository.save(relatedResource);

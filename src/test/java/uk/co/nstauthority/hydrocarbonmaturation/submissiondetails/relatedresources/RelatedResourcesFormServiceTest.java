@@ -3,9 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresour
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -15,13 +12,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLinksRepository;
@@ -31,14 +24,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class RelatedResourcesFormServiceTest {
-  private static final User USER = UserTestUtil.Builder().build();
-  @Mock
-  private RelatedResourcesFormValidator relatedResourcesFormValidator;
   @Mock
   private RelatedResourcesPersistenceService relatedResourcesPersistenceService;
   @Mock
@@ -60,32 +48,15 @@ class RelatedResourcesFormServiceTest {
   }
 
   @Test
-  void validate_verifyMethodCall() {
-    var form = new RelatedResourcesForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
-    relatedResourcesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
-    verify(relatedResourcesFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-    assertThat(captor.getValue())
-        .extracting(SubmissionFormValidatorHints::getSubmissionDetail,
-            SubmissionFormValidatorHints::getValidationType)
-        .containsExactly(submissionDetail, ValidationType.FULL);
-  }
-
-  @Test
   void getRelatedResourcesFormEntityToForm_newEntity_thenEmptyForm() {
     when(relatedResourcesPersistenceService.getRelatedResource(submissionDetail)).thenReturn(Optional.empty());
 
     assertThat(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail))
         .extracting(
             RelatedResourcesForm::getRelatedToAnotherResource,
-            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource,
-            RelatedResourcesForm::getPreferredView
+            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource
         )
         .containsExactly(
-            null,
             null,
             null
         );
@@ -103,49 +74,11 @@ class RelatedResourcesFormServiceTest {
     assertThat(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail))
         .extracting(
             RelatedResourcesForm::getRelatedToAnotherResource,
-            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource,
-            RelatedResourcesForm::getPreferredView
+            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource
         )
         .containsExactly(
             relatedResource.getRelatedToAnotherResource(),
-            relatedResource.getRelatedSubmissionDetail().getId().toString(),
-            relatedResource.getPreferredView()
-        );
-  }
-
-  @Test
-  void relatedResourceEntityToForm_existingEntityButRelatedSubmissionDetailNoLongerPreferredView_thenPopulatedForm() {
-    var relatedResource = getRelatedResource(submissionDetail);
-    when(relatedResourcesPersistenceService.getRelatedResource(submissionDetail)).thenReturn(Optional.of(relatedResource));
-    when(resourceGroupQueryService.getResourceGroupViewForSubmissionDetail(
-        relatedResource.getRelatedSubmissionDetail(),
-        null))
-        .thenReturn(Optional.empty());
-    var resourceGroupLink = new ResourceGroupLink();
-    var resourceGroupId = UUID.randomUUID();
-    resourceGroupLink.setResourceGroupId(resourceGroupId);
-    when(resourceGroupLinksRepository.findByResource(
-        relatedResource.getRelatedSubmissionDetail().getSubmission().getResource()))
-        .thenReturn(Optional.of(resourceGroupLink));
-    var resourceGroupLink2 = new ResourceGroupLink();
-    var resource = new Resource();
-    resourceGroupLink2.setResource(resource);
-    when(resourceGroupLinksRepository.findByResourceGroupIdAndPreferredViewIsTrue(resourceGroupId))
-        .thenReturn(Optional.of(resourceGroupLink2));
-    var submissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
-        .thenReturn(Optional.of(submissionDetail2));
-
-    assertThat(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail))
-        .extracting(
-            RelatedResourcesForm::getRelatedToAnotherResource,
-            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource,
-            RelatedResourcesForm::getPreferredView
-        )
-        .containsExactly(
-            relatedResource.getRelatedToAnotherResource(),
-            submissionDetail2.getId().toString(),
-            relatedResource.getPreferredView()
+            relatedResource.getRelatedSubmissionDetail().getId().toString()
         );
   }
 
@@ -158,12 +91,10 @@ class RelatedResourcesFormServiceTest {
     assertThat(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail))
         .extracting(
             RelatedResourcesForm::getRelatedToAnotherResource,
-            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource,
-            RelatedResourcesForm::getPreferredView
+            RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource
         )
         .containsExactly(
             false,
-            null,
             null
         );
   }
@@ -229,13 +160,50 @@ class RelatedResourcesFormServiceTest {
 
   }
 
+  @Test
+  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdSetAndGroupExists_returnsGroupId() {
+    var form = new RelatedResourcesForm();
+    var relatedSubmissionDetailId = UUID.randomUUID();
+    form.setSubmissionDetailIdOfRelatedResource(relatedSubmissionDetailId.toString());
+    var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    relatedSubmissionDetail.setId(relatedSubmissionDetailId);
+    var resource = new Resource();
+    relatedSubmissionDetail.getSubmission().setResource(resource);
+    var groupId = UUID.randomUUID();
+    var link = new ResourceGroupLink();
+    link.setResourceGroupId(groupId);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(relatedSubmissionDetailId)).thenReturn(relatedSubmissionDetail);
+    when(resourceGroupLinksRepository.findByResource(resource)).thenReturn(Optional.of(link));
+    assertThat(relatedResourcesFormService.getSelectedResourceGroupIdOrNull(form)).isEqualTo(groupId);
+  }
+
+  @Test
+  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdSetAndNoGroup_returnsNull() {
+    var form = new RelatedResourcesForm();
+    var relatedSubmissionDetailId = UUID.randomUUID();
+    form.setSubmissionDetailIdOfRelatedResource(relatedSubmissionDetailId.toString());
+    var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    relatedSubmissionDetail.setId(relatedSubmissionDetailId);
+    var resource = new Resource();
+    relatedSubmissionDetail.getSubmission().setResource(resource);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(relatedSubmissionDetailId)).thenReturn(relatedSubmissionDetail);
+    when(resourceGroupLinksRepository.findByResource(resource)).thenReturn(Optional.empty());
+    assertThat(relatedResourcesFormService.getSelectedResourceGroupIdOrNull(form)).isNull();
+  }
+
+  @Test
+  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdIsNull_returnsNull() {
+    var form = new RelatedResourcesForm();
+    form.setSubmissionDetailIdOfRelatedResource(null);
+    assertThat(relatedResourcesFormService.getSelectedResourceGroupIdOrNull(form)).isNull();
+  }
+
   private RelatedResource getRelatedResource(SubmissionDetail submissionDetail) {
     var related = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var relatedResource = new RelatedResource();
     relatedResource.setSubmissionDetail(submissionDetail);
     relatedResource.setRelatedToAnotherResource(true);
     relatedResource.setRelatedSubmissionDetail(related);
-    relatedResource.setPreferredView(false);
     return relatedResource;
   }
 }

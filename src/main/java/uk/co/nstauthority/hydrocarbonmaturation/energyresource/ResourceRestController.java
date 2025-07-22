@@ -65,10 +65,10 @@ public class ResourceRestController {
   }
 
   @GetMapping("/discoveries/field-discoveries")
-  public RestSearchResult searchDiscoveriesNotInGroupOrPreferredView(@RequestParam("term") String searchTerm) {
+  public RestSearchResult searchDiscoveriesForFields(@RequestParam("term") String searchTerm) {
     return searchSelectorService.search(
         searchTerm,
-        submissionQueryService.getLatestActivePreferredViewDiscoveriesByName(
+        submissionQueryService.getLatestActiveViewDiscoveriesByName(
             searchTerm)
     );
   }

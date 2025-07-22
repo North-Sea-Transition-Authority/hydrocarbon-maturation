@@ -11,7 +11,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -23,7 +22,6 @@ public class CorrectionService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final ResponsibleTeamService responsibleTeamService;
   private final SubmissionDetailService submissionDetailService;
-  private final ResourceGroupService resourceGroupService;
   private final ResourceLinkService resourceLinkService;
   private final CorrectionCreateService correctionCreateService;
 
@@ -31,12 +29,10 @@ public class CorrectionService {
   public CorrectionService(RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                            ResponsibleTeamService responsibleTeamService,
                            SubmissionDetailService submissionDetailService,
-                           ResourceGroupService resourceGroupService,
                            ResourceLinkService resourceLinkService, CorrectionCreateService correctionCreateService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.submissionDetailService = submissionDetailService;
-    this.resourceGroupService = resourceGroupService;
     this.resourceLinkService = resourceLinkService;
     this.correctionCreateService = correctionCreateService;
   }
@@ -113,14 +109,11 @@ public class CorrectionService {
   }
 
   /** Submissions can only be removed from resources if:
-   *  it's not the preferred view for a group
-   *  and if it's a prospect it's not currently linked to a discovery.
+   *  if it's a prospect it's not currently linked to a discovery.
    * @param resource the resource from which submissions are being removed
    * @return true or false
    */
   boolean canRemoveSubmissions(Resource resource) {
-    var isPreferredView = resourceGroupService.isPreferredView(resource);
-    var prospectHasLinkedDiscovery = resourceLinkService.prospectIsLinkedToDiscovery(resource);
-    return !isPreferredView && !prospectHasLinkedDiscovery;
+    return !resourceLinkService.prospectIsLinkedToDiscovery(resource);
   }
 }

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
@@ -9,6 +10,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldStatusSnsService;
@@ -19,9 +22,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 public class ResourceArchiveService {
 
   static final String DISCOVERY_LINKED_TO_FIELD_WARNING = "Discoveries cannot be archived if they are linked to a field.";
-  static final String OPEN_CORRECTION_WARNING = "%s cannot be archived with an open correction.";
+  static final String OPEN_CORRECTION_WARNING = "This %s cannot be archived with an open correction.";
   static final String ACTIVE_SUBMISSIONS_WARNING =
-      "%s cannot be archived with open draft submissions or submissions awaiting QA.";
+      "This %s cannot be archived with open draft submissions or submissions awaiting QA.";
+  static final String OTHER_ACTIVE_RESOURCE_IN_GROUP = "This %s cannot be unarchived. " +
+      "Only one active resource can exist within a group. " +
+      "If you wish to make this resource active you must archive the active resource in the group first.";
 
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
@@ -30,6 +36,7 @@ public class ResourceArchiveService {
   private final FieldStatusSnsService fieldStatusSnsService;
   private final FieldPersistenceService fieldPersistenceService;
   private final FieldStatusService fieldStatusService;
+  private final ResourceGroupService resourceGroupService;
 
   @Autowired
   public ResourceArchiveService(ResourceLinkService resourceLinkService,
@@ -38,7 +45,7 @@ public class ResourceArchiveService {
                                 PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
                                 FieldStatusSnsService fieldStatusSnsService,
                                 FieldPersistenceService fieldPersistenceService,
-                                FieldStatusService fieldStatusService
+                                FieldStatusService fieldStatusService, ResourceGroupService resourceGroupService
   ) {
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
@@ -47,6 +54,7 @@ public class ResourceArchiveService {
     this.fieldStatusSnsService = fieldStatusSnsService;
     this.fieldPersistenceService = fieldPersistenceService;
     this.fieldStatusService = fieldStatusService;
+    this.resourceGroupService = resourceGroupService;
   }
 
   public Optional<String> resourceCannotBeArchivedWarning(Resource resource) {
@@ -54,7 +62,7 @@ public class ResourceArchiveService {
       return Optional.of(DISCOVERY_LINKED_TO_FIELD_WARNING);
     }
 
-    var resourceTypeDisplayText = resource.getType().getDisplayName();
+    var resourceTypeDisplayText = resource.getType().getDisplayName().toLowerCase();
 
     var openCorrectionExists = submissionDetailService.openCorrectionExists(
         Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED),
@@ -72,8 +80,28 @@ public class ResourceArchiveService {
     return Optional.empty();
   }
 
+  public Optional<String> resourceCannotBeUnarchivedWarning(Resource resource) {
+    var resourceGroupLink = resourceGroupService.getResourceGroupLinkByResource(resource);
+    if (resourceGroupLink.isPresent()) {
+      var otherActiveResourcesInGroup = resourceGroupService.getResourceGroupLinksByResourceGroupId(
+          resourceGroupLink.get().getResourceGroupId()
+      ).stream()
+          .map(ResourceGroupLink::getResource)
+          .filter(res -> !res.getId().equals(resource.getId()))
+          .filter(res -> BooleanUtils.isTrue(res.getActive()))
+          .toList();
+
+      if (otherActiveResourcesInGroup.isEmpty()) {
+        return Optional.empty();
+      }
+
+      return Optional.of(OTHER_ACTIVE_RESOURCE_IN_GROUP.formatted(resource.getType().getDisplayName().toLowerCase()));
+    }
+    return Optional.empty();
+  }
+
   public void archiveResource(Resource resource) {
-    resource.setArchived(true);
+    resource.setActive(false);
     resourceRepository.save(resource);
 
     if (resource.getType().equals(ResourceType.FIELD)) {
@@ -83,7 +111,7 @@ public class ResourceArchiveService {
   }
 
   public void unarchiveResource(Resource resource) {
-    resource.setArchived(false);
+    resource.setActive(true);
     resourceRepository.save(resource);
 
     if (resource.getType().equals(ResourceType.FIELD)) {

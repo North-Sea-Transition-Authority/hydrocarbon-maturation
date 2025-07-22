@@ -246,7 +246,7 @@ public class UndevelopedDiscoveriesOverviewService {
   private List<Tag> getTags(Resource resource, List<UUID> duplicateResourceIds) {
     var tags = new ArrayList<Tag>();
 
-    if (BooleanUtils.isTrue(resource.getArchived())) {
+    if (BooleanUtils.isFalse(resource.getActive())) {
       tags.add(new Tag("Archived", TagColour.GREY));
     }
 

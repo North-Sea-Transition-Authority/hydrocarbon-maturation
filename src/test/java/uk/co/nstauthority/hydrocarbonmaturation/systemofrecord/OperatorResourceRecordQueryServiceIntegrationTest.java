@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
@@ -34,7 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.O
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
@@ -188,49 +186,6 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void getProspectAndDiscoveryRecordSearchResults_andFilterByPreferredView_assertPreferredAndNonPreferredReturned(
-      boolean showOnlyPreferredView) {
-    //the filter for preferred view should not work for operators
-    var userOrgUnitId = 1;
-    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(userOrgUnitId));
-
-    var preferredViewResource = buildProspectResource();
-    var preferredViewSubmissionDetail =
-        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, null);
-    createResourceDetail(
-        preferredViewSubmissionDetail, "Not relevant name", userOrgUnitId);
-    buildResourceGroupLink(true, preferredViewResource);
-    var preferredViewGeneralDetail = createGeneralDetail(preferredViewSubmissionDetail, null);
-    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
-    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
-
-    var nonPreferredViewResource = buildProspectResource();
-    var nonPreferredSubmissionDetail =
-        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT, null);
-    buildResourceGroupLink(false, nonPreferredViewResource);
-    createResourceDetail(
-        nonPreferredSubmissionDetail, "Not relevant name", userOrgUnitId);
-    var nonPreferredGeneralDetail = createGeneralDetail(nonPreferredSubmissionDetail, null);
-    var extantLicence2 = createProspectAndDiscoveryLicence(1, "licenceRef", nonPreferredGeneralDetail);
-    when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
-        .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
-
-    var form = new SearchResourceRecordsForm();
-    form.setShowOnlyPreferredViews(showOnlyPreferredView);
-
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
-    assertThat(results)
-        .extracting(
-            ResourceRecordQueryResult::submissionDetailId)
-        .containsExactly(
-            nonPreferredSubmissionDetail.getId(),
-            preferredViewSubmissionDetail.getId()
-        );
-  }
-
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
   void getProspectAndDiscoveryRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
       Boolean withdrawn) {
     if(!withdrawn) {
@@ -249,8 +204,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     entityManager.flush();
     createResourceDetail(
         submissionDetailWithWithdrawnSubmission, "Not relevant name", userOrgUnitId);
-    var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission, null);
-    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
+    var generalDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission, null);
+    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -385,7 +340,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                     ResourceRecordQueryResult::responsibleTeam,
                     ResourceRecordQueryResult::parentFieldName,
                     ResourceRecordQueryResult::fieldStatus,
-                    ResourceRecordQueryResult::archived
+                    ResourceRecordQueryResult::active
             )
             .containsExactly(
                     tuple(
@@ -396,7 +351,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                             nonArchivedRegulatorManagedInformation.getResponsibleTeamType(),
                             nonArchivedField.getParentDeterminedField().getCorrectedLegalFieldName(),
                             fieldStatusHistoryForNonArchivedField.getFieldStatus(),
-                            nonArchivedResource.getArchived()
+                            nonArchivedResource.getActive()
                     )
             );
   }
@@ -504,16 +459,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createArchivedResource(entityManager, ResourceType.FIELD);
   }
 
-  private void buildResourceGroupLink(boolean preferredView, Resource resource) {
-    var resourceGroupLink = new ResourceGroupLink();
-    resourceGroupLink.setResource(resource);
-    resourceGroupLink.setPreferredView(preferredView);
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    entityManager.persist(resourceGroupLink);
-    entityManager.flush();
-  }
-
-  private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType,
+  private SubmissionDetail buildSubmissionDetail(Resource resource,
+                                                 SubmissionType submissionType,
                                                  Instant acceptedTimestamp) {
     var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
     return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager,

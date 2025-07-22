@@ -5,7 +5,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 
 public record ResourceGroupSummaryView(List<ResourceItemSummaryView> resourcesInGroup,
                                        ResourceType resourceType,
-                                       String isPreferredView) {
+                                       String isActive) {
   static ResourceGroupSummaryView empty(ResourceType resourceType) {
     return new ResourceGroupSummaryView(List.of(), resourceType, "");
   }

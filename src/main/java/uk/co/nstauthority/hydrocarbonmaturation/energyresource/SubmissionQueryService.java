@@ -9,7 +9,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GEN
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUP_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
@@ -57,7 +56,7 @@ class SubmissionQueryService {
 
   /**
    * Returns List of all prospect resource views that match the search term based on the following rules
-   * 1. The prospect is not archived
+   * 1. The prospect is not active
    * 2. There are no open (not withdrawn) submissions of draft or submitted status against the prospect
    * 3. There is not already an accepted relinquishment submission against the prospect
    * 4. If the submission type is an update or dry hole, there is not an accepted dry hole submission against the prospect
@@ -98,7 +97,7 @@ class SubmissionQueryService {
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
         )
         .where(conditionList)
-        .and(RESOURCES.ARCHIVED.isFalse())
+        .and(RESOURCES.ACTIVE.isTrue())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
                 LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID)
@@ -134,7 +133,7 @@ class SubmissionQueryService {
 
   /**
    * Returns List of all discovery resource views that match the search term based on the following rules
-   * 1. The discovery is not archived
+   * 1. The discovery is not active
    * 2. There are no open (not withdrawn) submissions of draft or submitted status against the discovery
    * 3. There are no accepted relinquishment submissions against the discovery
    * 4. The discovery is not linked to a field that has a status of 300 or higher in its history
@@ -166,7 +165,7 @@ class SubmissionQueryService {
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
         )
         .where(conditionList)
-        .and(RESOURCES.ARCHIVED.isFalse())
+        .and(RESOURCES.ACTIVE.isTrue())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
                 LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID)
@@ -217,14 +216,14 @@ class SubmissionQueryService {
 
   /**
    * Returns List of all discovery resource views that match the search term based on the following rules
-   * 1. The discovery is not archived
+   * 1. The discovery is not active
    * 2. There are no accepted relinquishment submissions against the discovery
-   * 3. The discovery is not in a resource group, or it is the preferred view in a resource group
+   * 3. The discovery is not in a resource group
    *
    * @param name - The text to search by
    * @return list of resource views returned by the search
    */
-  public List<ResourceView> getLatestActivePreferredViewDiscoveriesByName(String name) {
+  public List<ResourceView> getLatestActiveViewDiscoveriesByName(String name) {
     var submissionQueryResults = context.select(
         RESOURCE_DETAILS.ID,
         RESOURCE_DETAILS.RESOURCE_NAME,
@@ -239,13 +238,8 @@ class SubmissionQueryService {
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
         )
         .where(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
-        .and(RESOURCES.ARCHIVED.isFalse())
+        .and(RESOURCES.ACTIVE.isTrue())
         .and(RESOURCES.TYPE.eq(ResourceType.DISCOVERY.name()))
-        .and(notExists(select(one())
-            .from(RESOURCE_GROUP_LINKS.where(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID)
-                .and(RESOURCE_GROUP_LINKS.PREFERRED_VIEW.eq(false)))
-            ))
-        )
         .and(notExists(select(one())
             .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))

@@ -235,7 +235,7 @@ class ResourceLinkServiceTest {
     resource.setType(ResourceType.DISCOVERY);
 
     var archivedField = new Resource();
-    archivedField.setArchived(true);
+    archivedField.setActive(false);
 
     var resourceLink = new ResourceLink();
     resourceLink.setFieldResource(archivedField);
@@ -255,7 +255,7 @@ class ResourceLinkServiceTest {
     resource.setType(ResourceType.DISCOVERY);
 
     var activeField = new Resource();
-    activeField.setArchived(false);
+    activeField.setActive(true);
 
     var resourceLink = new ResourceLink();
     resourceLink.setFieldResource(activeField);
@@ -275,7 +275,7 @@ class ResourceLinkServiceTest {
     resource.setType(ResourceType.DISCOVERY);
 
     var activeField = new Resource();
-    activeField.setArchived(false);
+    activeField.setActive(true);
 
     var resourceLink = new ResourceLink();
     resourceLink.setFieldResource(activeField);

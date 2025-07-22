@@ -1,11 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup;
 
 import jakarta.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -14,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 @Service
 public class ResourceGroupQueryService {
   public static final String GROUP_PREFIX = "(GROUP) ";
+  public static final String ACTIVE_RESOURCE_STRING = " (active)";
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionResourceService submissionResourceService;
@@ -34,6 +38,7 @@ public class ResourceGroupQueryService {
         .flatMap(Optional::stream)
         .map(submissionDetail -> getResourceGroupViewForSubmissionDetail(submissionDetail, currentResourceId))
         .flatMap(Optional::stream)
+        .sorted(Comparator.comparing(ResourceGroupView::getSelectionText))
         .toList();
   }
 
@@ -49,15 +54,17 @@ public class ResourceGroupQueryService {
 
   public Optional<ResourceGroupView> getResourceGroupViewForSubmissionDetail(SubmissionDetail submissionDetail,
                                                                              @Nullable UUID currentResourceId) {
+    var isActiveResourceString = BooleanUtils.isTrue(submissionDetail.getSubmission().getResource().getActive())
+        ? ACTIVE_RESOURCE_STRING : "";
     var resourceNameCentreOfInterestAndRoundReference = submissionResourceService
-        .getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail);
+        .getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail) + isActiveResourceString;
 
     var resourceGroupLink = resourceGroupLinksRepository.findByResource(
         submissionDetail.getSubmission().getResource());
 
     var isInGroup = resourceGroupLink.isPresent();
 
-    if (isInGroup && resourceGroupLink.get().getPreferredView()) {
+    if (isInGroup) {
       var resourceGroupView = new ResourceGroupView(
           submissionDetail.getId(),
           GROUP_PREFIX + resourceNameCentreOfInterestAndRoundReference,
@@ -66,7 +73,7 @@ public class ResourceGroupQueryService {
       return Optional.of(resourceGroupView);
     }
 
-    if (!isInGroup && !submissionDetail.getSubmission().getResource().getId().equals(currentResourceId)) {
+    if (!submissionDetail.getSubmission().getResource().getId().equals(currentResourceId)) {
       //filters out the current resource so the current resource won't be able to have a group with itself.
       var resourceGroupView = new ResourceGroupView(
           submissionDetail.getId(),
@@ -77,5 +84,25 @@ public class ResourceGroupQueryService {
     }
 
     return Optional.empty();
+  }
+
+  public List<Resource> getResourcesInGroupForGroupId(UUID resourceGroupId) {
+    return resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId)
+            .stream()
+            .map(ResourceGroupLink::getResource)
+            .toList();
+  }
+
+  public Optional<Resource> getActiveResourceForResourceList(List<Resource> resources) {
+    return resources.stream()
+        .filter(res -> BooleanUtils.isTrue(res.getActive()))
+        .findFirst();
+  }
+
+  public Optional<Resource> getActiveResourceInGroupForGroupId(UUID resourceGroupId) {
+    return getResourcesInGroupForGroupId(resourceGroupId)
+        .stream()
+        .filter(res -> BooleanUtils.isTrue(res.getActive()))
+        .findFirst();
   }
 }

@@ -1083,75 +1083,6 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     }
   }
 
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void getProspectAndDiscoveryRecordSearchResults_andFilterByPreferredView_assertResult(
-      boolean showOnlyPreferredViews) {
-    setUpRegulatorTest();
-
-    var preferredViewResource = buildProspectResource();
-    var preferredViewSubmissionDetail =
-        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    createGeneralDetail(preferredViewSubmissionDetail, null);
-    buildResourceGroupLink(true, preferredViewResource);
-
-    createResourceDetail(
-        preferredViewSubmissionDetail, "Not relevant name", 1);
-
-    var nonPreferredViewResource = buildProspectResource();
-    var nonPreferredSubmissionDetail =
-        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    buildResourceGroupLink(false, nonPreferredViewResource);
-    createGeneralDetail(nonPreferredSubmissionDetail, null);
-    createResourceDetail(
-        nonPreferredSubmissionDetail, "Not relevant name", 2);
-
-    var form = new SearchResourceRecordsForm();
-    form.setShowOnlyPreferredViews(showOnlyPreferredViews);
-
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
-    if (showOnlyPreferredViews) {
-      assertThat(results)
-          .extracting(
-              ResourceRecordQueryResult::submissionDetailId)
-          .containsExactly(
-              preferredViewSubmissionDetail.getId()
-          );
-    } else {
-      assertThat(results)
-          .extracting(
-              ResourceRecordQueryResult::submissionDetailId)
-          .containsExactlyInAnyOrder(
-              nonPreferredSubmissionDetail.getId(),
-              preferredViewSubmissionDetail.getId()
-          );
-    }
-  }
-
-  @Test
-  void getProspectAndDiscoveryRecordSearchResults_whenNoResourceLinkAndFilterByPreferredView_assertReturned() {
-    setUpRegulatorTest();
-
-    var preferredViewResource = buildProspectResource();
-    var preferredViewSubmissionDetail =
-        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    createGeneralDetail(preferredViewSubmissionDetail, null);
-    createResourceDetail(
-        preferredViewSubmissionDetail, "Not relevant name", 1);
-
-    var form = new SearchResourceRecordsForm();
-    form.setShowOnlyPreferredViews(true);
-
-    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
-
-    assertThat(results)
-        .extracting(
-            ResourceRecordQueryResult::submissionDetailId)
-        .containsExactly(
-            preferredViewSubmissionDetail.getId()
-        );
-  }
-
   @Test
   void getProspectAndDiscoveryRecordSearchResults_whenSubmittedUpdatesPresent_assertReturnedLatestApproved() {
     setUpRegulatorTest();
@@ -1207,7 +1138,6 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         deletedDraftUpdate, "Not relevant name", 1);
 
     var form = new SearchResourceRecordsForm();
-    form.setShowOnlyPreferredViews(true);
 
     var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
 
@@ -1237,8 +1167,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     entityManager.flush();
     createResourceDetail(
         submissionDetailWithWithdrawnSubmission, "Not relevant name", 1);
-    var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission, null);
-    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
+    var generalDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission, null);
+    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceDto("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -1266,14 +1196,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var archivedSubmissionDetail =
             buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(archivedSubmissionDetail, null);
-    buildResourceGroupLink(true, archivedResource);
+    buildResourceGroupLink(archivedResource);
 
     createResourceDetail(archivedSubmissionDetail, "Not relevant name", 1);
 
     var nonArchivedResource = buildProspectResource();
     var nonArchivedSubmissionDetail =
             buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    buildResourceGroupLink(true, nonArchivedResource);
+    buildResourceGroupLink(nonArchivedResource);
     createGeneralDetail(nonArchivedSubmissionDetail, null);
     createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
 
@@ -1297,14 +1227,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var archivedSubmissionDetail =
             buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(archivedSubmissionDetail, null);
-    buildResourceGroupLink(true, archivedResource);
+    buildResourceGroupLink(archivedResource);
 
     createResourceDetail(archivedSubmissionDetail, "Not relevant name", 1);
 
     var nonArchivedResource = buildProspectResource();
     var nonArchivedSubmissionDetail =
             buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    buildResourceGroupLink(true, nonArchivedResource);
+    buildResourceGroupLink(nonArchivedResource);
     createGeneralDetail(nonArchivedSubmissionDetail, null);
     createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
 
@@ -1536,10 +1466,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
   }
 
-  private ResourceGroupLink buildResourceGroupLink(boolean preferredView, Resource resource) {
+  private ResourceGroupLink buildResourceGroupLink(Resource resource) {
     var resourceGroupLink = new ResourceGroupLink();
     resourceGroupLink.setResource(resource);
-    resourceGroupLink.setPreferredView(preferredView);
     resourceGroupLink.setResourceGroupId(UUID.randomUUID());
     entityManager.persist(resourceGroupLink);
     entityManager.flush();

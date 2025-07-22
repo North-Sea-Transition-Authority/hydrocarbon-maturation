@@ -328,4 +328,61 @@ class ResourceArchiveControllerTest extends AbstractResourceArchiveControllerTes
                 .with(csrf()))
         .andExpect(status().isUnauthorized());
   }
+
+  @Test
+  void unarchiveResourceConfirmation_cannotBeUnarchived_assertModelProperties() throws Exception {
+    setUpUserInResponsibleTeam();
+
+    var cannotBeUnarchivedMessage = "cannot unarchive resource";
+
+    when(resourceArchiveService.resourceCannotBeUnarchivedWarning(resource))
+        .thenReturn(Optional.of(cannotBeUnarchivedMessage));
+
+    var modelMap = Objects.requireNonNull(
+        mockMvc.perform(
+                get(ReverseRouter.route(on(ResourceArchiveController.class)
+                    .unarchiveResourceConfirmation(RESOURCE_ID, null)))
+                    .with(user(USER)))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getModelAndView()
+    ).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("pageTitle", ResourceArchiveController.UNARCHIVE_QUESTION),
+            entry("cancelUrl",
+                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID, null))),
+            entry("cannotBeUnarchivedReason", cannotBeUnarchivedMessage)
+        );
+
+    @SuppressWarnings(value = "unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(
+            ReverseRouter.route(
+                on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)),
+            SearchProspectAndDiscoveryRecordsController.PAGE_TITLE
+        ),
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
+            "resource name (coi)"
+        )
+    );
+  }
+
+  @Test
+  void archiveResource_cannotBeUnarchived() throws Exception {
+    setUpUserInResponsibleTeam();
+
+    when(resourceArchiveService.resourceCannotBeUnarchivedWarning(resource))
+        .thenReturn(Optional.of("cannot unarchive resource"));
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ResourceArchiveController.class)
+                .unarchiveResource(RESOURCE_ID, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isBadRequest());
+  }
 }

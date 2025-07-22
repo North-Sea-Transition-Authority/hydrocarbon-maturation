@@ -30,8 +30,6 @@ public class RelatedResource implements SubmissionDetailChildEntity {
   @JoinColumn(name = "related_submission_detail_id")
   private SubmissionDetail relatedSubmissionDetail;
 
-  private Boolean preferredView;
-
   public UUID getId() {
     return id;
   }
@@ -66,14 +64,6 @@ public class RelatedResource implements SubmissionDetailChildEntity {
     this.relatedSubmissionDetail = relatedSubmissionDetail;
   }
 
-  public Boolean getPreferredView() {
-    return preferredView;
-  }
-
-  public void setPreferredView(Boolean preferredView) {
-    this.preferredView = preferredView;
-  }
-
   @Override
   public String toString() {
     return "RelatedResource{" +
@@ -81,7 +71,6 @@ public class RelatedResource implements SubmissionDetailChildEntity {
         ", submissionDetail=" + submissionDetail +
         ", relatedToAnotherResource=" + relatedToAnotherResource +
         ", relatedSubmissionDetail=" + relatedSubmissionDetail +
-        ", preferredView=" + preferredView +
         '}';
   }
 }

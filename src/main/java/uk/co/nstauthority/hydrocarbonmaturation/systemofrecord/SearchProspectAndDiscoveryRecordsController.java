@@ -86,9 +86,6 @@ public class SearchProspectAndDiscoveryRecordsController {
 
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form, User user) {
     var isRegulatorOrAreaTeamUser = isRegulatorOrAreaTeamUser(user);
-    if (isRegulatorOrAreaTeamUser) {
-      form.setShowOnlyPreferredViews(true);
-    }
     return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO, isRegulatorOrAreaTeamUser);
   }
 

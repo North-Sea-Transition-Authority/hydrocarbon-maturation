@@ -21,7 +21,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
   private List<String> geographicalAreas = new ArrayList<>();
   private String parentFieldName;
   private boolean showResults;
-  private boolean showArchivedResources;
+  private Boolean showArchivedResources;
 
   public static SearchFieldRecordsFilter createInstance() {
     var filter = new SearchFieldRecordsFilter();
@@ -36,7 +36,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
     setFieldStatuses(form.getFieldStatuses());
     setGeographicalAreas(form.getGeographicalArea());
     setParentFieldName(form.getParentFieldName());
-    setShowArchivedResources(form.isShowArchivedResources());
+    setShowArchivedResources(form.getShowArchivedResources());
   }
 
   @Override
@@ -88,11 +88,11 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
     this.geographicalAreas = geographicalAreas;
   }
 
-  public boolean isShowArchivedResources() {
+  public Boolean getShowArchivedResources() {
     return showArchivedResources;
   }
 
-  public void setShowArchivedResources(boolean showArchivedResources) {
+  public void setShowArchivedResources(Boolean showArchivedResources) {
     this.showArchivedResources = showArchivedResources;
   }
 

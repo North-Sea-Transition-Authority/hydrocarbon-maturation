@@ -23,8 +23,8 @@
     <#if regulatorManagedInformationValues.isBeingRelinquished()>
       <@fileUploadSummary.fileUploadSummary filesUploaded=regulatorManagedInformationValues.relinquishmentReport()/>
     </#if>
-    <@fdsSummaryList.summaryListRowNoAction keyText="${resourceGroupsValues.resourceType().getDisplayName()} group preferred view">
-      ${resourceGroupsValues.isPreferredView()}
+    <@fdsSummaryList.summaryListRowNoAction keyText="${resourceGroupsValues.resourceType().getDisplayName()} group active view">
+        ${resourceGroupsValues.isActive()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="${resourceGroupsValues.resourceType().getPluralName()?capitalize} in group">
       <#list resourceGroupsValues.resourcesInGroup() as resourceInGroup>
@@ -34,7 +34,7 @@
           <#else>
             <@fdsAction.link linkText=resourceInGroup.resourceName() linkUrl=springUrl(resourceInGroup.viewSorUrl())/>
           </#if>
-          ${resourceInGroup.preferredView()}
+          ${resourceInGroup.isActive()}
         </div>
       </#list>
     </@fdsSummaryList.summaryListRowNoAction>

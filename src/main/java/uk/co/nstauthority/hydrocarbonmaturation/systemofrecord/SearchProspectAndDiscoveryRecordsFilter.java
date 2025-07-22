@@ -27,9 +27,8 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
   private String centreOfInterestBlock;
   private String licenceId;
   private List<String> geographicalArea = new ArrayList<>();
-  private boolean showOnlyPreferredViews;
   private boolean showResults;
-  private boolean showArchivedResources;
+  private Boolean showArchivedResources;
 
   public static SearchProspectAndDiscoveryRecordsFilter createInstance() {
     var filter = new SearchProspectAndDiscoveryRecordsFilter();
@@ -39,7 +38,6 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
 
   @Override
   public void update(SearchResourceRecordsForm form) {
-    setShowOnlyPreferredViews(form.isShowOnlyPreferredViews());
     setResourceTypes(form.getResourceTypes());
     setOpportunityTypes(form.getOpportunityTypes());
     setLicenceId(form.getLicenceId());
@@ -49,7 +47,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setResponsibleOrganisationId(form.getResponsibleOrganisationId());
     setGeographicalArea(form.getGeographicalArea());
     setShowResults(true);
-    setShowArchivedResources(form.isShowArchivedResources());
+    setShowArchivedResources(form.getShowArchivedResources());
   }
 
   @Override
@@ -124,14 +122,6 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     this.geographicalArea = geographicalArea;
   }
 
-  public boolean isShowOnlyPreferredViews() {
-    return showOnlyPreferredViews;
-  }
-
-  public void setShowOnlyPreferredViews(boolean showOnlyPreferredViews) {
-    this.showOnlyPreferredViews = showOnlyPreferredViews;
-  }
-
   public boolean isShowResults() {
     return showResults;
   }
@@ -140,11 +130,11 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     this.showResults = showResults;
   }
 
-  public boolean isShowArchivedResources() {
+  public Boolean getShowArchivedResources() {
     return showArchivedResources;
   }
 
-  public void setShowArchivedResources(boolean showArchivedResources) {
+  public void setShowArchivedResources(Boolean showArchivedResources) {
     this.showArchivedResources = showArchivedResources;
   }
 
@@ -154,7 +144,6 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setCentreOfInterestBlock(null);
     setLicenceId(null);
     setResourceNameFromResourceDetail(null);
-    setShowOnlyPreferredViews(true);
     setResponsibleOrganisationId(null);
     setResourceTypes(SEARCHABLE_TYPES);
     var oppTypes = new ArrayList<>(EnumUtils.getEnumNames(OpportunityType.class));

@@ -49,7 +49,7 @@
         </p>
 
         <p class="govuk-body">
-          If there are multiple views of the same discovery then only the preferred NSTA view can be associated with the field.
+          If there are multiple views of the same discovery then only the active NSTA view can be associated with the field.
         </p>
 
         <p class="govuk-body">

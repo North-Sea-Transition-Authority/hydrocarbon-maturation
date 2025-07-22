@@ -108,7 +108,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @BeforeEach
   void setUp() {
     resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
-    resource.setArchived(false);
     resourceId = resource.getId();
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT, resource);
     resourceRecordSummaryView = new ResourceRecordSummaryView(resource.getType(), submissionDetail.getId(), "resource", "coi", "RT9",
@@ -363,7 +362,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             .thenReturn(false);
 
     resource.setId(resourceId);
-    resource.setArchived(true);
+    resource.setActive(false);
     when(resourceService.getResourceById(resourceId))
             .thenReturn(Optional.of(resource));
 
@@ -556,7 +555,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_archivedFieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
-    resource.setArchived(true);
+    resource.setActive(false);
     resource.setType(ResourceType.FIELD);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
@@ -743,7 +742,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_prospectSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    resource.setArchived(false);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
@@ -816,7 +814,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_archivedProspectSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    resource.setArchived(true);
+    resource.setActive(false);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
@@ -889,7 +887,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_discoverySubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    resource.setArchived(false);
     resource.setType(ResourceType.DISCOVERY);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
@@ -965,7 +962,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_archivedDiscoverySubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    resource.setArchived(true);
+    resource.setActive(false);
     resource.setType(ResourceType.DISCOVERY);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
@@ -1063,7 +1060,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     resource.setId(resourceId);
     resource.setType(ResourceType.DISCOVERY);
-    resource.setArchived(false);
     when(resourceService.getResourceById(resourceId)).thenReturn(Optional.of(resource));
     when(viewResourceRecordService.canViewSubmissionDetail(submissionDetail, resource)).thenReturn(true);
 

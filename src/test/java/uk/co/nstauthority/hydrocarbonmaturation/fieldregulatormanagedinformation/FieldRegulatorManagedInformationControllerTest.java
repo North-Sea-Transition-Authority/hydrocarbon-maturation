@@ -314,7 +314,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
                 SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("discoveriesApiEndpoint",
                 SearchSelectorService.route(on(ResourceRestController.class)
-                    .searchDiscoveriesNotInGroupOrPreferredView(null))),
+                    .searchDiscoveriesForFields(null))),
             entry("responsibleOrganisation", expectedResponsibleOrganisation),
             entry("parentDeterminedField", expectedParentDeterminedField),
             entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries),
@@ -402,7 +402,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
                 SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("discoveriesApiEndpoint",
                 SearchSelectorService.route(on(ResourceRestController.class)
-                    .searchDiscoveriesNotInGroupOrPreferredView(null))),
+                    .searchDiscoveriesForFields(null))),
             entry("responsibleOrganisation", expectedResponsibleOrganisation),
             entry("parentDeterminedField", expectedParentDeterminedField),
             entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries),

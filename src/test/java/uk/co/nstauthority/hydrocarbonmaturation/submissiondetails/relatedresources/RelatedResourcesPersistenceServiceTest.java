@@ -52,13 +52,11 @@ class RelatedResourcesPersistenceServiceTest {
     assertThat(relatedResourcesArgumentCaptor.getValue())
         .extracting(
             RelatedResource::getRelatedToAnotherResource,
-            RelatedResource::getRelatedSubmissionDetail,
-            RelatedResource::getPreferredView
+            RelatedResource::getRelatedSubmissionDetail
         )
         .containsExactly(
             form.getRelatedToAnotherResource(),
-            submissionDetail,
-            form.getPreferredView()
+            submissionDetail
         );
   }
 
@@ -76,12 +74,10 @@ class RelatedResourcesPersistenceServiceTest {
     assertThat(relatedResourcesArgumentCaptor.getValue())
         .extracting(
             RelatedResource::getRelatedToAnotherResource,
-            RelatedResource::getRelatedSubmissionDetail,
-            RelatedResource::getPreferredView
+            RelatedResource::getRelatedSubmissionDetail
         )
         .containsExactly(
             form.getRelatedToAnotherResource(),
-            null,
             null
         );
   }
@@ -118,7 +114,6 @@ class RelatedResourcesPersistenceServiceTest {
     var form = new RelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource(submissionDetailIdOfRelatedResource.toString());
-    form.setPreferredView(false);
     return form;
   }
 }

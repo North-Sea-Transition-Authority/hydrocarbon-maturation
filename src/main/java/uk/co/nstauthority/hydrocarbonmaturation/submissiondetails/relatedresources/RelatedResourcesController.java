@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -34,20 +32,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.CREATE_RESOURCE_SUBMISSIONS)
 @IsRegulatorInResponsibleTeam
 public class RelatedResourcesController {
-  private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final RelatedResourcesFormService relatedResourcesFormService;
   private final RelatedResourcesPersistenceService relatedResourcesPersistenceService;
+  private final RelatedResourcesFormValidator relatedResourcesFormValidator;
 
   @Autowired
-  public RelatedResourcesController(ControllerHelperService controllerHelperService,
-                                    SubmissionDetailService submissionDetailService,
+  public RelatedResourcesController(SubmissionDetailService submissionDetailService,
                                     RelatedResourcesFormService relatedResourcesFormService,
-                                    RelatedResourcesPersistenceService relatedResourcesPersistenceService) {
-    this.controllerHelperService = controllerHelperService;
+                                    RelatedResourcesPersistenceService relatedResourcesPersistenceService,
+                                    RelatedResourcesFormValidator relatedResourcesFormValidator) {
     this.submissionDetailService = submissionDetailService;
     this.relatedResourcesFormService = relatedResourcesFormService;
     this.relatedResourcesPersistenceService = relatedResourcesPersistenceService;
+    this.relatedResourcesFormValidator = relatedResourcesFormValidator;
   }
 
   @GetMapping
@@ -62,17 +60,14 @@ public class RelatedResourcesController {
   public ModelAndView saveRelatedResources(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                            @ModelAttribute("form") RelatedResourcesForm form,
                                            BindingResult bindingResult,
-                                           ValidationType validationType,
-                                           User user) {
+                                           ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    bindingResult = relatedResourcesFormService.validate(form, bindingResult, validationType, submissionDetail, user);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getRelatedResourcesModelAndView(form, submissionDetail),
-        () -> {
-          relatedResourcesPersistenceService.saveRelatedResources(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
-        });
+    if (!relatedResourcesFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      return getRelatedResourcesModelAndView(form, submissionDetail);
+    }
+    relatedResourcesPersistenceService.saveRelatedResources(form, submissionDetail);
+    return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
   }
 
   private ModelAndView getRelatedResourcesModelAndView(RelatedResourcesForm form, SubmissionDetail submissionDetail) {

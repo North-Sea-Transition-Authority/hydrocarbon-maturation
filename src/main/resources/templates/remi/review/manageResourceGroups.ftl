@@ -20,7 +20,7 @@ breadcrumbsMap=breadcrumbsMap>
       <ul>
         <#list resourcesInGroup as resourceInGroup>
           <li>
-            ${resourceInGroup.resourceName()} ${resourceInGroup.preferredView()}
+            ${resourceInGroup.resourceName()} ${resourceInGroup.isActive()}
           </li>
         </#list>
       </ul>

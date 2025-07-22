@@ -72,9 +72,9 @@ class ResourceRestControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void searchDiscoveriesNotInGroupOrPreferredView() throws Exception {
+  void searchDiscoveriesForFields() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
-            .searchDiscoveriesNotInGroupOrPreferredView(null)))
+            .searchDiscoveriesForFields(null)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

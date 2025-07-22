@@ -8,19 +8,7 @@ WITH groupings AS (
         s.resource_id,
         r.type,
         sd.id submission_detail_id,
-        CASE
-            WHEN r.type = 'FIELD' THEN NULL
-            WHEN s.resource_id IN ( -- it is a preferred view in a group
-                SELECT rgl.resource_id
-                FROM remi.resource_group_links rgl
-                WHERE rgl.preferred_view = TRUE
-            )
-            OR s.resource_id NOT IN ( -- or it is a standalone resource so it is automatically the preferred view
-                SELECT rgl.resource_id
-                FROM remi.resource_group_links rgl
-            ) THEN TRUE
-            ELSE FALSE -- otherwise it is in a group but it is not the preferred view
-            END pref_view,
+        r.active,
         CASE WHEN rgl.resource_group_id IS NOT NULL THEN TRUE
              WHEN r.type = 'FIELD' THEN NULL
              ELSE FALSE
@@ -43,7 +31,7 @@ SELECT
     g.resource_id, -- the overall resource id
     g.type,
     g.submission_detail_id latest_submission_detail_id, -- the latest submission detail id for the resource
-    g.pref_view preferred_view, -- true/false
+    g.active, -- true/false
     g.in_resource_group -- true/false
 FROM groupings g
 WHERE g.ord = 1 -- we only care about the latest submission information for a resource

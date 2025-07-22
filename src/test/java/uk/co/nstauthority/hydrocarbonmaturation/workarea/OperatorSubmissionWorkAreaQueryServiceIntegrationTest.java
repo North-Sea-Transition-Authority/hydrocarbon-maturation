@@ -286,7 +286,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
     resource.setCreatedTimestamp(createdTimestamp);
-    resource.setArchived(false);
+    resource.setActive(true);
     entityManager.persist(resource);
     entityManager.flush();
     return resource;
@@ -297,7 +297,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     resource.setType(resourceType);
     resource.setCreatedTimestamp(createdTimestamp);
-    resource.setArchived(false);
+    resource.setActive(true);
     entityManager.persist(resource);
     entityManager.flush();
     return resource;
@@ -317,7 +317,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     submissionDetailWithResolvedUpdate.setCreatedTimestamp(createdTimestamp);
     resource.setType(ResourceType.PROSPECT);
-    resource.setArchived(false);
+    resource.setActive(true);
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();
@@ -503,7 +503,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     submissionDetail.setCreatedTimestamp(createdTimestamp);
     resource.setType(ResourceType.PROSPECT);
-    resource.setArchived(false);
+    resource.setActive(true);
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();

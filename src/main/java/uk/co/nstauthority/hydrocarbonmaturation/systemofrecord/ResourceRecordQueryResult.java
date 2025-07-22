@@ -23,7 +23,7 @@ public record ResourceRecordQueryResult(
     String parentFieldName,
     FieldStatus fieldStatus,
     String licenceApplicationReference,
-    boolean archived) {
+    boolean active) {
   public ResourceRecordQueryResult {
     if (parentFieldName == null) {
       parentFieldName = "No parent field";

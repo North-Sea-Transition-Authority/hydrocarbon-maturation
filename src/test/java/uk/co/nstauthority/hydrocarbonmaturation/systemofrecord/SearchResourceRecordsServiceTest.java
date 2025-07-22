@@ -150,7 +150,7 @@ class SearchResourceRecordsServiceTest {
           null,
           null,
           SubmissionType.CREATE_PROSPECT,
-          false
+          true
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "resource-name2",
@@ -164,7 +164,7 @@ class SearchResourceRecordsServiceTest {
           null,
           fixedInstant,
           SubmissionType.RELINQUISHMENT_DISCOVERY,
-          false
+          true
       );
       when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
@@ -233,7 +233,7 @@ class SearchResourceRecordsServiceTest {
         null,
         null,
         SubmissionType.CREATE_PROSPECT,
-        false
+        true
       );
       var result2 = buildAndMockResourceRecordQueryResult(
         "resource-name2",
@@ -247,7 +247,7 @@ class SearchResourceRecordsServiceTest {
         null,
         fixedInstant,
         SubmissionType.RELINQUISHMENT_PROSPECT,
-        false
+        true
       );
       var organisationUnitList = List.of(ORGANISATION_ID_1, ORGANISATION_ID_2);
       when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
@@ -304,7 +304,7 @@ class SearchResourceRecordsServiceTest {
           FieldStatus.STATUS_200,
           fixedInstant,
           SubmissionType.CREATE_CSR,
-          false
+          true
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "field-name2",
@@ -318,7 +318,7 @@ class SearchResourceRecordsServiceTest {
           FieldStatus.STATUS_400,
           fixedInstant,
           SubmissionType.CREATE_FDP,
-          false
+          true
       );
       var result3 = buildAndMockResourceRecordQueryResult(
           "field-name3",
@@ -332,7 +332,7 @@ class SearchResourceRecordsServiceTest {
           FieldStatus.STATUS_400,
           null,
           null,
-          false
+          true
       );
 
       when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
@@ -441,7 +441,7 @@ class SearchResourceRecordsServiceTest {
         FieldStatus.STATUS_200,
         fixedInstant,
         SubmissionType.CREATE_CSR,
-        false
+        true
       );
       var result2 = buildAndMockResourceRecordQueryResult(
         "field-name2",
@@ -455,7 +455,7 @@ class SearchResourceRecordsServiceTest {
         FieldStatus.STATUS_400,
         fixedInstant,
         SubmissionType.CREATE_FDP,
-        false
+        true
       );
       var result3 = buildAndMockResourceRecordQueryResult(
           "field-name3",
@@ -469,7 +469,7 @@ class SearchResourceRecordsServiceTest {
           FieldStatus.STATUS_400,
           null,
           null,
-          false
+          true
       );
 
       var organisationUnitList = List.of(ORGANISATION_ID_1, ORGANISATION_ID_2);
@@ -564,7 +564,7 @@ class SearchResourceRecordsServiceTest {
                                                                             FieldStatus fieldStatus,
                                                                             Instant acceptedSubmissionInstant,
                                                                             SubmissionType submissionType,
-                                                                            boolean archived) {
+                                                                            boolean active) {
       when(submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam)).thenReturn(responsibleTeam.getDisplayName());
 
       return new ResourceRecordQueryResult(
@@ -582,7 +582,7 @@ class SearchResourceRecordsServiceTest {
           parentFieldName == null ? "No parent field" : parentFieldName,
           fieldStatus,
           null,
-          archived);
+          active);
     }
 
   }

@@ -5,16 +5,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupsFormValidator.SELECTED_SUBMISSION_DETAIL_ID;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -28,6 +29,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceGroupsFormValidatorTest {
+
+  @Mock
+  private ResourceGroupQueryService resourceGroupQueryService;
 
   @InjectMocks
   private ResourceGroupsFormValidator resourceGroupsFormValidator;
@@ -56,11 +60,8 @@ class ResourceGroupsFormValidatorTest {
     var form = getValidRelatedResourcesForm();
 
     var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.PROSPECT, false),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, true)));
+        getResourceGroupLink(ResourceType.PROSPECT),
+        UUID.randomUUID());
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -68,11 +69,8 @@ class ResourceGroupsFormValidatorTest {
   void validate_whenEmptyForm_thenValidationErrors() {
     var form = new RelatedResourcesForm();
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.PROSPECT, false),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, true))));
+        getResourceGroupLink(ResourceType.PROSPECT),
+        UUID.randomUUID()));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -86,11 +84,8 @@ class ResourceGroupsFormValidatorTest {
     form.setRelatedToAnotherResource(null);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.PROSPECT, false),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, true))));
+        getResourceGroupLink(ResourceType.PROSPECT),
+        UUID.randomUUID()));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -106,10 +101,7 @@ class ResourceGroupsFormValidatorTest {
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     resourceGroupsFormValidator.validate(
         form, bindingResult, new ResourceGroupsValidatorHints(
-            resource, new ResourceGroupLink(),
-            List.of(
-                getResourceGroupLink(ResourceType.PROSPECT, false),
-                getResourceGroupLink(ResourceType.PROSPECT, true)),
+            resource,
             null
            ));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -141,8 +133,6 @@ class ResourceGroupsFormValidatorTest {
         bindingResult,
         new ResourceGroupsValidatorHints(
             resource,
-            new ResourceGroupLink(),
-            List.of(),
             null));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -155,229 +145,104 @@ class ResourceGroupsFormValidatorTest {
     var form = getValidRelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource(null);
-    form.setPreferredView(false);
 
     var bindingResult = validateRelatedProspectsForm_fullValidation(
         form,
-        getResourceGroupLink(ResourceType.PROSPECT, false),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, true)));
+        getResourceGroupLink(ResourceType.PROSPECT),
+        UUID.randomUUID());
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
     assertThat(extractedErrors)
         .containsExactly(
-            entry("submissionDetailIdOfRelatedResource", Set.of("submissionDetailIdOfRelatedResource.required"))
+            entry(SELECTED_SUBMISSION_DETAIL_ID, Set.of(SELECTED_SUBMISSION_DETAIL_ID + ".required"))
         );
     assertThat(extractedMessages)
         .containsExactly(
-            entry("submissionDetailIdOfRelatedResource", Set.of("Select a prospect or prospect group"))
+            entry(SELECTED_SUBMISSION_DETAIL_ID, Set.of("Select a prospect or prospect group"))
         );
   }
 
   @Test
-  void validate_whenInValidForm_noPreferredView_thenValidationErrors() {
-    submissionDetail.getSubmission().getResource().setType(ResourceType.PROSPECT);
+  void validate_whenNonArchivedResourceAndActiveResourceExistsInGroup_thenReject() {
     var form = getValidRelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
-    form.setSubmissionDetailIdOfRelatedResource("1a3");
-    form.setPreferredView(null);
-
-    var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.PROSPECT, false),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, true)));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("preferredView", Set.of("preferredView.required"))
-        );
-
-    assertThat(extractedMessages)
-        .containsExactly(
-            entry("preferredView", Set.of("Select whether this is the regulator preferred view of the prospect?"))
-        );
-  }
-
-  @Test
-  void validate_whenDiscovery_noPreferredView_thenValidationErrors_assertResourceType() {
-    submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
-    var form = getValidRelatedResourcesForm();
-    form.setRelatedToAnotherResource(true);
-    form.setSubmissionDetailIdOfRelatedResource(null);
-    form.setPreferredView(null);
-    var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.DISCOVERY, false),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.DISCOVERY, false),
-            getResourceGroupLink(ResourceType.DISCOVERY, true)));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("preferredView", Set.of("preferredView.required")),
-            entry("submissionDetailIdOfRelatedResource", Set.of("submissionDetailIdOfRelatedResource.required"))
-        );
-
-    assertThat(extractedMessages)
-        .containsExactly(
-            entry("preferredView", Set.of("Select whether this is the regulator preferred view of the discovery?")),
-            entry("submissionDetailIdOfRelatedResource", Set.of("Select a discovery or discovery group"))
-        );
-  }
-
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void validate_whenDiscovery_removedFromGroupWhenPreferredViewAndMoreThanTwo(boolean preferredView) {
-    submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
-    var form = getValidRelatedResourcesForm();
-    form.setRelatedToAnotherResource(false);
-    form.setSubmissionDetailIdOfRelatedResource(null);
-    form.setPreferredView(null);
-    var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.DISCOVERY, preferredView),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.DISCOVERY, preferredView),
-            getResourceGroupLink(ResourceType.DISCOVERY, false),
-            getResourceGroupLink(ResourceType.DISCOVERY, false)));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-    if (preferredView) {
-      assertThat(extractedErrors)
-          .containsExactly(
-              entry("relatedToAnotherResource", Set.of("relatedToAnotherResource.mustHavePreferredView"))
-          );
-
-      assertThat(extractedMessages)
-          .containsExactly(
-              entry("relatedToAnotherResource",
-                  Set.of("To remove this discovery you must first set another resource as the preferred view"))
-          );
-    } else {
-      assertThat(extractedErrors).isEmpty();
-      assertThat(extractedMessages).isEmpty();
-    }
-  }
-
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void validate_whenDiscovery_removedFromGroupWhenPreferredViewAndTwoLinks(boolean preferredView) {
-    submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
-    var form = getValidRelatedResourcesForm();
-    form.setRelatedToAnotherResource(false);
-    form.setSubmissionDetailIdOfRelatedResource(null);
-    form.setPreferredView(null);
-    var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        getResourceGroupLink(ResourceType.DISCOVERY, preferredView),
-        UUID.randomUUID(),
-        List.of(
-            getResourceGroupLink(ResourceType.DISCOVERY, preferredView),
-            getResourceGroupLink(ResourceType.DISCOVERY, false)));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-
-    assertThat(extractedErrors).isEmpty();
-    assertThat(extractedMessages).isEmpty();
-  }
-
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void validate_whenProspect_removedFromGroupWhenPreferredViewAndMoreThanTwo(boolean preferredView) {
-    submissionDetail.getSubmission().getResource().setType(ResourceType.PROSPECT);
-    var form = getValidRelatedResourcesForm();
-    form.setRelatedToAnotherResource(true);
+    form.setSubmissionDetailIdOfRelatedResource("some-id");
     var selectedGroupId = UUID.randomUUID();
-    form.setSubmissionDetailIdOfRelatedResource(selectedGroupId.toString());
-    form.setPreferredView(false);
-    var existingLink = getResourceGroupLink(ResourceType.PROSPECT, preferredView);
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    resource.setActive(true);
+    var existingLink = getResourceGroupLink(ResourceType.PROSPECT);
     existingLink.setResourceGroupId(selectedGroupId);
-    var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        existingLink,
-        selectedGroupId,
-        List.of(
-            getResourceGroupLink(ResourceType.PROSPECT, preferredView),
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, false)));
+    when(resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId))
+      .thenReturn(Optional.of(ResourceTestUtils.buildResource(ResourceType.PROSPECT)));
+    var validator = new ResourceGroupsFormValidator(resourceGroupQueryService);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    validator.validate(form, bindingResult, new ResourceGroupsValidatorHints(
+      resource, selectedGroupId));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-    if (preferredView) {
-      assertThat(extractedErrors)
-          .containsExactly(
-              entry("preferredView", Set.of("preferredView.mustHavePreferredView"))
-          );
-
-      assertThat(extractedMessages)
-          .containsExactly(
-              entry("preferredView",
-                  Set.of("To change whether this prospect is the preferred view" +
-                      " you must set another resource as the preferred view"))
-          );
-    } else {
-      assertThat(extractedErrors).isEmpty();
-      assertThat(extractedMessages).isEmpty();
-    }
+    assertThat(extractedErrors)
+      .containsKey(SELECTED_SUBMISSION_DETAIL_ID);
   }
 
   @Test
-  void validate_whenProspect_changedGroupAndMoreThanTwoWhenPreferredView() {
-    submissionDetail.getSubmission().getResource().setType(ResourceType.PROSPECT);
+  void validate_whenArchivedResourceAndActiveResourceExistsInGroup_thenAllow() {
     var form = getValidRelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
+    form.setSubmissionDetailIdOfRelatedResource("some-id");
     var selectedGroupId = UUID.randomUUID();
-    form.setSubmissionDetailIdOfRelatedResource(selectedGroupId.toString());
-    form.setPreferredView(true);
-    var existingLink = getResourceGroupLink(ResourceType.PROSPECT, true);
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    resource.setActive(false);
+    var existingLink = getResourceGroupLink(ResourceType.PROSPECT);
     existingLink.setResourceGroupId(selectedGroupId);
-    var bindingResult = validateRelatedProspectsForm_fullValidation(form,
-        existingLink,
-        UUID.randomUUID(),
-        List.of(
-            existingLink,
-            getResourceGroupLink(ResourceType.PROSPECT, false),
-            getResourceGroupLink(ResourceType.PROSPECT, false)));
+    when(resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId))
+      .thenReturn(Optional.of(ResourceTestUtils.buildResource(ResourceType.PROSPECT)));
+    var validator = new ResourceGroupsFormValidator(resourceGroupQueryService);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    validator.validate(form, bindingResult, new ResourceGroupsValidatorHints(
+      resource, selectedGroupId));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-    var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
-      assertThat(extractedErrors)
-          .containsExactly(
-              entry("submissionDetailIdOfRelatedResource",
-                  Set.of("submissionDetailIdOfRelatedResource.mustHavePreferredView"))
-          );
+    assertThat(extractedErrors)
+      .doesNotContainKey(SELECTED_SUBMISSION_DETAIL_ID);
+  }
 
-      assertThat(extractedMessages)
-          .containsExactly(
-              entry("submissionDetailIdOfRelatedResource",
-                  Set.of("You cannot change the group of this prospect if it is the preferred view."))
-          );
+  @Test
+  void validate_whenNonArchivedResourceAndNoActiveResourceInGroup_thenAllow() {
+    var form = getValidRelatedResourcesForm();
+    form.setRelatedToAnotherResource(true);
+    form.setSubmissionDetailIdOfRelatedResource("some-id");
+    var selectedGroupId = UUID.randomUUID();
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    resource.setActive(false);
+    var existingLink = getResourceGroupLink(ResourceType.PROSPECT);
+    existingLink.setResourceGroupId(selectedGroupId);
+    when(resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId))
+      .thenReturn(Optional.empty());
+    var validator = new ResourceGroupsFormValidator(resourceGroupQueryService);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    validator.validate(form, bindingResult, new ResourceGroupsValidatorHints(
+      resource, selectedGroupId));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+      .doesNotContainKey(SELECTED_SUBMISSION_DETAIL_ID);
   }
 
   private BindingResult validateRelatedProspectsForm_fullValidation(RelatedResourcesForm form,
                                                                     ResourceGroupLink currentResourceLink,
-                                                                    UUID selectedResourceGroupId,
-                                                                    List<ResourceGroupLink> resourceGroupLinks) {
+                                                                    UUID selectedResourceGroupId) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     resourceGroupsFormValidator.validate(
         form, bindingResult, new ResourceGroupsValidatorHints(
-            currentResourceLink.getResource(), currentResourceLink, resourceGroupLinks, selectedResourceGroupId));
+            currentResourceLink.getResource(), selectedResourceGroupId));
 
     return bindingResult;
   }
 
-  private ResourceGroupLink getResourceGroupLink(ResourceType resourceType, boolean preferredView) {
+  private ResourceGroupLink getResourceGroupLink(ResourceType resourceType) {
     var resource = ResourceTestUtils.buildResource(resourceType);
     var link = new ResourceGroupLink();
     link.setResource(resource);
     link.setResourceGroupId(UUID.randomUUID());
-    link.setPreferredView(preferredView);
     return link;
   }
 

@@ -879,7 +879,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
   private Resource createResource(ResourceType resourceType) {
     var resource = new Resource();
     resource.setType(resourceType);
-    resource.setArchived(false);
+    resource.setActive(true);
     resource.setCreatedTimestamp(Instant.now());
     entityManager.persist(resource);
     entityManager.flush();

@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType.DISCOVERY;
 import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType.PROSPECT;
+import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupQueryService.ACTIVE_RESOURCE_STRING;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,43 +57,6 @@ class ResourceGroupQueryServiceTest {
     }
 
     @Test
-    void prospectIsInGroupAndPreferredView_ReturnToListWithGroupPrefix() {
-
-      var resourceGroupLink = new ResourceGroupLink();
-      resourceGroupLink.setPreferredView(true);
-      resourceGroupLink.setResource(submissionDetail.getSubmission().getResource());
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
-          .thenReturn(Optional.of(resourceGroupLink));
-
-      var resultList = resourceGroupQueryService.getProspectsAndGroupsByName(SEARCH_TERM, null);
-
-      assertThat(resultList)
-          .extracting(
-              ResourceGroupView::getSelectionId,
-              ResourceGroupView::getSelectionText
-          )
-          .containsExactly(
-              tuple(
-                  submissionDetail.getId().toString(),
-                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
-              )
-          );
-    }
-
-    @Test
-    void prospectIsInGroupButNotPreferredView_DontReturnToList() {
-
-      var resourceGroupLink = new ResourceGroupLink();
-      resourceGroupLink.setPreferredView(false);
-      resourceGroupLink.setResource(submissionDetail.getSubmission().getResource());
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource())).thenReturn(Optional.of(resourceGroupLink));
-
-      var resultList = resourceGroupQueryService.getProspectsAndGroupsByName(SEARCH_TERM, null);
-
-      assertThat(resultList).isEmpty();
-    }
-
-    @Test
     void prospectIsNotInGroup_ReturnToList() {
 
       when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
@@ -107,7 +72,7 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
+                  RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE + ACTIVE_RESOURCE_STRING
               )
           );
     }
@@ -152,10 +117,9 @@ class ResourceGroupQueryServiceTest {
     }
 
     @Test
-    void discoveryIsInGroupAndPreferredView_ReturnToListWithGroupPrefix() {
+    void discoveryIsInGroup_ReturnToListWithGroupPrefix() {
 
       var resourceGroupLink = new ResourceGroupLink();
-      resourceGroupLink.setPreferredView(true);
       resourceGroupLink.setResource(submissionDetail.getSubmission().getResource());
 
       when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
@@ -171,23 +135,9 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
+                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE + ACTIVE_RESOURCE_STRING
               )
           );
-    }
-
-    @Test
-    void discoveryIsInGroupButNotPreferredView_DontReturnToList() {
-
-      var resourceGroupLink = new ResourceGroupLink();
-      resourceGroupLink.setPreferredView(false);
-      resourceGroupLink.setResource(submissionDetail.getSubmission().getResource());
-      when(resourceGroupLinksRepository.findByResource(submissionDetail.getSubmission().getResource()))
-          .thenReturn(Optional.of(resourceGroupLink));
-
-      var resultList = resourceGroupQueryService.getDiscoveriesAndGroupsByName(SEARCH_TERM, null);
-
-      assertThat(resultList).isEmpty();
     }
 
     @Test
@@ -206,7 +156,7 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
+                  RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE + ACTIVE_RESOURCE_STRING
               )
           );
     }
@@ -230,6 +180,44 @@ class ResourceGroupQueryServiceTest {
           SEARCH_TERM, submissionDetail.getSubmission().getResource().getId());
 
       assertThat(resultList).isEmpty();
+    }
+  }
+
+  @Nested
+  class WhenGettingActiveResourcesInGroupForGroupId {
+    private final UUID groupId = UUID.randomUUID();
+
+    @Test
+    void returnsEmptyListIfNoResourcesInGroup() {
+      when(resourceGroupLinksRepository.findByResourceGroupId(groupId)).thenReturn(List.of());
+      var result = resourceGroupQueryService.getActiveResourceInGroupForGroupId(groupId);
+      assertThat(result).isEmpty();
+    }
+
+    @Test
+    void returnsEmptyListIfAllResourcesAreArchived() {
+      var resource1 = ResourceTestUtils.buildResource(PROSPECT);
+      resource1.setActive(false);
+      var link1 = new ResourceGroupLink();
+      link1.setResource(resource1);
+      when(resourceGroupLinksRepository.findByResourceGroupId(groupId)).thenReturn(List.of(link1));
+      var result = resourceGroupQueryService.getActiveResourceInGroupForGroupId(groupId);
+      assertThat(result).isEmpty();
+    }
+
+    @Test
+    void returnsOnlyNonArchivedResources() {
+      var resource1 = ResourceTestUtils.buildResource(PROSPECT);
+      resource1.setActive(false);
+      var resource2 = ResourceTestUtils.buildResource(DISCOVERY);
+      resource2.setActive(true);
+      var link1 = new ResourceGroupLink();
+      link1.setResource(resource1);
+      var link2 = new ResourceGroupLink();
+      link2.setResource(resource2);
+      when(resourceGroupLinksRepository.findByResourceGroupId(groupId)).thenReturn(List.of(link1, link2));
+      var result = resourceGroupQueryService.getActiveResourceInGroupForGroupId(groupId);
+      assertThat(result).isEqualTo(Optional.of(resource2));
     }
   }
 }

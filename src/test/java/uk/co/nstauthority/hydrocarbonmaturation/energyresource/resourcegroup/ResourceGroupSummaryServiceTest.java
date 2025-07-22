@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecor
 @ExtendWith(MockitoExtension.class)
 class ResourceGroupSummaryServiceTest {
 
-  private static final String PREFERRED_VIEW = "(preferred view)";
+  private static final String ACTIVE = "(active)";
   private static final String RESOURCE_NAME = "resource name";
   private static final String OTHER_RESOURCE_NAME = "other resource";
 
@@ -53,7 +53,6 @@ class ResourceGroupSummaryServiceTest {
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
         .thenReturn(Optional.of(resourceGroupLink));
     resourceGroupLink.setResource(resource);
-    resourceGroupLink.setPreferredView(true);
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
         .thenReturn(List.of(resourceGroupLink));
     var expectedNameOnResource = "resource 1";
@@ -72,7 +71,7 @@ class ResourceGroupSummaryServiceTest {
     assertThat(summaryView)
         .extracting(
             ResourceGroupSummaryView::resourceType,
-            ResourceGroupSummaryView::isPreferredView)
+            ResourceGroupSummaryView::isActive)
         .containsExactly(
             ResourceType.PROSPECT,
             "Yes"
@@ -86,11 +85,11 @@ class ResourceGroupSummaryServiceTest {
             ResourceItemSummaryView::resourceName,
             ResourceItemSummaryView::disableLink,
             ResourceItemSummaryView::viewSorUrl,
-            ResourceItemSummaryView::preferredView)
+            ResourceItemSummaryView::isActive)
         .containsExactly(expectedNameOnResource,
             true,
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
-            PREFERRED_VIEW
+            ACTIVE
         );
   }
 
@@ -100,14 +99,13 @@ class ResourceGroupSummaryServiceTest {
         .thenReturn(Optional.of(resourceGroupLink));
     resource.setType(ResourceType.DISCOVERY);
     resource.setCreatedTimestamp(Instant.now().plusSeconds(200));
+    resource.setActive(false);
     resourceGroupLink.setResource(resource);
     resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    resourceGroupLink.setPreferredView(false);
     var resource2 = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     resource2.setCreatedTimestamp(Instant.now());
     var resourceGroupLink2 = new ResourceGroupLink();
     resourceGroupLink2.setResource(resource2);
-    resourceGroupLink2.setPreferredView(true);
     resourceGroupLink2.setResourceGroupId(resourceGroupLink.getId());
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
         .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
@@ -138,7 +136,7 @@ class ResourceGroupSummaryServiceTest {
     assertThat(summaryView)
         .extracting(
             ResourceGroupSummaryView::resourceType,
-            ResourceGroupSummaryView::isPreferredView)
+            ResourceGroupSummaryView::isActive)
         .containsExactly(
             resource.getType(),
             "No"
@@ -149,7 +147,7 @@ class ResourceGroupSummaryServiceTest {
             ResourceItemSummaryView::resourceName,
             ResourceItemSummaryView::disableLink,
             ResourceItemSummaryView::viewSorUrl,
-            ResourceItemSummaryView::preferredView)
+            ResourceItemSummaryView::isActive)
         .containsExactly(
             tuple(
                 RESOURCE_NAME,
@@ -161,7 +159,7 @@ class ResourceGroupSummaryServiceTest {
                 OTHER_RESOURCE_NAME,
                 false,
                 ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource2.getId(), null)),
-                PREFERRED_VIEW
+                ACTIVE
             )
         );
   }
@@ -172,7 +170,6 @@ class ResourceGroupSummaryServiceTest {
     resource.setType(resourceType);
     resourceGroupLink.setResource(resource);
     resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    resourceGroupLink.setPreferredView(false);
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
         .thenReturn(Optional.of(resourceGroupLink));
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
@@ -192,12 +189,10 @@ class ResourceGroupSummaryServiceTest {
     resource.setCreatedTimestamp(Instant.now().plusSeconds(200));
     resourceGroupLink.setResource(resource);
     resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    resourceGroupLink.setPreferredView(false);
     var resource2 = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     resource2.setCreatedTimestamp(Instant.now());
     var resourceGroupLink2 = new ResourceGroupLink();
     resourceGroupLink2.setResource(resource2);
-    resourceGroupLink2.setPreferredView(true);
     resourceGroupLink2.setResourceGroupId(resourceGroupLink.getId());
     when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
         .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
@@ -219,11 +214,11 @@ class ResourceGroupSummaryServiceTest {
     assertThat(summaryView)
         .extracting(
             ResourceItemSummaryView::resourceName,
-            ResourceItemSummaryView::preferredView)
+            ResourceItemSummaryView::isActive)
         .containsExactly(
             tuple(
                 OTHER_RESOURCE_NAME,
-                PREFERRED_VIEW
+                ACTIVE
             )
         );
   }

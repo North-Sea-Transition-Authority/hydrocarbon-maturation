@@ -110,7 +110,7 @@ public class ResourceLinkService {
     }
 
     return resourceService.getResourceById(fieldResource.getId())
-        .filter(resource -> BooleanUtils.isFalse(resource.getArchived()))
+        .filter(resource -> BooleanUtils.isTrue(resource.getActive()))
         .isPresent();
   }
 }

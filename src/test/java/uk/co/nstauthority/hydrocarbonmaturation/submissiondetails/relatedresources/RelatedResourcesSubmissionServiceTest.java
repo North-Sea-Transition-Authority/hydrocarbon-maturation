@@ -26,6 +26,9 @@ class RelatedResourcesSubmissionServiceTest {
   @Mock
   private RelatedResourcesFormService relatedResourcesFormService;
 
+  @Mock
+  private RelatedResourcesFormValidator relatedResourcesFormValidator;
+
   @InjectMocks
   private RelatedResourcesSubmissionService relatedResourcesSubmissionService;
 
@@ -33,13 +36,12 @@ class RelatedResourcesSubmissionServiceTest {
   void isSectionSubmittable_whenSubmittable_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var form = new RelatedResourcesForm();
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
     when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(form);
 
-    when(relatedResourcesFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
-        .thenReturn(emptyBindingResult);
+    when(relatedResourcesFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
     assertTrue(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, USER));
 
@@ -54,9 +56,9 @@ class RelatedResourcesSubmissionServiceTest {
 
     when(relatedResourcesFormService.getRelatedResourcesForm(submissionDetail)).thenReturn(form);
 
-    when(relatedResourcesFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
-        .thenReturn(bindingResultWithError);
+    when(relatedResourcesFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
     assertFalse(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }

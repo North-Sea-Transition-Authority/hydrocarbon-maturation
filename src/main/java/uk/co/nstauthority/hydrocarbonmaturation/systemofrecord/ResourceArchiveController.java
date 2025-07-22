@@ -22,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
@@ -40,15 +42,22 @@ public class ResourceArchiveController {
   private final ResourceArchiveService resourceArchiveService;
   private final ViewResourceRecordService viewResourceRecordService;
   private final ResponsibleTeamService responsibleTeamService;
+  private final SubmissionResourceService submissionResourceService;
+  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
-  public ResourceArchiveController(ResourceService resourceService, ResourceArchiveService resourceArchiveService,
+  public ResourceArchiveController(ResourceService resourceService,
+                                   ResourceArchiveService resourceArchiveService,
                                    ViewResourceRecordService viewResourceRecordService,
-                                   ResponsibleTeamService responsibleTeamService) {
+                                   ResponsibleTeamService responsibleTeamService,
+                                   SubmissionResourceService submissionResourceService,
+                                   SubmissionDetailService submissionDetailService) {
     this.resourceService = resourceService;
     this.resourceArchiveService = resourceArchiveService;
     this.viewResourceRecordService = viewResourceRecordService;
     this.responsibleTeamService = responsibleTeamService;
+    this.submissionResourceService = submissionResourceService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   @GetMapping("/archive")
@@ -90,9 +99,18 @@ public class ResourceArchiveController {
     var resource = resourceService.getResourceOrThrow(resourceId);
     var resourceRecord = getResourceRecordOrThrowIfNotInResponsibleTeam(user, resource);
 
-    return getArchiveUnarchiveModelAndView(resource, resourceRecord, UNARCHIVE_QUESTION)
-            .addObject("buttonText", "Unarchive")
-            .addObject("buttonClass", "govuk-button--primary");
+
+    var cannotBeUnarchivedWarningOptional = resourceArchiveService.resourceCannotBeUnarchivedWarning(resource);
+
+    var modelAndView = getArchiveUnarchiveModelAndView(resource, resourceRecord, UNARCHIVE_QUESTION);
+
+    cannotBeUnarchivedWarningOptional.ifPresent(
+        warning -> modelAndView.addObject("cannotBeUnarchivedReason", warning)
+    );
+
+    return modelAndView
+        .addObject("buttonText", "Unarchive")
+        .addObject("buttonClass", "govuk-button--primary");
   }
 
   @PostMapping("/unarchive")
@@ -100,6 +118,14 @@ public class ResourceArchiveController {
     var resource = resourceService.getResourceOrThrow(resourceId);
 
     checkUserIsInResponsibleTeam(user, resource);
+
+    resourceArchiveService.resourceCannotBeUnarchivedWarning(resource)
+        .ifPresent(warning -> {
+          throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST,
+              "Resource %s cannot be unarchived. %s.".formatted(resourceId, warning)
+          );
+        });
 
     resourceArchiveService.unarchiveResource(resource);
     return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null));
@@ -111,8 +137,18 @@ public class ResourceArchiveController {
     var resourceRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
         .showResourceRecord(resource.getId(), null));
 
+    var submissionOnResource = submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource);
+    String resourceDisplay;
+    if (submissionOnResource.isPresent()) {
+      resourceDisplay = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+          submissionOnResource.get());
+    } else {
+      resourceDisplay = resource.getType().getDisplayName();
+    }
+
     var modelAndView = new ModelAndView("remi/systemofrecord/archiveUnarchiveResource")
         .addObject("pageTitle", archiveQuestion)
+        .addObject("caption", resourceDisplay)
         .addObject("cancelUrl", resourceRecordUrl);
 
     addBreadcrumbs(modelAndView, resource, archiveQuestion, resourceRecordUrl, resourceRecordSummaryView);

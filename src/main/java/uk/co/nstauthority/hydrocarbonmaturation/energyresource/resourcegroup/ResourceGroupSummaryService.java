@@ -61,7 +61,7 @@ public class ResourceGroupSummaryService {
     return new ResourceGroupSummaryView(
         getListOfResourcesInGroupByResourceGroupLinks(listOfLinks, resource),
         resource.getType(),
-        BooleanUtil.yesNoFromBoolean(resourceGroupLink.getPreferredView(), "")
+        BooleanUtil.yesNoFromBoolean(BooleanUtils.isTrue(resource.getActive()))
     );
   }
 
@@ -82,7 +82,7 @@ public class ResourceGroupSummaryService {
             .showResourceRecord(resourceGroupLink.getResource().getId(), null)),
         resource.getId().equals(resourceGroupLink.getResource().getId()),
         getResourceName(resourceGroupLink.getResource()),
-        BooleanUtils.isTrue(resourceGroupLink.getPreferredView()) ? "(preferred view)" : ""
+        BooleanUtils.isTrue(resourceGroupLink.getResource().getActive()) ? "(active)" : ""
     );
   }
 

@@ -25,7 +25,7 @@ public class Resource {
 
   private Instant createdTimestamp;
 
-  private Boolean archived;
+  private Boolean active;
 
   public UUID getId() {
     return id;
@@ -51,12 +51,12 @@ public class Resource {
     this.createdTimestamp = createdTimestamp;
   }
 
-  public Boolean getArchived() {
-    return archived;
+  public Boolean getActive() {
+    return active;
   }
 
-  public void setArchived(Boolean archived) {
-    this.archived = archived;
+  public void setActive(Boolean archived) {
+    this.active = archived;
   }
 
   @Override
@@ -69,11 +69,11 @@ public class Resource {
     }
     Resource resource = (Resource) o;
     return Objects.equals(id, resource.id) && type == resource.type && Objects.equals(
-        createdTimestamp, resource.createdTimestamp) && Objects.equals(archived, resource.archived);
+        createdTimestamp, resource.createdTimestamp) && Objects.equals(active, resource.active);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, type, createdTimestamp, archived);
+    return Objects.hash(id, type, createdTimestamp, active);
   }
 }

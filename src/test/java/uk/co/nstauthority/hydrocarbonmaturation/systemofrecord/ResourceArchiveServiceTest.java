@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -10,8 +11,10 @@ import static uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceAr
 import static uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceArchiveService.DISCOVERY_LINKED_TO_FIELD_WARNING;
 import static uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceArchiveService.OPEN_CORRECTION_WARNING;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +28,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.Pos
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
@@ -60,6 +66,9 @@ class ResourceArchiveServiceTest {
 
   @Mock
   private FieldStatusService fieldStatusService;
+
+  @Mock
+  private ResourceGroupService resourceGroupService;
 
   @InjectMocks
   private ResourceArchiveService resourceArchiveService;
@@ -140,7 +149,7 @@ class ResourceArchiveServiceTest {
 
       assertThat(resourceArchiveService.resourceCannotBeArchivedWarning(resource))
           .isNotEmpty()
-          .contains(OPEN_CORRECTION_WARNING.formatted(resource.getType().getDisplayName()));
+          .contains(OPEN_CORRECTION_WARNING.formatted(resource.getType().getDisplayName().toLowerCase()));
     }
 
     @Test
@@ -155,7 +164,7 @@ class ResourceArchiveServiceTest {
 
       assertThat(resourceArchiveService.resourceCannotBeArchivedWarning(resource))
           .isNotEmpty()
-          .contains(OPEN_CORRECTION_WARNING.formatted(resource.getType().getDisplayName()));
+          .contains(OPEN_CORRECTION_WARNING.formatted(resource.getType().getDisplayName().toLowerCase()));
     }
 
     @ParameterizedTest
@@ -171,7 +180,7 @@ class ResourceArchiveServiceTest {
 
       assertThat(resourceArchiveService.resourceCannotBeArchivedWarning(resource))
           .isNotEmpty()
-          .contains(ACTIVE_SUBMISSIONS_WARNING.formatted(resource.getType().getDisplayName()));
+          .contains(ACTIVE_SUBMISSIONS_WARNING.formatted(resource.getType().getDisplayName().toLowerCase()));
     }
 
     @Test
@@ -188,22 +197,21 @@ class ResourceArchiveServiceTest {
 
       assertThat(resourceArchiveService.resourceCannotBeArchivedWarning(resource))
           .isNotEmpty()
-          .contains(ACTIVE_SUBMISSIONS_WARNING.formatted(resource.getType().getDisplayName()));
+          .contains(ACTIVE_SUBMISSIONS_WARNING.formatted(resource.getType().getDisplayName().toLowerCase()));
     }
   }
 
   @Test
   void archiveResource() {
     var resource = new Resource();
-    resource.setArchived(false);
     resource.setType(ResourceType.DISCOVERY);
 
     resourceArchiveService.archiveResource(resource);
 
     verify(resourceRepository, times(1))
         .save(resourceArgumentCaptor.capture());
-    assertThat(resourceArgumentCaptor.getValue().getArchived())
-        .isTrue();
+    assertThat(resourceArgumentCaptor.getValue().getActive())
+        .isFalse();
 
     verify(fieldStatusSnsService, never()).publishFieldStatusUpdateSnsMessage(any(Integer.class), any(Integer.class));
   }
@@ -211,7 +219,6 @@ class ResourceArchiveServiceTest {
   @Test
   void archiveResource_field() {
     var resource = new Resource();
-    resource.setArchived(false);
     resource.setType(ResourceType.FIELD);
 
     var field = new Field();
@@ -223,8 +230,8 @@ class ResourceArchiveServiceTest {
 
     verify(resourceRepository, times(1))
         .save(resourceArgumentCaptor.capture());
-    assertThat(resourceArgumentCaptor.getValue().getArchived())
-        .isTrue();
+    assertThat(resourceArgumentCaptor.getValue().getActive())
+        .isFalse();
 
     verify(fieldStatusSnsService).publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(),9999);
   }
@@ -232,23 +239,83 @@ class ResourceArchiveServiceTest {
   @Test
   void unarchiveResource() {
     var resource = new Resource();
-    resource.setArchived(true);
+    resource.setActive(true);
     resource.setType(ResourceType.DISCOVERY);
 
     resourceArchiveService.unarchiveResource(resource);
 
     verify(resourceRepository, times(1))
         .save(resourceArgumentCaptor.capture());
-    assertThat(resourceArgumentCaptor.getValue().getArchived())
-        .isFalse();
+    assertThat(resourceArgumentCaptor.getValue().getActive())
+        .isTrue();
 
     verify(fieldStatusSnsService, never()).publishFieldStatusUpdateSnsMessage(any(Integer.class), any(Integer.class));
   }
 
   @Test
+  void resourceCanBeUnarchived_inGroup_noActiveResources() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    resource.setActive(false);
+    var resourceGroupLink = new ResourceGroupLink();
+    resourceGroupLink.setResource(resource);
+    var resourceGroupId = UUID.randomUUID();
+    resourceGroupLink.setResourceGroupId(resourceGroupId);
+    when(resourceGroupService.getResourceGroupLinkByResource(resource))
+        .thenReturn(Optional.of(resourceGroupLink));
+    var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    otherResource.setActive(false);
+    var otherResourceGroupLink = new ResourceGroupLink();
+    otherResourceGroupLink.setResource(otherResource);
+    otherResourceGroupLink.setResourceGroupId(resourceGroupId);
+    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupId))
+        .thenReturn(List.of(resourceGroupLink, otherResourceGroupLink));
+    assertThat(resourceArchiveService.resourceCannotBeUnarchivedWarning(resource)).isEmpty();
+  }
+
+  @Test
+  void resourceCannotBeUnarchivedWarning_otherActiveResourceInGroup() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    resource.setActive(false);
+    var resourceGroupLink = new ResourceGroupLink();
+    resourceGroupLink.setResource(resource);
+    var resourceGroupId = UUID.randomUUID();
+    resourceGroupLink.setResourceGroupId(resourceGroupId);
+
+    var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    otherResource.setActive(true);
+    var otherResourceGroupLink = new ResourceGroupLink();
+    otherResourceGroupLink.setResource(otherResource);
+    otherResourceGroupLink.setResourceGroupId(resourceGroupId);
+
+    when(resourceGroupService.getResourceGroupLinkByResource(resource))
+        .thenReturn(Optional.of(resourceGroupLink));
+    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupId))
+        .thenReturn(List.of(resourceGroupLink, otherResourceGroupLink));
+
+    var warning = resourceArchiveService.resourceCannotBeUnarchivedWarning(resource);
+
+    assertThat(warning).isNotEmpty();
+    assertThat(warning.get()).contains(
+        ResourceArchiveService.OTHER_ACTIVE_RESOURCE_IN_GROUP.formatted(resource.getType().getDisplayName().toLowerCase())
+    );
+  }
+
+  // Test: resource not in any group
+  @Test
+  void resourceCannotBeUnarchivedWarning_notInGroup() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+
+    when(resourceGroupService.getResourceGroupLinkByResource(resource))
+        .thenReturn(Optional.empty());
+
+    var warning = resourceArchiveService.resourceCannotBeUnarchivedWarning(resource);
+
+    assertThat(warning).isEmpty();
+  }
+
+  @Test
   void unarchiveResource_field() {
     var resource = new Resource();
-    resource.setArchived(true);
     resource.setType(ResourceType.FIELD);
 
     var field = new Field();
@@ -261,9 +328,25 @@ class ResourceArchiveServiceTest {
 
     verify(resourceRepository, times(1))
         .save(resourceArgumentCaptor.capture());
-    assertThat(resourceArgumentCaptor.getValue().getArchived())
-        .isFalse();
+    assertThat(resourceArgumentCaptor.getValue().getActive())
+        .isTrue();
 
     verify(fieldStatusSnsService).publishFieldStatusUpdateSnsMessage(1, FieldStatus.STATUS_200.getStatusValue());
+  }
+
+  @Test
+  void unarchiveResource_field_statusNotFound_throwsException() {
+    var resource = new Resource();
+    resource.setType(ResourceType.FIELD);
+
+    var field = new Field();
+    field.setFieldIdentifier(1);
+
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+    when(fieldStatusService.getMostRecentFieldStatus(field)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> resourceArchiveService.unarchiveResource(resource))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("field status not found for field id: 1");
   }
 }

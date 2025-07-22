@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
@@ -517,7 +515,7 @@ class SubmissionQueryServiceIntegrationTest {
   }
 
   @Test
-  void getLatestActivePreferredViewDiscoveriesByName_notInGroup_assertReturned() {
+  void getLatestActiveViewDiscoveriesByName_assertReturned() {
     var discovery = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
     var submissionDetail = SubmissionDetailIntegrationTestUtils
@@ -531,53 +529,11 @@ class SubmissionQueryServiceIntegrationTest {
     );
     var resourceView = new ResourceView(resourceDetail.getId(), displayString);
 
-    assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
+    assertThat(submissionQueryService.getLatestActiveViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
 
   @Test
-  void getLatestActivePreferredViewDiscoveriesByName_preferredViewInGroup_assertReturned() {
-    var discovery = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
-
-    var submissionDetail = SubmissionDetailIntegrationTestUtils
-        .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY, discovery, SubmissionDetailStatus.ACCEPTED, entityManager);
-
-    var resourceDetail = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
-    var resourceGroupLink = new ResourceGroupLink();
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    resourceGroupLink.setResource(discovery);
-    resourceGroupLink.setPreferredView(true);
-
-    entityManager.persist(resourceGroupLink);
-    entityManager.flush();
-
-    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
-
-    assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
-  }
-
-  @Test
-  void getLatestActivePreferredViewDiscoveriesByName_notPreferredViewInGroup_assertNotReturned() {
-    var discovery = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
-
-    var submissionDetail = SubmissionDetailIntegrationTestUtils
-        .createSubmissionDetail(SubmissionType.CREATE_DISCOVERY, discovery, SubmissionDetailStatus.ACCEPTED, entityManager);
-
-    SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
-
-    var resourceGroupLink = new ResourceGroupLink();
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    resourceGroupLink.setResource(discovery);
-    resourceGroupLink.setPreferredView(false);
-
-    entityManager.persist(resourceGroupLink);
-    entityManager.flush();
-
-    assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of());
-  }
-
-  @Test
-  void getLatestActivePreferredViewDiscoveriesByName_resourceHasDraftRelinquishment_assertReturned() {
+  void getLatestActiveViewDiscoveriesByName_resourceHasDraftRelinquishment_assertReturned() {
     var discovery = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
     var submissionDetail = SubmissionDetailIntegrationTestUtils
@@ -594,11 +550,11 @@ class SubmissionQueryServiceIntegrationTest {
     );
     var resourceView = new ResourceView(resourceDetail.getId(), displayString);
 
-    assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
+    assertThat(submissionQueryService.getLatestActiveViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
 
   @Test
-  void getLatestActivePreferredViewDiscoveriesByName_resourceHasAcceptedRelinquishment_assertNotReturned() {
+  void getLatestActiveViewDiscoveriesByName_resourceHasAcceptedRelinquishment_assertNotReturned() {
     var discovery = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
     var submissionDetail = SubmissionDetailIntegrationTestUtils
@@ -609,11 +565,11 @@ class SubmissionQueryServiceIntegrationTest {
 
     SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
 
-    assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of());
+    assertThat(submissionQueryService.getLatestActiveViewDiscoveriesByName("discovery")).isEqualTo(List.of());
   }
 
   @Test
-  void getLatestActivePreferredViewDiscoveriesByName_resourceArchived_assertNotReturned() {
+  void getLatestActiveViewDiscoveriesByName_resourceArchived_assertNotReturned() {
     var discovery = SubmissionIntegrationTestUtils.createArchivedResource(entityManager, ResourceType.DISCOVERY);
 
     var submissionDetail = SubmissionDetailIntegrationTestUtils
@@ -621,6 +577,6 @@ class SubmissionQueryServiceIntegrationTest {
 
     SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Discovery 1", 1, entityManager);
 
-    assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of());
+    assertThat(submissionQueryService.getLatestActiveViewDiscoveriesByName("discovery")).isEqualTo(List.of());
   }
 }

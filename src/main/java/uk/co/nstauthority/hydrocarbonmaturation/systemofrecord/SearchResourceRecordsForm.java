@@ -14,10 +14,9 @@ public class SearchResourceRecordsForm {
   private String centreOfInterestBlock;
   private String licenceId;
   private List<String> geographicalArea = new ArrayList<>();
-  private boolean showOnlyPreferredViews;
   private List<String> fieldStatuses = new ArrayList<>();
   private String parentFieldName;
-  private boolean showArchivedResources;
+  private Boolean showArchivedResources;
 
   public String getResourceNameFromResourceDetail() {
     return resourceNameFromResourceDetail;
@@ -84,14 +83,6 @@ public class SearchResourceRecordsForm {
     this.geographicalArea = geographicalArea;
   }
 
-  public boolean isShowOnlyPreferredViews() {
-    return showOnlyPreferredViews;
-  }
-
-  public void setShowOnlyPreferredViews(boolean showOnlyPreferredViews) {
-    this.showOnlyPreferredViews = showOnlyPreferredViews;
-  }
-
   public String getFieldNameForResourceSubmission() {
     return fieldNameForResourceSubmission;
   }
@@ -116,17 +107,16 @@ public class SearchResourceRecordsForm {
     this.parentFieldName = parentFieldName;
   }
 
-  public boolean isShowArchivedResources() {
+  public Boolean getShowArchivedResources() {
     return showArchivedResources;
   }
 
-  public void setShowArchivedResources(boolean showArchivedResources) {
+  public void setShowArchivedResources(Boolean showArchivedResources) {
     this.showArchivedResources = showArchivedResources;
   }
 
   public static SearchResourceRecordsForm from(SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
-    form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
     form.setResourceTypes(filter.getResourceTypes());
     form.setOpportunityTypes(filter.getOpportunityTypes());
     form.setLicenceId(filter.getLicenceId());
@@ -135,7 +125,7 @@ public class SearchResourceRecordsForm {
     form.setCentreOfInterestBlock(filter.getCentreOfInterestBlock());
     form.setResponsibleOrganisationId(filter.getResponsibleOrganisationId());
     form.setGeographicalArea(filter.getGeographicalArea());
-    form.setShowArchivedResources(filter.isShowArchivedResources());
+    form.setShowArchivedResources(filter.getShowArchivedResources());
     return form;
   }
 
@@ -146,7 +136,7 @@ public class SearchResourceRecordsForm {
     form.setFieldStatuses(filter.getFieldStatuses());
     form.setGeographicalArea(filter.getGeographicalAreas());
     form.setParentFieldName(filter.getParentFieldName());
-    form.setShowArchivedResources(filter.isShowArchivedResources());
+    form.setShowArchivedResources(filter.getShowArchivedResources());
     return form;
   }
 }

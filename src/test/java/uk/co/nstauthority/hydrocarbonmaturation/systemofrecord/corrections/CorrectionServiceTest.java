@@ -22,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -43,9 +42,6 @@ class CorrectionServiceTest {
 
   @Mock
   private SubmissionDetailService submissionDetailService;
-
-  @Mock
-  private ResourceGroupService resourceGroupService;
 
   @Mock
   private ResourceLinkService resourceLinkService;
@@ -214,16 +210,8 @@ class CorrectionServiceTest {
   @Test
   void canRemoveSubmissions() {
     var resource = new Resource();
-    when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
     when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(false);
     assertTrue(correctionService.canRemoveSubmissions(resource));
-  }
-
-  @Test
-  void cantRemoveSubmissions_whenResourceIsPreferredViewInGroup() {
-    var resource = new Resource();
-    when(resourceGroupService.isPreferredView(resource)).thenReturn(true);
-    assertFalse(correctionService.canRemoveSubmissions(resource));
   }
 
   @Test
@@ -237,7 +225,6 @@ class CorrectionServiceTest {
   void getCorrectionType_canRemoveSubmissions() {
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
-    when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
     when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(false);
     var correctionTypes = correctionService.getCorrectionTypes(resource);
     assertThat(correctionTypes).containsExactly(
@@ -252,25 +239,11 @@ class CorrectionServiceTest {
   void getCorrectionType_forField_canRemoveSubmissions() {
     var resource = new Resource();
     resource.setType(ResourceType.FIELD);
-    when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
     var correctionTypes = correctionService.getCorrectionTypes(resource);
     assertThat(correctionTypes).containsExactly(
         entry(CorrectionType.FIELD_HISTORIC_UPDATE.name(), CorrectionType.FIELD_HISTORIC_UPDATE.getDisplayName()),
         entry(CorrectionType.SUBMISSION_CORRECTION.name(), CorrectionType.SUBMISSION_CORRECTION.getDisplayName()),
         entry(CorrectionType.REMOVE_SUBMISSION.name(), CorrectionType.REMOVE_SUBMISSION.getDisplayName())
-    );
-  }
-
-  @Test
-  void getCorrectionType_cantRemoveSubmissions_preferredView() {
-    var resource = new Resource();
-    resource.setType(ResourceType.PROSPECT);
-    when(resourceGroupService.isPreferredView(resource)).thenReturn(true);
-    var correctionTypes = correctionService.getCorrectionTypes(resource);
-    assertThat(correctionTypes).containsExactly(
-        entry(CorrectionType.HISTORIC_UPDATE.name(), CorrectionType.HISTORIC_UPDATE.getDisplayName()),
-        entry(CorrectionType.SUBMISSION_CORRECTION.name(), CorrectionType.SUBMISSION_CORRECTION.getDisplayName()),
-        entry(CorrectionType.ACCEPTED_DATE_CHANGE.name(), CorrectionType.ACCEPTED_DATE_CHANGE.getDisplayName())
     );
   }
 

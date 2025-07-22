@@ -47,6 +47,9 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
   RelatedResourcesFormService relatedResourcesFormService;
 
   @MockBean
+  RelatedResourcesFormValidator relatedResourcesFormValidator;
+
+  @MockBean
   RelatedResourcesPersistenceService relatedResourcesPersistenceService;
 
   private RelatedResourcesForm form;
@@ -109,7 +112,7 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(RelatedResourcesController.class)
-                .saveRelatedResources(submissionDetailId, null, null, null, null)))
+                .saveRelatedResources(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -119,10 +122,10 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveRelatedResourcesPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
     setUpWhenUserIsResponsibleTeam_passSecurity();
-    when(relatedResourcesFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
+    when(relatedResourcesFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     mockMvc.perform(
-        post(ReverseRouter.route(on(RelatedResourcesController.class).saveRelatedResources(submissionDetailId, form, bindingResult, null, null)))
+        post(ReverseRouter.route(on(RelatedResourcesController.class).saveRelatedResources(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -139,9 +142,9 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(relatedResourcesFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
+    when(relatedResourcesFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(false);
     mockMvc.perform(
-        post(ReverseRouter.route(on(RelatedResourcesController.class).saveRelatedResources(submissionDetailId, form, bindingResult, null, null)))
+        post(ReverseRouter.route(on(RelatedResourcesController.class).saveRelatedResources(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))

@@ -11,6 +11,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIE
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_REPORTING_VIEW;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
@@ -76,7 +77,7 @@ class ResourceQueryCommonService {
             FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME,
             FIELD_STATUS_HISTORY.FIELD_STATUS,
             GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE,
-            RESOURCES.ARCHIVED)
+            RESOURCES.ACTIVE)
         .from(RESOURCES
             .join(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
             .join(FIELD_STATUS_HISTORY)
@@ -152,12 +153,12 @@ class ResourceQueryCommonService {
             DSL.val(null, FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME),
             DSL.val(null, FIELD_STATUS_HISTORY.FIELD_STATUS),
             GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE,
-            RESOURCES.ARCHIVED)
+            RESOURCES.ACTIVE)
         .from(RESOURCES
             .join(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
-            .join(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-              .on(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .join(LATEST_SUBMISSION_DETAIL_VIEW)
+              .on(LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
             .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)

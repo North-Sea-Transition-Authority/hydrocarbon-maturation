@@ -27,8 +27,6 @@ public class ResourceGroupLink {
 
   private UUID resourceGroupId;
 
-  private boolean preferredView;
-
   public UUID getId() {
     return id;
   }
@@ -51,13 +49,5 @@ public class ResourceGroupLink {
 
   public void setResourceGroupId(UUID resourceGroupId) {
     this.resourceGroupId = resourceGroupId;
-  }
-
-  public boolean getPreferredView() {
-    return preferredView;
-  }
-
-  public void setPreferredView(boolean preferredView) {
-    this.preferredView = preferredView;
   }
 }

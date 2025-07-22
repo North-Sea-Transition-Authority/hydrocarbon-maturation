@@ -138,9 +138,13 @@ public class SearchResourceRecordsService {
       ResourceRecordQueryServiceStrategy queryServiceStrategy,
       User user
   ) {
+    var isRegulatorOrAreaTeamUser = internalTeamService.isRegulatorOrAreaTeamUser(user);
+    if (isRegulatorOrAreaTeamUser) {
+      form.setShowArchivedResources(true); // Regulator and area team users should be able to see all resources
+    }
     var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form);
     List<ResourceRecordQueryResult> userFilteredResults;
-    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
+    if (isRegulatorOrAreaTeamUser) {
       userFilteredResults = resourceRecordSearchResults;
     } else {
 
@@ -436,7 +440,7 @@ public class SearchResourceRecordsService {
     var modelProperties = new ResourceRecordSearchResultItemModelProperties()
         .addProperty("teamResponsible", teamResponsibleDisplay)
         .addProperty("organisationResponsible", organisationResponsibleDisplay)
-        .addProperty("isArchived", resourceRecordQueryResult.archived());
+        .addProperty("isArchived", !resourceRecordQueryResult.active());
 
     if (ResourceType.DISCOVERY.equals(resourceType)
         || ResourceType.PROSPECT.equals(resourceType)) {

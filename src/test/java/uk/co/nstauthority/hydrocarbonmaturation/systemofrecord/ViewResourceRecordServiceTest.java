@@ -233,8 +233,8 @@ class ViewResourceRecordServiceTest {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer OTHER_ORG_UNIT_ID = 2;
-    private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, true);
-    private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, false);
+    private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, false);
+    private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, true);
     private static final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
         ResourceType.PROSPECT, UUID.randomUUID(), ORGANISATION_UNIT_ID
     );
@@ -346,8 +346,8 @@ class ViewResourceRecordServiceTest {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer OTHER_ORG_UNIT_ID = 2;
-    private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD, true);
-    private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD, false);
+    private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD, false);
+    private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD, true);
     private static final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
         ResourceType.FIELD, UUID.randomUUID(), null
     );

@@ -31,13 +31,13 @@ BEGIN
         id
       , type
       , created_timestamp
-      , archived
+      , active
       )
       VALUES (
         gen_random_uuid()
       , 'FIELD'
       , NOW()
-      , CASE WHEN field_rec.status BETWEEN 200 AND 900 THEN FALSE ELSE TRUE END
+      , CASE WHEN field_rec.status BETWEEN 200 AND 900 THEN TRUE ELSE FALSE END
       )
       RETURNING id INTO remi_res_id;
 

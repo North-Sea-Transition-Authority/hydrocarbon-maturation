@@ -4,12 +4,10 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesSubmissionService;
 
@@ -34,36 +32,28 @@ public class ResourceGroupService {
     }
 
     relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail)
-        .ifPresent(relatedResource -> {
+        .ifPresent(relatedRes -> {
 
-          var relatedResourceResource = relatedResource.getRelatedSubmissionDetail().getSubmission().getResource();
+          var relatedResource = relatedRes.getRelatedSubmissionDetail().getSubmission().getResource();
           var currentResourceResource = submissionDetail.getSubmission().getResource();
 
-          var resourceGroupLinkOptional = resourceGroupLinksRepository.findByResource(relatedResourceResource);
+          var resourceGroupLinkOptional = resourceGroupLinksRepository.findByResource(relatedResource);
 
           var relatedResourceIsInGroup = resourceGroupLinkOptional.isPresent();
           if (relatedResourceIsInGroup) {
-            addToGroup(relatedResource, currentResourceResource, resourceGroupLinkOptional.get());
+            addToGroup(currentResourceResource, resourceGroupLinkOptional.get());
           } else {
-            createNewGroup(relatedResource, relatedResourceResource, currentResourceResource);
+            createNewGroup(relatedResource, currentResourceResource);
           }
         });
   }
 
-  Optional<ResourceGroupLink> getResourceGroupLinkByResource(Resource resource) {
+  public Optional<ResourceGroupLink> getResourceGroupLinkByResource(Resource resource) {
     return resourceGroupLinksRepository.findByResource(resource);
   }
 
-  List<ResourceGroupLink> getResourceGroupLinksByResourceGroupId(UUID resourceGroupId) {
+  public List<ResourceGroupLink> getResourceGroupLinksByResourceGroupId(UUID resourceGroupId) {
     return resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId);
-  }
-
-  public boolean isInGroupAndIsNotPreferredView(Resource resource) {
-    return resourceGroupLinksRepository.existsResourceGroupLinkByResourceAndPreferredViewIs(resource, false);
-  }
-
-  public boolean isPreferredView(Resource resource) {
-    return resourceGroupLinksRepository.existsResourceGroupLinkByResourceAndPreferredViewIs(resource, true);
   }
 
   public List<ResourceGroupLink> getAllResourceGroupLinksForResources(List<Resource> resources) {
@@ -90,8 +80,7 @@ public class ResourceGroupService {
     }
   }
 
-  private void addToGroup(RelatedResource relatedResource,
-                          Resource currentResourceResource,
+  private void addToGroup(Resource currentResourceResource,
                           ResourceGroupLink resourceGroupLinkForRelatedResource) {
     var resourceGroupId = resourceGroupLinkForRelatedResource.getResourceGroupId();
 
@@ -100,46 +89,16 @@ public class ResourceGroupService {
         resourceGroupId,
         currentResourceResource
     );
-
-    if (BooleanUtils.isTrue(relatedResource.getPreferredView())) {
-      setCurrentlyPreferredViewAsNotPreferred(resourceGroupLinkForRelatedResource, resourceGroupId);
-
-      resourceGroupLinkForCurrentResource.setPreferredView(true);
-    }
     resourceGroupLinksRepository.save(resourceGroupLinkForCurrentResource);
   }
 
-  void setCurrentlyPreferredViewAsNotPreferred(ResourceGroupLink resourceGroupLinkForRelatedResource,
-                                               UUID resourceGroupId) {
-    if (resourceGroupLinkForRelatedResource.getPreferredView()) {
-      resourceGroupLinkForRelatedResource.setPreferredView(false);
-    } else {
-      var resourceGroupLink = getPreferredViewResourceGroupLinkByGroupIdOrThrow(resourceGroupId);
-      resourceGroupLink.setPreferredView(false);
-    }
-  }
-
-  private ResourceGroupLink getPreferredViewResourceGroupLinkByGroupIdOrThrow(UUID resourceGroupId) {
-    return resourceGroupLinksRepository.findByResourceGroupIdAndPreferredViewIsTrue(resourceGroupId)
-        .orElseThrow(() -> new IllegalStateException(
-            "There should be at least one ResourceGroupLink with a preferred view for resource group id %s"
-                .formatted(resourceGroupId)));
-  }
-
-  private void createNewGroup(RelatedResource relatedResource,
-                              Resource relatedResourceResource,
+  private void createNewGroup(Resource relatedResource,
                               Resource currentResource) {
     var resourceGroupId = UUID.randomUUID();
 
     var resourceGroupLinkForCurrentResource = buildResourceGroupLink(resourceGroupId, currentResource);
 
-    var resourceGroupLinkForRelatedResource = buildResourceGroupLink(resourceGroupId, relatedResourceResource);
-
-    if (BooleanUtils.isTrue(relatedResource.getPreferredView())) {
-      resourceGroupLinkForCurrentResource.setPreferredView(true);
-    } else {
-      resourceGroupLinkForRelatedResource.setPreferredView(true);
-    }
+    var resourceGroupLinkForRelatedResource = buildResourceGroupLink(resourceGroupId, relatedResource);
 
     resourceGroupLinksRepository.saveAll(
         List.of(resourceGroupLinkForCurrentResource, resourceGroupLinkForRelatedResource));
@@ -149,7 +108,6 @@ public class ResourceGroupService {
     var resourceGroupLinkForRelated = new ResourceGroupLink();
     resourceGroupLinkForRelated.setResourceGroupId(resourceGroupId);
     resourceGroupLinkForRelated.setResource(resource);
-    resourceGroupLinkForRelated.setPreferredView(false);
     return resourceGroupLinkForRelated;
   }
 }

@@ -115,7 +115,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     );
 
     var resource = undevelopedDiscovery.getResource();
-    resource.setArchived(true);
+    resource.setActive(false);
 
     // AND is tied to a field
     var fieldStatusHistory = new FieldStatusHistory();
@@ -762,6 +762,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
   private UndevelopedDiscovery setupAndGetUndevelopedDiscovery() {
     var resource = new Resource();
     resource.setId(UUID.randomUUID());
+    resource.setActive(true);
 
     var undevelopedDiscovery = new UndevelopedDiscovery();
     undevelopedDiscovery.setResource(resource);

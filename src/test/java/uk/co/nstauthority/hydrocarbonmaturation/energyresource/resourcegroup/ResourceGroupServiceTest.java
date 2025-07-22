@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
@@ -77,184 +76,62 @@ class ResourceGroupServiceTest {
       when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
     }
 
-    @Nested
-    class RelatedToAProspectGroup_AddToGroup {
+    @Test
+    void existingResourceGroupLink() {
+      var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      RelatedResource relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
+      when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
+          .thenReturn(Optional.of(relatedResourceTaskList));
 
-      private RelatedResource relatedResourceTaskList;
-      private ResourceGroupLink resourceGroupLinkForRelatedProspect;
+      ResourceGroupLink resourceGroupLinkForRelatedProspect = ResourceGroupService.buildResourceGroupLink(
+          UUID.randomUUID(),
+          relatedSubmissionDetail.getSubmission().getResource());
+      when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
+          .thenReturn(Optional.of(resourceGroupLinkForRelatedProspect));
+      var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
+      resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
-      @BeforeEach
-      void setup() {
+      verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
 
-        var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-        relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
-        when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
-            .thenReturn(Optional.of(relatedResourceTaskList));
-
-        resourceGroupLinkForRelatedProspect = ResourceGroupService.buildResourceGroupLink(UUID.randomUUID(),
-            relatedSubmissionDetail.getSubmission().getResource());
-        when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
-            .thenReturn(Optional.of(resourceGroupLinkForRelatedProspect));
-      }
-
-      @Test
-      void currentProspectIsToBePreferredView_RelatedProspectIsAlreadyPreferredView() {
-        resourceGroupLinkForRelatedProspect.setPreferredView(true);
-
-        var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
-
-        verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
-
-        assertThat(argumentCaptor.getValue())
-            .extracting(
-                ResourceGroupLink::getPreferredView,
-                ResourceGroupLink::getResourceGroupId,
-                ResourceGroupLink::getResource
-            )
-            .containsExactly(
-                true,
-                resourceGroupLinkForRelatedProspect.getResourceGroupId(),
-                submissionDetail.getSubmission().getResource()
-            );
-
-        assertThat(resourceGroupLinkForRelatedProspect.getPreferredView()).isFalse();
-      }
-
-      @Test
-      void currentProspectIsToBePreferredView_OtherProspectIsPreferredView() {
-        resourceGroupLinkForRelatedProspect.setPreferredView(false);
-
-        var otherResourceGroupLink = ResourceGroupService.buildResourceGroupLink(UUID.randomUUID(), new Resource());
-        when(resourceGroupLinksRepository.findByResourceGroupIdAndPreferredViewIsTrue(
-            resourceGroupLinkForRelatedProspect.getResourceGroupId()))
-            .thenReturn(Optional.of(otherResourceGroupLink));
-
-        var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
-
-        verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
-
-        assertThat(argumentCaptor.getValue())
-            .extracting(
-                ResourceGroupLink::getPreferredView,
-                ResourceGroupLink::getResourceGroupId,
-                ResourceGroupLink::getResource
-            )
-            .containsExactly(
-                true,
-                resourceGroupLinkForRelatedProspect.getResourceGroupId(),
-                submissionDetail.getSubmission().getResource()
-            );
-
-        assertThat(resourceGroupLinkForRelatedProspect.getPreferredView()).isFalse();
-        assertThat(otherResourceGroupLink.getPreferredView()).isFalse();
-      }
-
-      @Test
-      void currentProspectIsNotToBePreferredView() {
-        relatedResourceTaskList.setPreferredView(false);
-        resourceGroupLinkForRelatedProspect.setPreferredView(true);
-
-        var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
-
-        verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
-
-        assertThat(argumentCaptor.getValue())
-            .extracting(
-                ResourceGroupLink::getPreferredView,
-                ResourceGroupLink::getResourceGroupId,
-                ResourceGroupLink::getResource
-            )
-            .containsExactly(
-                false,
-                resourceGroupLinkForRelatedProspect.getResourceGroupId(),
-                submissionDetail.getSubmission().getResource()
-            );
-
-        assertThat(resourceGroupLinkForRelatedProspect.getPreferredView()).isTrue();
-      }
-
+      assertThat(argumentCaptor.getValue())
+          .extracting(
+              ResourceGroupLink::getResourceGroupId,
+              ResourceGroupLink::getResource
+          )
+          .containsExactly(
+              resourceGroupLinkForRelatedProspect.getResourceGroupId(),
+              submissionDetail.getSubmission().getResource()
+          );
     }
 
-    @Nested
-    class RelatedToAnotherProspect_CreateNewGroup {
-      private RelatedResource relatedResourceTaskList;
-      private SubmissionDetail relatedSubmissionDetail;
+    @Test
+    void newRelatedResource() {
+      var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      var relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
 
-      @BeforeEach
-      void setup() {
+      when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
+          .thenReturn(Optional.of(relatedResourceTaskList));
 
-        relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+      when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
+          .thenReturn(Optional.empty());
+      @SuppressWarnings("unchecked")
+      ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
+      resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
-        relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
-        when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
-            .thenReturn(Optional.of(relatedResourceTaskList));
+      verify(resourceGroupLinksRepository).saveAll(argumentCaptor.capture());
 
-        when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
-            .thenReturn(Optional.empty());
-      }
+      assertThat(argumentCaptor.getValue())
+          .hasSize(2)
+          .extracting(
+              ResourceGroupLink::getResource
+          )
+          .containsExactly(
+              submissionDetail.getSubmission().getResource(),
+              relatedSubmissionDetail.getSubmission().getResource()
+          );
 
-      @Test
-      void currentProspectIsToBePreferredView() {
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
-
-        verify(resourceGroupLinksRepository).saveAll(argumentCaptor.capture());
-
-        assertThat(argumentCaptor.getValue())
-            .hasSize(2)
-            .extracting(
-                ResourceGroupLink::getPreferredView,
-                ResourceGroupLink::getResource
-            )
-            .containsExactly(
-                tuple(
-                    true,
-                    submissionDetail.getSubmission().getResource()
-                ),
-                tuple(
-                    false,
-                    relatedSubmissionDetail.getSubmission().getResource()
-                )
-            );
-
-        assertThat(argumentCaptor.getValue().get(0).getResourceGroupId())
-            .isEqualTo(argumentCaptor.getValue().get(1).getResourceGroupId());
-      }
-
-      @Test
-      void relatedProspectIsToBePreferredView() {
-        relatedResourceTaskList.setPreferredView(false);
-
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
-
-        verify(resourceGroupLinksRepository).saveAll(argumentCaptor.capture());
-
-        assertThat(argumentCaptor.getValue())
-            .hasSize(2)
-            .extracting(
-                ResourceGroupLink::getPreferredView,
-                ResourceGroupLink::getResource
-            )
-            .containsExactly(
-                tuple(
-                    false,
-                    submissionDetail.getSubmission().getResource()
-                ),
-                tuple(
-                    true,
-                    relatedSubmissionDetail.getSubmission().getResource()
-                )
-            );
-
-        assertThat(argumentCaptor.getValue().get(0).getResourceGroupId())
-            .isEqualTo(argumentCaptor.getValue().get(1).getResourceGroupId());
-      }
+      assertThat(argumentCaptor.getValue().get(0).getResourceGroupId())
+          .isEqualTo(argumentCaptor.getValue().get(1).getResourceGroupId());
     }
 
     @Nested
@@ -273,22 +150,6 @@ class ResourceGroupServiceTest {
         verify(resourceGroupLinksRepository, never()).save(any(ResourceGroupLink.class));
       }
     }
-  }
-
-  @Test
-  void isInGroupAndIsNotPreferredView_verifyMethodCall() {
-    var resource = new Resource();
-    resourceGroupService.isInGroupAndIsNotPreferredView(resource);
-
-    verify(resourceGroupLinksRepository).existsResourceGroupLinkByResourceAndPreferredViewIs(resource, false);
-  }
-
-  @Test
-  void isPreferredView_verifyMethodCall() {
-    var resource = new Resource();
-    resourceGroupService.isPreferredView(resource);
-
-    verify(resourceGroupLinksRepository).existsResourceGroupLinkByResourceAndPreferredViewIs(resource, true);
   }
 
   @Test
@@ -367,7 +228,6 @@ class ResourceGroupServiceTest {
     var relatedProspect = new RelatedResource();
     relatedProspect.setRelatedToAnotherResource(true);
     relatedProspect.setRelatedSubmissionDetail(submissionDetail);
-    relatedProspect.setPreferredView(true);
     return relatedProspect;
   }
 }

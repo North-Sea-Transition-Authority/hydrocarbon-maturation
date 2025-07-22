@@ -217,7 +217,7 @@ public class SubmissionIntegrationTestUtils {
   public static Resource createResource(EntityManager entityManager, ResourceType resourceType) {
     var resource = new Resource();
     resource.setType(resourceType);
-    resource.setArchived(false);
+    resource.setActive(true);
     resource.setCreatedTimestamp(Instant.now());
 
     entityManager.persist(resource);
@@ -229,7 +229,7 @@ public class SubmissionIntegrationTestUtils {
   public static Resource createArchivedResource(EntityManager entityManager, ResourceType resourceType) {
     var resource = new Resource();
     resource.setType(resourceType);
-    resource.setArchived(true);
+    resource.setActive(false);
     resource.setCreatedTimestamp(Instant.now());
 
     entityManager.persist(resource);

@@ -126,7 +126,7 @@ public class ViewResourceRecordService {
 
       var memberOfOrganisationUnit = industryUserTeams.contains(organisationUnitId);
 
-      return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence && !resource.getArchived();
+      return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence && resource.getActive();
     } else {
       var field = fieldOperatorAndLicenceQueryService.getFieldByIdOrThrow(resourceRecord.fieldId());
 
@@ -141,7 +141,7 @@ public class ViewResourceRecordService {
 
       return memberOfOrganisationUnit
           && (resourceIsAssociatedWithAnExtantLicence || hasExtantPearsLicence)
-          && !resource.getArchived();
+          && resource.getActive();
     }
 
   }

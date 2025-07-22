@@ -79,14 +79,12 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
 
   @Test
   void showSearchResourceRecordsScreen_whenOperator_assertStatusOk() throws Exception {
-    var form = new SearchResourceRecordsForm();
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .showSearchResourceRecordsScreen(null, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
-    assertThat(form.isShowOnlyPreferredViews()).isFalse();
   }
 
   @Test
@@ -123,16 +121,14 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             "opportunityTypes",
             "resourceTypes",
             "showResults",
-            "showOnlyPreferredViews",
             "geographicalArea",
             "showArchivedResources")
         .extracting(
             SearchProspectAndDiscoveryRecordsFilter::getOpportunityTypes,
             SearchProspectAndDiscoveryRecordsFilter::getResourceTypes,
             SearchProspectAndDiscoveryRecordsFilter::isShowResults,
-            SearchProspectAndDiscoveryRecordsFilter::isShowOnlyPreferredViews,
             SearchProspectAndDiscoveryRecordsFilter::getGeographicalArea,
-            SearchProspectAndDiscoveryRecordsFilter::isShowArchivedResources)
+            SearchProspectAndDiscoveryRecordsFilter::getShowArchivedResources)
         .containsExactly(
             List.of("LEAD",
                 "PROSPECT",
@@ -143,7 +139,6 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
                 "NOT_SET"),
             List.of("PROSPECT", "DISCOVERY"),
             false,
-            true,
             List.of(),
             false);
   }
@@ -187,7 +182,6 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
     filter.setCentreOfInterestBlock("2/15");
     filter.setGeographicalArea(List.of(GeographicalArea.ONSHORE.name()));
     filter.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
-    filter.setShowOnlyPreferredViews(false);
     filter.setOpportunityTypes(List.of(OpportunityType.DISCOVERY.name()));
     filter.setLicenceId("2");
     filter.setLicenceRound("2");
