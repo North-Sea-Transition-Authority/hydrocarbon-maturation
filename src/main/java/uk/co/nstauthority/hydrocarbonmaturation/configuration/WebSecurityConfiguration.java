@@ -23,7 +23,6 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlResponseParser;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceLogoutSuccessHandler;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ServiceAccessDeniedHandler;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.PostAuthenticationRequestMdcFilter;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.RequestLogFilter;
 
@@ -40,10 +39,10 @@ public class WebSecurityConfiguration {
       "/cookies"
   };
 
+  static final String SERVICE_ACCESS_PRIVILEDGE = "REMI_ACCESS_PRIVILEGE";
   private final SamlProperties samlProperties;
   private final SamlResponseParser samlResponseParser;
   private final ServiceLogoutSuccessHandler serviceLogoutSuccessHandler;
-  private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
   private final RequestLogFilter requestLogFilter;
   private final PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter;
 
@@ -51,13 +50,11 @@ public class WebSecurityConfiguration {
   public WebSecurityConfiguration(SamlProperties samlProperties,
                                   SamlResponseParser samlResponseParser,
                                   ServiceLogoutSuccessHandler serviceLogoutSuccessHandler,
-                                  EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
                                   RequestLogFilter requestLogFilter,
                                   PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter) {
     this.samlProperties = samlProperties;
     this.samlResponseParser = samlResponseParser;
     this.serviceLogoutSuccessHandler = serviceLogoutSuccessHandler;
-    this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
     this.requestLogFilter = requestLogFilter;
     this.postAuthenticationRequestMdcFilter = postAuthenticationRequestMdcFilter;
   }
@@ -71,7 +68,7 @@ public class WebSecurityConfiguration {
         .authorizeHttpRequests(requestMatcherRegistry ->
             requestMatcherRegistry
                 .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
-                .anyRequest().hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
+                .anyRequest().hasAuthority(SERVICE_ACCESS_PRIVILEDGE)
             )
         .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers(NO_AUTH_ENDPOINTS))
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
