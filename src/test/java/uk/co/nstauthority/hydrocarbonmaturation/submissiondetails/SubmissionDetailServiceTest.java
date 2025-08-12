@@ -87,7 +87,8 @@ class SubmissionDetailServiceTest {
         List.of(
             SubmissionType.CREATE_DISCOVERY,
             SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
-            SubmissionType.UPDATE_DISCOVERY),
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY),
         SubmissionDetailStatus.ACCEPTED))
         .thenReturn(Optional.of(submissionDetail));
     when(submissionPersistenceService.getSubmissionsByResource(resource))
@@ -105,7 +106,7 @@ class SubmissionDetailServiceTest {
         .thenReturn(submissionList);
     when(submissionDetailRepository
         .findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(submissionList,
-            List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
+            List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT, SubmissionType.RELINQUISHMENT_PROSPECT),
             SubmissionDetailStatus.ACCEPTED))
         .thenReturn(Optional.of(latestApprovedSubmissionDetail));
 

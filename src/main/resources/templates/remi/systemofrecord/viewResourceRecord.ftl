@@ -95,7 +95,7 @@ wrapperWidth=true>
           </#list>
         </#if>
       </#assign>
-      <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
+      <@fdsDataItems.dataValues key="Licences" value="${licencesDisplay}"/>
     </#if>
   </@fdsDataItems.dataItem>
   <@fdsAction.buttonGroup>
