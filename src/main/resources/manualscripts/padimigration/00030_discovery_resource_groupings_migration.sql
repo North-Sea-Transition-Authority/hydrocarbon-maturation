@@ -64,7 +64,7 @@ BEGIN
     )
     LOOP
 
-        INSERT INTO remi.resources (id, type, created_timestamp, archived)
+        INSERT INTO remi.resources (id, type, created_timestamp, active)
         VALUES (
             gen_random_uuid(),
             'DISCOVERY',

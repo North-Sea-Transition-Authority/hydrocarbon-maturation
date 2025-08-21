@@ -59,7 +59,7 @@ public class SubmissionDetailService {
     // Finds the latest prospect update or create update submission that is approved.
     return submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
         submissionPersistenceService.getSubmissionsByResource(resource),
-        List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
+        List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT, SubmissionType.RELINQUISHMENT_PROSPECT),
         SubmissionDetailStatus.ACCEPTED
     );
   }
@@ -72,7 +72,8 @@ public class SubmissionDetailService {
             List.of(
                 SubmissionType.CREATE_DISCOVERY,
                 SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
-                SubmissionType.UPDATE_DISCOVERY),
+                SubmissionType.UPDATE_DISCOVERY,
+                SubmissionType.RELINQUISHMENT_DISCOVERY),
             SubmissionDetailStatus.ACCEPTED);
   }
 

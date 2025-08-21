@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.configuration.WebSecurityConfiguration.SERVICE_ACCESS_PRIVILEDGE;
 
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -23,22 +24,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.error.DefaultErrorController;
 
 @AutoConfigureMockMvc
 @IntegrationTest
-@EnableConfigurationProperties(value = {EnergyPortalAccessApiConfiguration.class, EnergyPortalConfiguration.class})
+@EnableConfigurationProperties(value = {EnergyPortalConfiguration.class})
 class WebSecurityConfigurationTest {
 
   private static final String CONTEXT_PATH = "/test";
 
   @Autowired
   private MockMvc mockMvc;
-
-  @Autowired
-  private EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
   @Autowired
   private EnergyPortalConfiguration energyPortalConfiguration;
@@ -51,7 +48,7 @@ class WebSecurityConfigurationTest {
   @Test
   void security_whenUserHasAccessAuthority_thenOk() throws Exception {
 
-    var idpAccessGrantedAuthority = new SimpleGrantedAuthority(energyPortalAccessApiConfiguration.privilegeName());
+    var idpAccessGrantedAuthority = new SimpleGrantedAuthority(SERVICE_ACCESS_PRIVILEDGE);
 
     var user = UserTestUtil.Builder().build();
 
@@ -89,7 +86,7 @@ class WebSecurityConfigurationTest {
   @Test
   void security_whenLogout_thenEnergyPortalLogoutRedirectionFollowed() throws Exception {
 
-    var idpAccessGrantedAuthority = new SimpleGrantedAuthority(energyPortalAccessApiConfiguration.privilegeName());
+    var idpAccessGrantedAuthority = new SimpleGrantedAuthority(SERVICE_ACCESS_PRIVILEDGE);
 
     var user = UserTestUtil.Builder().build();
 

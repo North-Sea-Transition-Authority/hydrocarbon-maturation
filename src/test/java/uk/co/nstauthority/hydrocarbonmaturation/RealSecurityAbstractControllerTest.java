@@ -9,7 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.configuration.ExternalApiConfigu
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.ExternalApiWebSecurityConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.SamlProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.WebSecurityConfiguration;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 
 @Import(value = {
     WebSecurityConfiguration.class,
@@ -19,7 +18,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortal
     SamlResponseParser.class,
     ServiceLogoutSuccessHandler.class})
 @EnableConfigurationProperties(value = {
-    EnergyPortalAccessApiConfiguration.class,
     ExternalApiConfiguration.class
 })
 public abstract class RealSecurityAbstractControllerTest extends AbstractControllerTest {

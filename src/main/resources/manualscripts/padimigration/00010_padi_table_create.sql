@@ -1,3 +1,12 @@
+CREATE TABLE remi.padi_best_data_header (
+    resource_id      TEXT,
+    name_alternative TEXT,
+    opportunity_type TEXT,
+    choice           INTEGER,
+    res_operator     TEXT,
+    hc_case          TEXT
+);
+
 CREATE TABLE remi.padi_res_header (
     resource_id             TEXT,
     name_of_prospect        TEXT,
