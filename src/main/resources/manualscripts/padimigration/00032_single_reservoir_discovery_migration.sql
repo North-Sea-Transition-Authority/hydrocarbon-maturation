@@ -16,9 +16,9 @@ DO $$
             -- Discoveries tied to prospects
             SELECT
                 prg2.remi_resource_id,
-                TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS') approved_date,
+                TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS') approved_date,
                 CASE
-                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY_FROM_PROSPECT'
+                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY_FROM_PROSPECT'
                     ELSE 'UPDATE_DISCOVERY'
                 END submission_type,
                 prdh2.resource_id legacy_res_id,
@@ -42,9 +42,9 @@ DO $$
             -- Discoveries not tied to prospects
             SELECT
                 prg2.remi_resource_id,
-                TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS') approved_date,
+                TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS') approved_date,
                 CASE
-                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY'
+                    WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY'
                     ELSE 'UPDATE_DISCOVERY'
                 END submission_type,
                 prdh2.resource_id,

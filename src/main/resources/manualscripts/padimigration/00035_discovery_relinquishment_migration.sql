@@ -19,7 +19,7 @@ DO $$
                 prdh.resource_id,
                 pom.agreed_match,
                 prdh.name_alternative,
-                TO_DATE(prdh.stage_date, 'YYYY-MM-DD HH24:MI:SS') approved_date
+                TO_DATE(prdh.stage_date, 'MM/DD/YYYY HH24:MI:SS') approved_date
             FROM remi.padi_res_data_header prdh
             LEFT JOIN remi.padi_operator_mapping pom ON LOWER(pom.padi_name) = LOWER(prdh.company)
             WHERE prdh.opportunity_type = 'Discovery'
@@ -29,7 +29,7 @@ DO $$
                 prdh.resource_id,
                 pom.agreed_match,
                 prdh.name_alternative,
-                TO_DATE(prdh.stage_date, 'YYYY-MM-DD HH24:MI:SS')
+                TO_DATE(prdh.stage_date, 'MM/DD/YYYY HH24:MI:SS')
         )
         LOOP
 

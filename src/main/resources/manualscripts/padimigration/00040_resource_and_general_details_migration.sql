@@ -54,7 +54,7 @@ BEGIN
             END other_info_source,
             prdh.application_ref licence_app_ref,
             CASE WHEN prdh.application_ref IS NULL AND prdh.reference_round != '0' THEN prdh.reference_round END licence_round,
-            CASE WHEN prdh.stage_name = relinquishment THEN TO_DATE(prdh.stage_date, 'YYYY-MM-DD') END date_of_relinquishment,
+            CASE WHEN prdh.stage_name = relinquishment THEN TO_DATE(prdh.stage_date, 'MM/DD/YYYY') END date_of_relinquishment,
             prdh.stage_name
         FROM remi.submission_details sd
         JOIN remi.submissions s ON s.id = sd.submission_id

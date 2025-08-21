@@ -76,9 +76,9 @@ BEGIN
         -- Initial prospects and prospect updates
         SELECT
             prg2.remi_resource_id,
-            TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS') approved_date,
+            TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS') approved_date,
             CASE
-                WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_PROSPECT'
+                WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_PROSPECT'
                 ELSE 'PROSPECT_UPDATE'
             END submission_type,
             prg2.legacy_res_data_id legacy_data_id,
@@ -94,7 +94,7 @@ BEGIN
         -- Dry well prospects
         SELECT
             prg2.remi_resource_id,
-            TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS') approved_date,
+            TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS') approved_date,
             'POST_DRILL_DRY_HOLE' submission_type,
             prg2.legacy_res_data_id,
             prdh2.name_alternative
@@ -109,7 +109,7 @@ BEGIN
         -- Prospect relinquishments
         SELECT
             prg2.remi_resource_id,
-            TO_DATE(prdh2.stage_date, 'YYYY-MM-DD HH24:MI:SS') approved_date,
+            TO_DATE(prdh2.stage_date, 'MM/DD/YYYY HH24:MI:SS') approved_date,
             'RELINQUISHMENT_PROSPECT' submission_type,
             prg2.legacy_res_data_id,
             prdh2.name_alternative
