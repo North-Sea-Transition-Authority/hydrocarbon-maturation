@@ -27,7 +27,7 @@
               labelText="Field name"
               labelClass="govuk-visually-hidden"
               inputClass="govuk-!-width-three-quarters"
-              selectorMinInputLength=3
+              selectorMinInputLength=2
               preselectedItems=resourceName!{}/>
           </@fdsSearch.searchFilterItem>
           <@fdsSearch.searchFilterItem itemName="Field status">

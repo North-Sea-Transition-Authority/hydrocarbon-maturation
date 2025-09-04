@@ -72,9 +72,12 @@ public class ResourceLinkService {
     return getResourceLinksByResource(resource)
         .stream()
         .anyMatch(resourceLink ->
-            resourceLink.getDiscoveryResource().getId().equals(otherResource.getId())
-                || resourceLink.getProspectResource().getId().equals(otherResource.getId())
-                || resourceLink.getFieldResource().getId().equals(otherResource.getId()));
+            (resourceLink.getDiscoveryResource() != null
+                && resourceLink.getDiscoveryResource().getId().equals(otherResource.getId()))
+                || (resourceLink.getProspectResource() != null
+                && resourceLink.getProspectResource().getId().equals(otherResource.getId()))
+                || (resourceLink.getFieldResource() != null
+                && resourceLink.getFieldResource().getId().equals(otherResource.getId())));
   }
 
   public boolean discoveryIsLinkedToField(Resource resource) {
