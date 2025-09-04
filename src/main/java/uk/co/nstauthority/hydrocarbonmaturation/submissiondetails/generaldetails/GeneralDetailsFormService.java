@@ -185,9 +185,11 @@ public class GeneralDetailsFormService {
     if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
       form.setCapitalProjectScopeDelivered(generalDetail.getCapitalProjectScopeDelivered());
       form.setFdpTitle(generalDetail.getFdpTitle());
-      form.setFdpDateDay(String.valueOf(generalDetail.getFdpDate().getDayOfMonth()));
-      form.setFdpDateMonth(String.valueOf(generalDetail.getFdpDate().getMonthValue()));
-      form.setFdpDateYear(String.valueOf(generalDetail.getFdpDate().getYear()));
+      if (generalDetail.getFdpDate() != null) {
+        form.setFdpDateDay(String.valueOf(generalDetail.getFdpDate().getDayOfMonth()));
+        form.setFdpDateMonth(String.valueOf(generalDetail.getFdpDate().getMonthValue()));
+        form.setFdpDateYear(String.valueOf(generalDetail.getFdpDate().getYear()));
+      }
     }
 
     if (submissionDetail.isFieldSubmission()) {

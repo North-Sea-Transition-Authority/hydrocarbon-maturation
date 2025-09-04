@@ -18,13 +18,20 @@ CVE-2025-25193
 # io.netty:netty-handler
 CVE-2025-24970
 
-# tomcat-embed-core
+# io.netty:netty-codec
+CVE-2025-58057
+
+# io.netty:netty-codec-http2
+CVE-2025-55163
+
+# org.apache.tomcat.embed:tomcat-embed-core
 CVE-2024-52317
 CVE-2024-50379
 CVE-2024-56337
 CVE-2025-24813
 CVE-2025-48988
 CVE-2025-49125
+CVE-2025-48989
 
 # spring
 CVE-2024-38827
@@ -50,3 +57,9 @@ CVE-2025-49146
 
 # org.apache.commons:commons-lang3
 CVE-2025-48924
+
+# org.bouncycastle:bcpkix-jdk18on
+CVE-2025-8916
+
+# org.springframework:spring-webmvc
+CVE-2025-41242
