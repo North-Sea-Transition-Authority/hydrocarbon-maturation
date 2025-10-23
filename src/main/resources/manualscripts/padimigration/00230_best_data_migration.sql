@@ -38,6 +38,7 @@ BEGIN
         LEFT JOIN remi.padi_multi_reservoir_discoveries m ON m.resdat_id = prdh.resdat_id
         WHERE TRIM(prdh.stage_choice) = '1'
         AND r.active = false
+        AND prdh.resdat_id != 55072
     )
     LOOP
 
