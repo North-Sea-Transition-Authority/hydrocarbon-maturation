@@ -32,9 +32,13 @@ BEGIN
         JOIN remi.padi_res_header prh ON prh.resource_id = pbdh.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resource_id = pbdh.resource_id
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         LEFT JOIN remi.padi_header_well_mapping phwm ON phwm.padi_resource_id = pbdh.resource_id
         LEFT JOIN remi.padi_multi_reservoir_discoveries m ON m.resdat_id = prdh.resdat_id
         WHERE TRIM(prdh.stage_choice) = '1'
+        AND r.active = false
+        AND prdh.resdat_id != 55072
     )
     LOOP
 
@@ -229,6 +233,32 @@ BEGIN
         FROM remi.chance_of_success cos
         WHERE cos.submission_detail_id = resource_rec.linked_sd_id;
 
+        IF resource_rec.multi_reservoir_stage_name IS NOT NULL THEN
+
+            SELECT rsd.id
+            INTO linked_rsd_id
+            FROM remi.submission_details sd
+            JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
+            JOIN remi.reservoirs r ON r.id = rsd.reservoir
+            JOIN remi.submissions s ON s.id = sd.submission_id
+            JOIN remi.resources r2 ON r2.id = s.resource_id
+            WHERE sd.legacy_res_data_id = resource_rec.resdat_id
+            AND r.name = resource_rec.multi_reservoir_stage_name
+            AND r2.active = false;
+
+        ELSE
+
+            SELECT rsd.id
+            INTO linked_rsd_id
+            FROM remi.submission_details sd
+            JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
+            JOIN remi.submissions s ON s.id = sd.submission_id
+            JOIN remi.resources r2 ON r2.id = s.resource_id
+            WHERE sd.legacy_res_data_id = resource_rec.resdat_id
+            AND r2.active = false;
+
+        END IF;
+
         INSERT INTO remi.probability_distributions (
             id,
             submission_detail_id,
@@ -275,7 +305,8 @@ BEGIN
             one_c,
             CASE WHEN reservoir_submission_detail_id IS NOT NULL THEN remi_rsd_id END
         FROM remi.probability_distributions pd
-        WHERE pd.submission_detail_id = resource_rec.linked_sd_id;
+        WHERE pd.submission_detail_id = resource_rec.linked_sd_id
+        AND (pd.reservoir_submission_detail_id IS NULL OR pd.reservoir_submission_detail_id = linked_rsd_id);
 
         INSERT INTO remi.regulator_managed_information (
             id,
@@ -327,26 +358,6 @@ BEGIN
             key_work_required_for_further_maturation
         FROM remi.opportunity_details od
         WHERE od.submission_detail_id = resource_rec.linked_sd_id;
-
-        IF resource_rec.multi_reservoir_stage_name IS NOT NULL THEN
-
-            SELECT rsd.id
-            INTO linked_rsd_id
-            FROM remi.submission_details sd
-            JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
-            JOIN remi.reservoirs r ON r.id = rsd.reservoir
-            WHERE sd.legacy_res_data_id = resource_rec.resdat_id
-            AND r.name = resource_rec.multi_reservoir_stage_name;
-
-        ELSE
-
-            SELECT rsd.id
-            INTO linked_rsd_id
-            FROM remi.submission_details sd
-            JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
-            WHERE sd.legacy_res_data_id = resource_rec.resdat_id;
-
-        END IF;
 
         INSERT INTO remi.oil_case_outputs (
             id,
