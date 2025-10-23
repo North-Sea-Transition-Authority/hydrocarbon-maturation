@@ -40,6 +40,7 @@ CVE-2024-38827
 # logback-core
 CVE-2024-12798
 CVE-2024-12801
+CVE-2025-11226
 
 # spring-webmvc
 CVE-2024-38819
@@ -64,3 +65,6 @@ CVE-2025-8916
 
 # org.springframework:spring-webmvc
 CVE-2025-41242
+
+# org.springframework:spring-core
+CVE-2025-41249
