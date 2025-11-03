@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.authentication;
 import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.audit.AuditRevisionUtil;
 
 @Service
 public class UserService {
@@ -20,11 +21,12 @@ public class UserService {
   }
 
   public Optional<User> getOptionalUserDetail() {
-    try {
-      return Optional.of(getUser());
-    } catch (InvalidAuthenticationException exception) {
-      return Optional.empty();
+    if (SecurityContextHolder.getContext().getAuthentication() instanceof ServiceSaml2Authentication authentication
+        && authentication.getPrincipal() instanceof User serviceUserDetail) {
+      return Optional.of(serviceUserDetail);
     }
+
+    return Optional.ofNullable(AuditRevisionUtil.getFallbackAuditUser());
   }
 
   public Integer getUserWuaId() {
