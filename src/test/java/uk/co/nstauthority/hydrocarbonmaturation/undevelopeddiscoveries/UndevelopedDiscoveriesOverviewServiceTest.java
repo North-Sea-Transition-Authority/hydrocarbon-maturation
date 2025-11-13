@@ -810,6 +810,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         null,
         "area",
         "",
+        "",
         false,
         List.of(SummaryFileViewRow.empty("")),
         "",

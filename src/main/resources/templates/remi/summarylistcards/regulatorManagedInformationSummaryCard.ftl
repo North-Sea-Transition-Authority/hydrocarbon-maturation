@@ -17,6 +17,9 @@
       <@fdsSummaryList.summaryListRowNoAction keyText="${customerBranding.mnemonic()} resource name">
           ${regulatorManagedInformationValues.resourceName()}
       </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="${customerBranding.mnemonic()} hydrocarbon case">
+          ${regulatorManagedInformationValues.hydrocarbonCase()}
+      </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Principal well">
         ${regulatorManagedInformationValues.wellReference()}
     </@fdsSummaryList.summaryListRowNoAction>

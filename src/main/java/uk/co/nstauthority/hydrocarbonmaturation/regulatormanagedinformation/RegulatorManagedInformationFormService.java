@@ -80,6 +80,7 @@ public class RegulatorManagedInformationFormService {
     form.setRelinquishmentReport(relinquishmentReportUploads);
     form.setResponsibleTeamType(regulatorManagedInformation.getResponsibleTeamType());
     form.setResourceName(regulatorManagedInformation.getResourceName());
+    form.setHydrocarbonCase(regulatorManagedInformation.getHydrocarbonCase());
     form.setLinkedToShelvedCopField(regulatorManagedInformation.getLinkedToShelvedCopField());
     if (regulatorManagedInformation.getWellId() != null) {
       form.setWell(regulatorManagedInformation.getWellId().toString());

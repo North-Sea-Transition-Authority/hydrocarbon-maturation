@@ -36,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -180,7 +181,8 @@ public class RegulatorManagedInformationController {
             .getDisplayableOptions(GeographicalArea.class))
         .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
         .addObject("well", regulatorManagedInformationFormService.getPreSelectedWell(form.getWell()))
-        .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
+        .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished)
+        .addObject("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class));
     if (isResourceBeingRelinquished) {
       modelAndView
           .addObject("relinquishmentReportTemplate",

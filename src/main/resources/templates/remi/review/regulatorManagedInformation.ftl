@@ -81,6 +81,14 @@
       preselectedItems=well!{}
       optionalLabel=true/>
 
+      <@fdsRadio.radioGroup path="form.hydrocarbonCase" labelText="Hydrocarbon case" optionalLabel=true>
+          <#assign firstItem=true/>
+          <#list hydrocarbonCase as key, value>
+              <@fdsRadio.radioItem path="form.hydrocarbonCase" itemMap={key : value} isFirstItem=firstItem/>
+              <#assign firstItem=false/>
+          </#list>
+      </@fdsRadio.radioGroup>
+
       <@fdsAction.submitButtons primaryButtonText="Save and complete"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true

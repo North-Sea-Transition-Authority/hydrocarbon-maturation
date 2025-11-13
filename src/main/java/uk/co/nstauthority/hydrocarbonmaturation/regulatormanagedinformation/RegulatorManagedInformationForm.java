@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 import java.util.ArrayList;
 import java.util.List;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 
 public class RegulatorManagedInformationForm {
 
@@ -13,6 +14,7 @@ public class RegulatorManagedInformationForm {
   private Boolean linkedToShelvedCopField;
   private String fieldSelectedOption;
   private String well;
+  private HydrocarbonsDiscovered hydrocarbonCase;
 
   public GeographicalArea getGeographicalArea() {
     return geographicalArea;
@@ -71,5 +73,14 @@ public class RegulatorManagedInformationForm {
 
   public void setWell(String well) {
     this.well = well;
+  }
+
+  public HydrocarbonsDiscovered getHydrocarbonCase() {
+    return hydrocarbonCase;
+  }
+
+  public void setHydrocarbonCase(
+      HydrocarbonsDiscovered hydrocarbonCase) {
+    this.hydrocarbonCase = hydrocarbonCase;
   }
 }

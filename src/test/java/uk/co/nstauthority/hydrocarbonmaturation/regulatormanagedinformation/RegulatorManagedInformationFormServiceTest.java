@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +60,7 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
+    regulatorManagedInformation.setHydrocarbonCase(HydrocarbonsDiscovered.GAS_ONLY);
     var resourceName = "regulator resource name";
     regulatorManagedInformation.setResourceName(resourceName);
     regulatorManagedInformation.setLinkedToShelvedCopField(false);
@@ -78,7 +80,8 @@ class RegulatorManagedInformationFormServiceTest {
             RegulatorManagedInformationForm::getResponsibleTeamType,
             RegulatorManagedInformationForm::getLinkedToShelvedCopField,
             RegulatorManagedInformationForm::getWell,
-            RegulatorManagedInformationForm::getResourceName
+            RegulatorManagedInformationForm::getResourceName,
+            RegulatorManagedInformationForm::getHydrocarbonCase
         )
         .containsExactly(
             geographicalArea,
@@ -86,7 +89,8 @@ class RegulatorManagedInformationFormServiceTest {
             regulatorManagedInformation.getResponsibleTeamType(),
             regulatorManagedInformation.getLinkedToShelvedCopField(),
             regulatorManagedInformation.getWellId().toString(),
-            regulatorManagedInformation.getResourceName()
+            regulatorManagedInformation.getResourceName(),
+            regulatorManagedInformation.getHydrocarbonCase()
         );
   }
 

@@ -89,6 +89,8 @@ public class RegulatorManagedInformationPersistenceService {
       regulatorManagedInformation.setWellReference(null);
     }
 
+    regulatorManagedInformation.setHydrocarbonCase(regulatorManagedInformationForm.getHydrocarbonCase());
+
     regulatorManagedInformationRepository.save(regulatorManagedInformation);
   }
 

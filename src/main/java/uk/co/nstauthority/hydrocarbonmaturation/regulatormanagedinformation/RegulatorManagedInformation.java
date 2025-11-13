@@ -13,6 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 
 @Entity
 @Table(name = "regulator_managed_information")
@@ -42,6 +43,9 @@ public class RegulatorManagedInformation {
   private Integer wellId;
 
   private String wellReference;
+
+  @Enumerated(EnumType.STRING)
+  private HydrocarbonsDiscovered hydrocarbonCase;
 
   public UUID getId() {
     return id;
@@ -103,5 +107,14 @@ public class RegulatorManagedInformation {
 
   public void setWellReference(String wellReference) {
     this.wellReference = wellReference;
+  }
+
+  public HydrocarbonsDiscovered getHydrocarbonCase() {
+    return hydrocarbonCase;
+  }
+
+  public void setHydrocarbonCase(
+      HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+    this.hydrocarbonCase = hydrocarbonsDiscovered;
   }
 }
