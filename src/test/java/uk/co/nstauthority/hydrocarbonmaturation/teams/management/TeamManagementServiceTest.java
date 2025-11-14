@@ -180,6 +180,16 @@ public class TeamManagementServiceTest {
   }
 
   @Test
+  void updateTeamName(){
+    var newName = "New Team Name";
+
+    teamManagementService.updateTeamName(orgTeam1, newName);
+    verify(teamRepository).save(teamArgumentCaptor.capture());
+
+    assertThat(teamArgumentCaptor.getValue().getName()).isEqualTo(newName);
+  }
+
+  @Test
   void getTeamTypesUserIsMemberOf() {
 
     when(teamRoleRepository.findAllByWuaId(user1WuaId))

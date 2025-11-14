@@ -69,6 +69,11 @@ public class TeamManagementService {
     return teamRepository.save(team);
   }
 
+  public void updateTeamName(Team team, String teamName) {
+    team.setName(teamName);
+    teamRepository.save(team);
+  }
+
   Set<TeamType> getTeamTypesUserIsMemberOf(long wuaId) {
     return teamRoleRepository.findAllByWuaId(wuaId)
         .stream()
