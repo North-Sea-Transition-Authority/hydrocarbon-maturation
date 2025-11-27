@@ -14,6 +14,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @Entity
 @Table(name = "regulator_managed_information")
@@ -46,6 +47,11 @@ public class RegulatorManagedInformation {
 
   @Enumerated(EnumType.STRING)
   private HydrocarbonsDiscovered hydrocarbonCase;
+
+  @Enumerated(EnumType.STRING)
+  private OpportunityType opportunityType;
+
+  private String otherTypeOfOpportunity;
 
   public UUID getId() {
     return id;
@@ -116,5 +122,22 @@ public class RegulatorManagedInformation {
   public void setHydrocarbonCase(
       HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     this.hydrocarbonCase = hydrocarbonsDiscovered;
+  }
+
+  public OpportunityType getOpportunityType() {
+    return opportunityType;
+  }
+
+  public void setOpportunityType(
+      OpportunityType opportunityType) {
+    this.opportunityType = opportunityType;
+  }
+
+  public String getOtherTypeOfOpportunity() {
+    return otherTypeOfOpportunity;
+  }
+
+  public void setOtherTypeOfOpportunity(String otherTypeOfOpportunity) {
+    this.otherTypeOfOpportunity = otherTypeOfOpportunity;
   }
 }

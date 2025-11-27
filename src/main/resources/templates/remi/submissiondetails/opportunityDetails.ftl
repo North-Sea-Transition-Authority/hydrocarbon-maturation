@@ -23,7 +23,7 @@
             <@fdsRadio.radioItem path="form.opportunityType" itemMap={key : value} isFirstItem=firstItem>
               <#if key == "OTHER">
                 <@fdsTextInput.textInput path="form.otherTypeOfOpportunity"
-                  labelText="Enter the type of opportunity" nestingPath="form.opportunityType"/>
+                  labelText="Enter the other opportunity type" nestingPath="form.opportunityType"/>
               </#if>
               <#assign firstItem=false/>
             </@fdsRadio.radioItem>

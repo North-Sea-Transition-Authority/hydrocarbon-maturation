@@ -12,6 +12,7 @@ DECLARE
     linked_rsd_id UUID;
     group_id UUID;
     missing_group_res_id UUID;
+    shore_type TEXT;
 
 BEGIN
 
@@ -128,7 +129,8 @@ BEGIN
             rd.organisation_name,
             rd.organisation_registered_number
         FROM remi.resource_details rd
-        WHERE rd.submission_detail_id= resource_rec.linked_sd_id;
+        WHERE rd.submission_detail_id = resource_rec.linked_sd_id
+        RETURNING onshore_offshore INTO shore_type;
 
         INSERT INTO remi.general_details (
             id,
@@ -332,11 +334,20 @@ BEGIN
                 WHEN 'NNS' THEN 'NORTHERN_NORTH_SEA'
                 WHEN 'SNS' THEN 'SOUTHERN_NORTH_SEA'
                 WHEN 'WOS' THEN 'WEST_OF_SHETLAND'
+                WHEN 'APB' THEN 'SOUTHERN_NORTH_SEA'
             END,
             resource_rec.well_id,
             resource_rec.well_registration_no,
             resource_rec.best_data_res_name
         );
+
+        IF shore_type = 'ONSHORE' THEN
+
+            UPDATE remi.regulator_managed_information
+            SET geographical_area = 'ONSHORE'
+            WHERE resource_id = remi_res_id;
+
+        END IF;
 
         INSERT INTO remi.opportunity_details (
             id,

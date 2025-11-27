@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportin
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationPersistenceServiceTest {
@@ -65,6 +66,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -74,12 +77,16 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.EXPLORATION,
+            null,
+            null,
             null,
             null,
             null,
@@ -107,6 +114,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -116,12 +125,16 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
+            null,
             null,
             null,
             null,
@@ -149,6 +162,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -158,12 +173,16 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
+            null,
             null,
             null,
             null,
@@ -182,6 +201,10 @@ class RegulatorManagedInformationPersistenceServiceTest {
     form.setResourceName(regulatorResourceName);
     var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
     form.setHydrocarbonCase(hydrocarbonCase);
+    var opportunityType = OpportunityType.OTHER;
+    var otherTypeOfOpportunity = "other opportunity";
+    form.setOpportunityType(opportunityType);
+    form.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     form.setLinkedToShelvedCopField(true);
     var wellId = "1";
     form.setWell(wellId);
@@ -210,6 +233,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference"
@@ -220,6 +245,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -229,6 +256,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             GeographicalArea.ONSHORE,
             regulatorResourceName,
             hydrocarbonCase,
+            opportunityType,
+            otherTypeOfOpportunity,
             true,
             Integer.valueOf(form.getWell()),
             wellView.reference()
@@ -245,6 +274,10 @@ class RegulatorManagedInformationPersistenceServiceTest {
     form.setResourceName(regulatorResourceName);
     var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
     form.setHydrocarbonCase(hydrocarbonCase);
+    var opportunityType = OpportunityType.OTHER;
+    var otherTypeOfOpportunity = "other opportunity";
+    form.setOpportunityType(opportunityType);
+    form.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     form.setLinkedToShelvedCopField(false);
     var wellId = "1";
     form.setWell(wellId);
@@ -273,6 +306,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference"
@@ -283,6 +318,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -292,6 +329,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             GeographicalArea.ONSHORE,
             regulatorResourceName,
             hydrocarbonCase,
+            opportunityType,
+            otherTypeOfOpportunity,
             false,
             Integer.valueOf(form.getWell()),
             wellView.reference());
@@ -310,6 +349,10 @@ class RegulatorManagedInformationPersistenceServiceTest {
     form.setResourceName(regulatorResourceName);
     var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
     form.setHydrocarbonCase(hydrocarbonCase);
+    var opportunityType = OpportunityType.OTHER;
+    var otherTypeOfOpportunity = "other opportunity";
+    form.setOpportunityType(opportunityType);
+    form.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     form.setLinkedToShelvedCopField(false);
     var wellId = "1";
     form.setWell(wellId);
@@ -334,6 +377,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -343,6 +388,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -352,6 +399,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             GeographicalArea.CENTRAL_NORTH_SEA,
             regulatorResourceName,
             hydrocarbonCase,
+            opportunityType,
+            otherTypeOfOpportunity,
             false,
             Integer.valueOf(form.getWell()),
             wellView.reference());
@@ -367,6 +416,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(null);
     form.setHydrocarbonCase(null);
+    form.setOpportunityType(null);
+    form.setOtherTypeOfOpportunity(null);
     var regulatorResourceName = "regulator resource name";
     form.setResourceName(regulatorResourceName);
     form.setLinkedToShelvedCopField(false);
@@ -393,6 +444,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -402,6 +455,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -410,6 +465,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
             regulatorResourceName,
+            null,
+            null,
             null,
             false,
             Integer.valueOf(form.getWell()),
@@ -435,6 +492,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "geographicalArea",
             "resourceName",
             "hydrocarbonCase",
+            "opportunityType",
+            "otherTypeOfOpportunity",
             "linkedToShelvedCopField",
             "wellId",
             "wellReference")
@@ -444,6 +503,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             RegulatorManagedInformation::getGeographicalArea,
             RegulatorManagedInformation::getResourceName,
             RegulatorManagedInformation::getHydrocarbonCase,
+            RegulatorManagedInformation::getOpportunityType,
+            RegulatorManagedInformation::getOtherTypeOfOpportunity,
             RegulatorManagedInformation::getLinkedToShelvedCopField,
             RegulatorManagedInformation::getWellId,
             RegulatorManagedInformation::getWellReference)
@@ -451,6 +512,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
             resource,
             responsibleTeamType,
             geographicalArea,
+            null,
+            null,
             null,
             null,
             null,

@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -105,6 +106,14 @@ public class RegulatorManagedInformationSummaryService {
         .map(UndevelopedDiscovery::getIsUndevelopedDiscovery)
         .orElse(false);
 
+    var opportunityTypeDisplay = "";
+    var opportunityType = regulatorManagedInformation.getOpportunityType();
+
+    if (opportunityType == OpportunityType.OTHER) {
+      opportunityTypeDisplay = regulatorManagedInformation.getOtherTypeOfOpportunity();
+    } else if (opportunityType != null) {
+      opportunityTypeDisplay = regulatorManagedInformation.getOpportunityType().getDisplayName();
+    }
 
     return new RegulatorManagedInformationSummaryView(
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getResponsibleTeamType()),
@@ -113,6 +122,7 @@ public class RegulatorManagedInformationSummaryService {
         regulatorManagedInformation.getHydrocarbonCase() != null
             ? regulatorManagedInformation.getHydrocarbonCase().getDisplayName()
             : "",
+        opportunityTypeDisplay,
         isBeingRelinquished,
         isBeingRelinquished ? getRelinquishmentReportUploads(regulatorManagedInformation) : List.of(),
         linkedToFieldName,

@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationFormServiceTest {
@@ -61,6 +62,9 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setHydrocarbonCase(HydrocarbonsDiscovered.GAS_ONLY);
+    regulatorManagedInformation.setOpportunityType(OpportunityType.OTHER);
+    var otherOpportunityType = "New Play";
+    regulatorManagedInformation.setOtherTypeOfOpportunity(otherOpportunityType);
     var resourceName = "regulator resource name";
     regulatorManagedInformation.setResourceName(resourceName);
     regulatorManagedInformation.setLinkedToShelvedCopField(false);
@@ -81,7 +85,9 @@ class RegulatorManagedInformationFormServiceTest {
             RegulatorManagedInformationForm::getLinkedToShelvedCopField,
             RegulatorManagedInformationForm::getWell,
             RegulatorManagedInformationForm::getResourceName,
-            RegulatorManagedInformationForm::getHydrocarbonCase
+            RegulatorManagedInformationForm::getHydrocarbonCase,
+            RegulatorManagedInformationForm::getOpportunityType,
+            RegulatorManagedInformationForm::getOtherTypeOfOpportunity
         )
         .containsExactly(
             geographicalArea,
@@ -90,7 +96,9 @@ class RegulatorManagedInformationFormServiceTest {
             regulatorManagedInformation.getLinkedToShelvedCopField(),
             regulatorManagedInformation.getWellId().toString(),
             regulatorManagedInformation.getResourceName(),
-            regulatorManagedInformation.getHydrocarbonCase()
+            regulatorManagedInformation.getHydrocarbonCase(),
+            regulatorManagedInformation.getOpportunityType(),
+            regulatorManagedInformation.getOtherTypeOfOpportunity()
         );
   }
 

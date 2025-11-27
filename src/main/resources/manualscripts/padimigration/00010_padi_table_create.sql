@@ -1,10 +1,12 @@
 CREATE TABLE remi.padi_best_data_header (
     resource_id      TEXT,
+    prospect_name TEXT,
     name_alternative TEXT,
     opportunity_type TEXT,
     choice           INTEGER,
     res_operator     TEXT,
-    hc_case          TEXT
+    hc_case          TEXT,
+    oilequiv_recoverable_p50 NUMERIC
 );
 
 CREATE TABLE remi.padi_res_header (

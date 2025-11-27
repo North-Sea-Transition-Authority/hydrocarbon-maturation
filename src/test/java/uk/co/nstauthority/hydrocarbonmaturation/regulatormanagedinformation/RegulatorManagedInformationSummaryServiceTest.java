@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
@@ -71,6 +72,10 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setResourceName(regulatorResourceName);
     var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
     regulatorManagedInfo.setHydrocarbonCase(hydrocarbonCase);
+    var opportunityType = OpportunityType.OTHER;
+    var otherTypeOfOpportunity = "other opportunity";
+    regulatorManagedInfo.setOpportunityType(opportunityType);
+    regulatorManagedInfo.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     regulatorManagedInfo.setLinkedToShelvedCopField(false);
     var wellRef = "well-ref";
     regulatorManagedInfo.setWellReference(wellRef);
@@ -92,6 +97,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::hydrocarbonCase,
+            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
@@ -103,6 +109,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
             regulatorResourceName,
             hydrocarbonCase.getDisplayName(),
+            otherTypeOfOpportunity,
             List.of(),
             "",
             "",
@@ -122,6 +129,8 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setResourceName(regulatorResourceName);
     var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
     regulatorManagedInfo.setHydrocarbonCase(hydrocarbonCase);
+    var opportunityType = OpportunityType.LEAD;
+    regulatorManagedInfo.setOpportunityType(opportunityType);
     regulatorManagedInfo.setLinkedToShelvedCopField(true);
 
     var fieldResource = new Resource();
@@ -149,6 +158,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::hydrocarbonCase,
+            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
@@ -160,6 +170,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
             regulatorResourceName,
             hydrocarbonCase.getDisplayName(),
+            opportunityType.getDisplayName(),
             List.of(),
             "Name",
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource.getId(), null)),
@@ -224,6 +235,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::hydrocarbonCase,
+            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
             RegulatorManagedInformationSummaryView::wellReference,
@@ -234,6 +246,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             ResponsibleTeamType.EXPLORATION.getDisplayName(),
             regulatorResourceName,
             hydrocarbonCase.getDisplayName(),
+            "",
             "",
             "",
             "",
@@ -269,6 +282,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::resourceName,
             RegulatorManagedInformationSummaryView::hydrocarbonCase,
+            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
@@ -277,6 +291,7 @@ class RegulatorManagedInformationSummaryServiceTest {
         .containsExactly(
             "",
             isBeingRelinquished,
+            "",
             "",
             "",
             "",

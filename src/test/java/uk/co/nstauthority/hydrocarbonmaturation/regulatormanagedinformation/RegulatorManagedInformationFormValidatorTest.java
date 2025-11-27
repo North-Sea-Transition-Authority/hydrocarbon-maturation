@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
@@ -255,6 +256,45 @@ class RegulatorManagedInformationFormValidatorTest {
         .hasMessage("Must provide validation hints to this validator");
   }
 
+  @Test
+  void validate_whenOtherOpportunityTypeProvided() {
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(
+            false,
+            false,
+            false,
+            false)
+    );
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validate_whenOtherOpportunityTypeNotProvided() {
+    var form = getValidForm();
+    form.setOtherTypeOfOpportunity(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(
+            false,
+            false,
+            false,
+            false)
+    );
+    assertThat(bindingResult.hasErrors()).isTrue();
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+    assertThat(errors)
+        .containsExactly(
+            entry("otherTypeOfOpportunity", Set.of("otherTypeOfOpportunity.required"))
+        );
+    assertThat(errorMessages)
+        .containsExactly(
+            entry("otherTypeOfOpportunity", Set.of("Enter the other opportunity type"))
+        );
+  }
+
   private RegulatorManagedInformationForm getValidForm() {
     var form = new RegulatorManagedInformationForm();
     var relinquishmentReportUpload = new UploadedFileForm();
@@ -264,6 +304,8 @@ class RegulatorManagedInformationFormValidatorTest {
     form.setGeographicalArea(GeographicalArea.ONSHORE);
     form.setRelinquishmentReport(List.of(relinquishmentReportUpload));
     form.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
+    form.setOpportunityType(OpportunityType.OTHER);
+    form.setOtherTypeOfOpportunity("test opportunity");
     return form;
   }
 }

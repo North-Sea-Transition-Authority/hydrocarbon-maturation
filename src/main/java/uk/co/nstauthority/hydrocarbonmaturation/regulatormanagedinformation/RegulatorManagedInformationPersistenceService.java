@@ -90,6 +90,8 @@ public class RegulatorManagedInformationPersistenceService {
     }
 
     regulatorManagedInformation.setHydrocarbonCase(regulatorManagedInformationForm.getHydrocarbonCase());
+    regulatorManagedInformation.setOpportunityType(regulatorManagedInformationForm.getOpportunityType());
+    regulatorManagedInformation.setOtherTypeOfOpportunity(regulatorManagedInformationForm.getOtherTypeOfOpportunity());
 
     regulatorManagedInformationRepository.save(regulatorManagedInformation);
   }

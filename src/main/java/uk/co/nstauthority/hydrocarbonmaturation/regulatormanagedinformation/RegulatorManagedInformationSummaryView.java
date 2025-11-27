@@ -9,6 +9,7 @@ public record RegulatorManagedInformationSummaryView(String responsibleTeamType,
                                                      String geographicalArea,
                                                      String resourceName,
                                                      String hydrocarbonCase,
+                                                     String opportunityType,
                                                      boolean isBeingRelinquished,
                                                      List<SummaryFileViewRow> relinquishmentReport,
                                                      String linkedToFieldName,
@@ -17,6 +18,7 @@ public record RegulatorManagedInformationSummaryView(String responsibleTeamType,
                                                      String isUndevelopedDiscovery) {
   public static RegulatorManagedInformationSummaryView empty(boolean isBeingRelinquished) {
     return new RegulatorManagedInformationSummaryView(
+        "",
         "",
         "",
         "",

@@ -51,6 +51,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -211,7 +212,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("canUpdateResponsibleTeam", false),
             entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
             entry("well", preselectedWell),
-            entry("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
+            entry("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
+            entry("opportunityTypes", DisplayableEnumOptionUtil.getDisplayableOptions(OpportunityType.class))
         )
         .containsKeys("breadcrumbsMap")
         .doesNotContainKeys("relinquishmentReportTemplate", "relinquishmentReportUploads", "responsibleTeamTypes");
@@ -254,7 +256,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class)),
             entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
             entry("well", preselectedWell),
-            entry("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
+            entry("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
+            entry("opportunityTypes", DisplayableEnumOptionUtil.getDisplayableOptions(OpportunityType.class))
         ).containsKey("breadcrumbsMap");
   }
 
@@ -299,7 +302,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("preSelectedFieldOption", Map.of()),
             entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
             entry("well", preselectedWell),
-            entry("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
+            entry("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
+            entry("opportunityTypes", DisplayableEnumOptionUtil.getDisplayableOptions(OpportunityType.class))
         ).containsKey("breadcrumbsMap");
   }
 

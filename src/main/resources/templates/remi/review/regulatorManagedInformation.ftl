@@ -89,6 +89,19 @@
           </#list>
       </@fdsRadio.radioGroup>
 
+      <@fdsRadio.radioGroup path="form.opportunityType" labelText="Opportunity type" hiddenContent=true optionalLabel=true>
+          <#assign firstItem=true/>
+          <#list opportunityTypes as key, value>
+              <@fdsRadio.radioItem path="form.opportunityType" itemMap={key : value} isFirstItem=firstItem>
+                  <#if key == "OTHER">
+                      <@fdsTextInput.textInput path="form.otherTypeOfOpportunity"
+                      labelText="Enter the other opportunity type" nestingPath="form.opportunityType"/>
+                  </#if>
+                  <#assign firstItem=false/>
+              </@fdsRadio.radioItem>
+          </#list>
+      </@fdsRadio.radioGroup>
+
       <@fdsAction.submitButtons primaryButtonText="Save and complete"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true

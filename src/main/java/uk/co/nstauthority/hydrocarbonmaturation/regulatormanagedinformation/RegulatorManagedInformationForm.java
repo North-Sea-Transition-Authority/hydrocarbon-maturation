@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 public class RegulatorManagedInformationForm {
 
@@ -15,6 +16,8 @@ public class RegulatorManagedInformationForm {
   private String fieldSelectedOption;
   private String well;
   private HydrocarbonsDiscovered hydrocarbonCase;
+  private OpportunityType opportunityType;
+  private String otherTypeOfOpportunity;
 
   public GeographicalArea getGeographicalArea() {
     return geographicalArea;
@@ -82,5 +85,22 @@ public class RegulatorManagedInformationForm {
   public void setHydrocarbonCase(
       HydrocarbonsDiscovered hydrocarbonCase) {
     this.hydrocarbonCase = hydrocarbonCase;
+  }
+
+  public OpportunityType getOpportunityType() {
+    return opportunityType;
+  }
+
+  public void setOpportunityType(
+      OpportunityType opportunityType) {
+    this.opportunityType = opportunityType;
+  }
+
+  public String getOtherTypeOfOpportunity() {
+    return otherTypeOfOpportunity;
+  }
+
+  public void setOtherTypeOfOpportunity(String otherTypeOfOpportunity) {
+    this.otherTypeOfOpportunity = otherTypeOfOpportunity;
   }
 }

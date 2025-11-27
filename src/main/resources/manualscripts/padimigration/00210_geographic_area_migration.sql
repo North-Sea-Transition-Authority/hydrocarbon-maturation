@@ -30,6 +30,7 @@ BEGIN
             WHEN 'NNS' THEN 'NORTHERN_NORTH_SEA'
             WHEN 'SNS' THEN 'SOUTHERN_NORTH_SEA'
             WHEN 'WOS' THEN 'WEST_OF_SHETLAND'
+            WHEN 'APB' THEN 'SOUTHERN_NORTH_SEA'
         END
         INTO geographic_area;
 
