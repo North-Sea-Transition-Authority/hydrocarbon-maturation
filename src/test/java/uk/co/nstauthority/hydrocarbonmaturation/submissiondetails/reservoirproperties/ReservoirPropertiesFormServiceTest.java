@@ -23,7 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithol
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
@@ -613,12 +612,12 @@ class ReservoirPropertiesFormServiceTest {
   @Test
   void reservoirPropertiesEntityToForm_existingEntity_withAgeStageEnum_thenPopulatedForm() {
     var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setAgeStage(ReservoirAge.CARBONIFEROUS);
     reservoirProperty.setAgeStageManual(null);
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirProperty));
 
     assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getAgeStageOrSeries())
-        .isEqualTo(AgeSeries.LOWER_CARBONIFEROUS);
+        .isEqualTo(ReservoirAge.CARBONIFEROUS);
   }
 
   @Test
@@ -652,7 +651,7 @@ class ReservoirPropertiesFormServiceTest {
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
+    reservoirProperty.setAgeStage(ReservoirAge.CARBONIFEROUS);
     reservoirProperty.setFracturePressure(BigDecimal.ONE);
     reservoirProperty.setDepositionalSetting(DepositionalSetting.TERRESTRIAL);
     reservoirProperty.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN);

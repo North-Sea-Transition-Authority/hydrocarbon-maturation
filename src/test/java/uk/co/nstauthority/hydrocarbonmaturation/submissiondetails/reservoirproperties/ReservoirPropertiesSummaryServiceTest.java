@@ -27,7 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
@@ -512,7 +511,7 @@ class ReservoirPropertiesSummaryServiceTest {
   @Test
   void getReservoirPropertySummaryFromReservoirSubmissionDetail_ageStageEnumView() {
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
+    reservoirProperty.setAgeStage(ReservoirAge.MIDDLE_JURASSIC);
 
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirProperty));
@@ -520,7 +519,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryView = reservoirPropertiesSummaryService
         .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    assertThat(summaryView.ageStageOrSeries()).isEqualTo(AgeSeries.LOWER_DEVONIAN.getDisplayName());
+    assertThat(summaryView.ageStageOrSeries()).isEqualTo(ReservoirAge.MIDDLE_JURASSIC.getDisplayName());
   }
 
   @Test
@@ -603,7 +602,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setAgeStage(ReservoirAge.MIDDLE_JURASSIC);
     reservoirProperty.setGroupName(GroupName.CHALK);
     reservoirProperty.setLithology(StandardLithology.SANDSTONE);
     reservoirProperty.setReservoirFacies("Test Facies");
@@ -621,7 +620,7 @@ class ReservoirPropertiesSummaryServiceTest {
     // build expected card for regular fields
     var summaryDataView = new SummaryDataView(new ArrayList<>());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES,
-        AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
+        ReservoirAge.MIDDLE_JURASSIC.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.FORMATION_NAME, Formation.ASGARD.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());
@@ -669,7 +668,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setAgeStage(ReservoirAge.MIDDLE_JURASSIC);
     reservoirProperty.setGroupName(GroupName.CHALK);
     reservoirProperty.setLithology(StandardLithology.OTHER);
     reservoirProperty.setLithologyOther("Something else");
@@ -687,7 +686,7 @@ class ReservoirPropertiesSummaryServiceTest {
     // build expected card for regular fields
     var summaryDataView = new SummaryDataView(new ArrayList<>());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES,
-        AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
+        ReservoirAge.MIDDLE_JURASSIC.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.FORMATION_NAME, Formation.ASGARD.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());
@@ -734,7 +733,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setAgeStage(ReservoirAge.MIDDLE_JURASSIC);
     reservoirProperty.setGroupName(GroupName.CHALK);
     reservoirProperty.setLithology(StandardLithology.SANDSTONE);
     reservoirProperty.setReservoirFacies("Test Facies");
@@ -752,7 +751,7 @@ class ReservoirPropertiesSummaryServiceTest {
     // build expected card for regular fields
     var summaryDataView = new SummaryDataView(new ArrayList<>());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES,
-        AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
+        ReservoirAge.MIDDLE_JURASSIC.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.FORMATION_NAME, Formation.ASGARD.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());
@@ -800,7 +799,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
-    reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    reservoirProperty.setAgeStage(ReservoirAge.MIDDLE_JURASSIC);
     reservoirProperty.setGroupName(GroupName.CHALK);
     reservoirProperty.setLithology(StandardLithology.SANDSTONE);
     reservoirProperty.setReservoirFacies("Test Facies");
@@ -818,7 +817,7 @@ class ReservoirPropertiesSummaryServiceTest {
     // build expected card for regular fields
     var summaryDataView = new SummaryDataView(new ArrayList<>());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES,
-        AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
+        ReservoirAge.MIDDLE_JURASSIC.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.FORMATION_NAME, Formation.ASGARD.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());

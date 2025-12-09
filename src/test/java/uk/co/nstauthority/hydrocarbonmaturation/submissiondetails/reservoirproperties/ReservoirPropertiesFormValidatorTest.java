@@ -27,7 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
@@ -986,7 +985,7 @@ class ReservoirPropertiesFormValidatorTest {
   private ReservoirPropertiesForm getValidForm() {
     var form = new ReservoirPropertiesForm();
     form.setFormationName("source formation name");
-    form.setAgeStageOrSeries(AgeSeries.LOWER_CARBONIFEROUS);
+    form.setAgeStageOrSeries(ReservoirAge.CARBONIFEROUS);
     form.setGroupName(GroupName.BRENT);
     form.setLithology(StandardLithology.OTHER);
     form.setLithologyOther("other lithology");

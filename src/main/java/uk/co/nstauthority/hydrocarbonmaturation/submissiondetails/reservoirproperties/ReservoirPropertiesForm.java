@@ -7,14 +7,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
 public class ReservoirPropertiesForm implements SubmissionForm {
 
   private String formationName;
   private String subUnit;
-  private AgeSeries ageStageOrSeries;
+  private ReservoirAge ageStageOrSeries;
   private GroupName groupName;
   private StandardLithology lithology;
   private String lithologyOther;
@@ -78,12 +77,12 @@ public class ReservoirPropertiesForm implements SubmissionForm {
     this.subUnit = subUnit;
   }
 
-  public AgeSeries getAgeStageOrSeries() {
+  public ReservoirAge getAgeStageOrSeries() {
     return ageStageOrSeries;
   }
 
   public void setAgeStageOrSeries(
-      AgeSeries ageStageOrSeries) {
+      ReservoirAge ageStageOrSeries) {
     this.ageStageOrSeries = ageStageOrSeries;
   }
 

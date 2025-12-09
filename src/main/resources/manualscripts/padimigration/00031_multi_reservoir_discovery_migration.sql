@@ -161,7 +161,19 @@ BEGIN
 
         END IF;
 
-        -- If there is no P50 or mean value then simply get the latest res data id for the resource
+        -- If there is no P50 or mean value then simply get the choice 1 stage submission
+        IF common_legacy_res_data_id IS NULL THEN
+
+            SELECT prg.legacy_res_data_id
+            INTO common_legacy_res_data_id
+            FROM remi.padi_resource_groupings prg
+            JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prg.legacy_res_data_id
+            WHERE prg.remi_resource_id = submission_rec.remi_resource_id
+            AND TRIM(prdh.stage_choice) = '1';
+
+        END IF;
+
+        -- If there is still no submission to choose from then simply get the latest submission
         IF common_legacy_res_data_id IS NULL THEN
 
             SELECT MAX(prg.legacy_res_data_id)

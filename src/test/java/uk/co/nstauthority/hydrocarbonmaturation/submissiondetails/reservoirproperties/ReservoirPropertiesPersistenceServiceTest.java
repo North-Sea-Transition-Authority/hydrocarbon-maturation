@@ -29,7 +29,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithol
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -641,7 +640,7 @@ class ReservoirPropertiesPersistenceServiceTest {
   @Test
   void saveReservoirProperties_whenGivenAForm_ageStageEnumProvided_verifyCreatedEntity() {
     var form = new ReservoirPropertiesForm();
-    form.setAgeStageOrSeries(AgeSeries.MIDDLE_JURASSIC);
+    form.setAgeStageOrSeries(ReservoirAge.MIDDLE_JURASSIC);
     var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
 
     reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
@@ -655,7 +654,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getAgeStageManual
         )
         .containsExactly(
-            AgeSeries.MIDDLE_JURASSIC,
+            ReservoirAge.MIDDLE_JURASSIC,
             null
         );
   }

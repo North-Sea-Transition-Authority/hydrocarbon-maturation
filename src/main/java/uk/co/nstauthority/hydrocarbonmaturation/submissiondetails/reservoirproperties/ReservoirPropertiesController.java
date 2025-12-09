@@ -25,8 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithol
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -62,7 +60,7 @@ public class ReservoirPropertiesController {
   private final HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
   private final FormationSearchService formationSearchService;
   private final ReservoirSubUnitSearchService reservoirSubUnitSearchService;
-  private final AgeSeriesSearchService ageSeriesSearchService;
+  private final ReservoirAgeSearchService reservoirAgeSearchService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
   private final GeneralReservoirInformationService generalReservoirInformationService;
@@ -75,7 +73,7 @@ public class ReservoirPropertiesController {
                                        HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService,
                                        FormationSearchService formationSearchService,
                                        ReservoirSubUnitSearchService reservoirSubUnitSearchService,
-                                       AgeSeriesSearchService ageSeriesSearchService,
+                                       ReservoirAgeSearchService reservoirAgeSearchService,
                                        ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
                                        ReservoirPropertiesFormValidator reservoirPropertiesFormValidator,
                                        GeneralReservoirInformationService generalReservoirInformationService) {
@@ -86,7 +84,7 @@ public class ReservoirPropertiesController {
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.formationSearchService = formationSearchService;
     this.reservoirSubUnitSearchService = reservoirSubUnitSearchService;
-    this.ageSeriesSearchService = ageSeriesSearchService;
+    this.reservoirAgeSearchService = reservoirAgeSearchService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.reservoirPropertiesFormValidator = reservoirPropertiesFormValidator;
     this.generalReservoirInformationService = generalReservoirInformationService;
@@ -138,9 +136,9 @@ public class ReservoirPropertiesController {
         )
         .addObject("preSelectedSubUnit", reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit()))
         .addObject("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
+            SearchSelectorService.route(on(ReservoirAgeRestController.class).getReservoirAgeList(null))
         )
-        .addObject("preSelectedAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries()))
+        .addObject("preSelectedAgeStage", reservoirAgeSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries()))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
         .addObject("fieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())

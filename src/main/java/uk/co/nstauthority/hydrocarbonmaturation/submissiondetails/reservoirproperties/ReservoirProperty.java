@@ -12,7 +12,6 @@ import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSubmissionDetailChildEntity;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -40,7 +39,7 @@ public class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
   private String subUnitManual;
 
   @Enumerated(EnumType.STRING)
-  private AgeSeries ageStage;
+  private ReservoirAge ageStage;
 
   private String ageStageManual;
 
@@ -118,11 +117,11 @@ public class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
     this.subUnitManual = subUnitManual;
   }
 
-  public AgeSeries getAgeStage() {
+  public ReservoirAge getAgeStage() {
     return ageStage;
   }
 
-  public void setAgeStage(AgeSeries ageStage) {
+  public void setAgeStage(ReservoirAge ageStage) {
     this.ageStage = ageStage;
   }
 

@@ -38,7 +38,7 @@
             <@fdsSearchSelector.searchSelectorRest
               path="form.ageStageOrSeries"
               restUrl=springUrl(ageSeriesRestEndpoint)
-              labelText="Age stage or series"
+              labelText="Reservoir age"
               preselectedItems=preSelectedAgeStage!{}
             />
             <@fdsSearchSelector.searchSelectorEnhanced path="form.groupName" options=groupNames labelText="Group name"/>

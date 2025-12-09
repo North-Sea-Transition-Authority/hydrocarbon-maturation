@@ -52,8 +52,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -91,7 +89,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   private ReservoirSubUnitSearchService reservoirSubUnitSearchService;
 
   @MockBean
-  private AgeSeriesSearchService ageSeriesSearchService;
+  private ReservoirAgeSearchService reservoirAgeSearchService;
 
   @MockBean
   private ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
@@ -594,7 +592,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
     Map<String, String> preSelectedAgeStage = Map.of("AGE_STAGE", "age stage");
-    when(ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries())).thenReturn(preSelectedAgeStage);
+    when(reservoirAgeSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries())).thenReturn(preSelectedAgeStage);
 
 
     var modelMap = Objects.requireNonNull(
@@ -627,7 +625,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         )
         .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
+            SearchSelectorService.route(on(ReservoirAgeRestController.class).getReservoirAgeList(null))
         )
         .containsEntry("preSelectedAgeStage", preSelectedAgeStage)
         .containsEntry("groupNames", GroupName.getGroupNames())
@@ -678,7 +676,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
     Map<String, String> preSelectedAgeStage = Map.of("AGE_STAGE", "age stage");
-    when(ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries())).thenReturn(preSelectedAgeStage);
+    when(reservoirAgeSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries())).thenReturn(preSelectedAgeStage);
 
     var hydrocarbons = new ReservoirHydrocarbons();
 
@@ -722,7 +720,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         )
         .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
+            SearchSelectorService.route(on(ReservoirAgeRestController.class).getReservoirAgeList(null))
         )
         .containsEntry("preSelectedAgeStage", preSelectedAgeStage)
         .containsEntry("groupNames", GroupName.getGroupNames())
@@ -1535,7 +1533,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     Map<String, String> preSelectedSubUnit = Map.of("SUBUNIT", "sub unit");
     when(reservoirSubUnitSearchService.getPreSelectedSubUnit(form.getSubUnit())).thenReturn(preSelectedSubUnit);
     Map<String, String> preSelectedAgeStage = Map.of("AGE_STAGE", "age stage");
-    when(ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries())).thenReturn(preSelectedAgeStage);
+    when(reservoirAgeSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries())).thenReturn(preSelectedAgeStage);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -1567,7 +1565,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         )
         .containsEntry("preSelectedSubUnit", preSelectedSubUnit)
         .containsEntry("ageSeriesRestEndpoint",
-            SearchSelectorService.route(on(AgeSeriesRestController.class).getAgeSeriesList(null))
+            SearchSelectorService.route(on(ReservoirAgeRestController.class).getReservoirAgeList(null))
         )
         .containsEntry("preSelectedAgeStage", preSelectedAgeStage)
         .containsEntry("groupNames", GroupName.getGroupNames())

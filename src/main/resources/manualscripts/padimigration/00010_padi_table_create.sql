@@ -6,7 +6,8 @@ CREATE TABLE remi.padi_best_data_header (
     choice           INTEGER,
     res_operator     TEXT,
     hc_case          TEXT,
-    oilequiv_recoverable_p50 NUMERIC
+    oilequiv_recoverable_p50 NUMERIC,
+    reservoir_horizon TEXT
 );
 
 CREATE TABLE remi.padi_res_header (
@@ -766,4 +767,14 @@ CREATE TABLE remi.padi_multi_reservoir_discoveries (
 
 CREATE TABLE remi.padi_temp_resources (
     resource_id UUID
+);
+
+CREATE TABLE remi.padi_chrono_codes (
+    chrono_code TEXT,
+    order_by    TEXT,
+    chrono_name TEXT,
+    remi_enum   TEXT,
+    p_code      TEXT,
+    period      TEXT,
+    rgb_colour  TEXT
 );

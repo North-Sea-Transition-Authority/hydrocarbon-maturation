@@ -5,7 +5,7 @@
 
 <#macro reservoirPropertiesSummaryCard reservoirPropertiesValues>
   <@fdsSummaryList.summaryListCard headingText="Reservoir properties" summaryListId="reservoirproperties">
-      <@fdsSummaryList.summaryListRowNoAction keyText="Age stage or series">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Reservoir age">
           ${reservoirPropertiesValues.ageStageOrSeries()}
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="Group name">

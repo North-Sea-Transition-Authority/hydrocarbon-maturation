@@ -2,8 +2,10 @@ DO $$
 DECLARE
 
     source_and_seal_rec RECORD;
-    prospect_reservoir_rec RECORD;
-    discovery_reservoir_rec RECORD;
+    prospect_formation_lithology_rec RECORD;
+    prospect_reservoir_age_rec RECORD;
+    discovery_formation_lithology_rec RECORD;
+    discovery_reservoir_age_rec RECORD;
     source_formation TEXT;
     source_manual_formation TEXT;
     source_age TEXT;
@@ -44,12 +46,6 @@ BEGIN
         top_seal_manual_age := NULL;
         top_seal_lithology_option := NULL;
         top_seal_lithology_other_text := NULL;
-        reservoir_formation := NULL;
-        reservoir_manual_formation := NULL;
-        reservoir_age := NULL;
-        reservoir_manual_age := NULL;
-        reservoir_lithology_option := NULL;
-        reservoir_lithology_other_text := NULL;
 
         SELECT
             CASE
@@ -468,7 +464,7 @@ BEGIN
 
     END LOOP;
 
-    FOR prospect_reservoir_rec IN (
+    FOR prospect_formation_lithology_rec IN (
         SELECT prdc.*, sd.id sd_id, rsd.id rsd_id, rp.id rp_id
         FROM remi.padi_res_data_cos prdc
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdc.resdat_id
@@ -480,9 +476,14 @@ BEGIN
     )
     LOOP
 
+            reservoir_formation := NULL;
+            reservoir_manual_formation := NULL;
+            reservoir_lithology_option := NULL;
+            reservoir_lithology_other_text := NULL;
+
         SELECT
             CASE
-                WHEN REPLACE(REPLACE(UPPER(prospect_reservoir_rec.play_reservoir_formation), ' ', '_'), '''', '')
+                WHEN REPLACE(REPLACE(UPPER(prospect_formation_lithology_rec.play_reservoir_formation), ' ', '_'), '''', '')
                 IN ('ASGARD',
                     'AUK',
                     'BALDER',
@@ -591,57 +592,17 @@ BEGIN
                     'WICK',
                     'YESNABY_SANDSTONE',
                     'YOREDALE')
-                THEN REPLACE(REPLACE(UPPER(prospect_reservoir_rec.play_reservoir_formation), ' ', '_'), '''', '')
+                THEN REPLACE(REPLACE(UPPER(prospect_formation_lithology_rec.play_reservoir_formation), ' ', '_'), '''', '')
             END
         INTO reservoir_formation;
 
         IF reservoir_formation IS NULL THEN
-            reservoir_manual_formation := prospect_reservoir_rec.play_reservoir_formation;
+            reservoir_manual_formation := prospect_formation_lithology_rec.play_reservoir_formation;
         END IF;
 
         SELECT
             CASE
-                WHEN REPLACE(REPLACE(UPPER(prospect_reservoir_rec.play_reservoir_age), ' ', '_'), '&', 'AND')
-                IN (
-                    'PLEISTOCENE',
-                    'PLIOCENE',
-                    'UPPER_MIOCENE',
-                    'MIDDLE_MIOCENE',
-                    'LOWER_MIOCENE',
-                    'UPPER_OLIGOCENE',
-                    'LOWER_OLIGOCENE',
-                    'UPPER_EOCENE',
-                    'MIDDLE_EOCENE',
-                    'LOWER_EOCENE',
-                    'UPPER_PALEOCENE',
-                    'LOWER_PALEOCENE',
-                    'UPPER_CRETACEOUS',
-                    'LOWER_CRETACEOUS',
-                    'UPPER_JURASSIC',
-                    'MIDDLE_JURASSIC',
-                    'LOWER_JURASSIC',
-                    'UPPER_TRIASSIC',
-                    'MIDDLE_TRIASSIC',
-                    'LOWER_TRIASSIC',
-                    'UPPER_PERMIAN',
-                    'LR_AND_MIDDLE_PERMIAN',
-                    'UPPER_CARBONIFEROUS',
-                    'LOWER_CARBONIFEROUS',
-                    'UPPER_DEVONIAN',
-                    'MIDDLE_DEVONIAN',
-                    'LOWER_DEVONIAN'
-                )
-                THEN REPLACE(REPLACE(UPPER(prospect_reservoir_rec.play_reservoir_age), ' ', '_'), '&', 'AND')
-            END
-        INTO reservoir_age;
-
-        IF reservoir_age IS NULL THEN
-            reservoir_manual_age := prospect_reservoir_rec.play_reservoir_age;
-        END IF;
-
-        SELECT
-            CASE
-                WHEN REPLACE(UPPER(prospect_reservoir_rec.play_reservoir_lithology), ' ', '_')
+                WHEN REPLACE(UPPER(prospect_formation_lithology_rec.play_reservoir_lithology), ' ', '_')
                 IN (
                     'SANDSTONE',
                     'SILTSTONE',
@@ -654,52 +615,44 @@ BEGIN
                     'FRACTURED_BASEMENT',
                     'VOLCANICS'
                 )
-                THEN REPLACE(UPPER(prospect_reservoir_rec.play_reservoir_lithology), ' ', '_')
-                WHEN prospect_reservoir_rec.play_reservoir_lithology IS NOT NULL THEN 'OTHER'
+                THEN REPLACE(UPPER(prospect_formation_lithology_rec.play_reservoir_lithology), ' ', '_')
+                WHEN prospect_formation_lithology_rec.play_reservoir_lithology IS NOT NULL THEN 'OTHER'
                 END
         INTO reservoir_lithology_option;
 
         IF reservoir_lithology_option = 'OTHER' THEN
-            reservoir_lithology_other_text := prospect_reservoir_rec.play_reservoir_lithology;
+            reservoir_lithology_other_text := prospect_formation_lithology_rec.play_reservoir_lithology;
         END IF;
 
         IF COALESCE(
             reservoir_formation,
             reservoir_manual_formation,
-            reservoir_age,
-            reservoir_manual_age,
             reservoir_lithology_option,
             reservoir_lithology_other_text
         ) IS NOT NULL THEN
 
-            IF prospect_reservoir_rec.rp_id IS NOT NULL THEN
+            IF prospect_formation_lithology_rec.rp_id IS NOT NULL THEN
 
                 UPDATE remi.reservoir_properties
                 SET
                     formation_name = reservoir_formation,
                     formation_name_manual = reservoir_manual_formation,
-                    age_stage = reservoir_age,
-                    age_stage_manual = reservoir_manual_age,
                     lithology = reservoir_lithology_option,
                     lithology_other = reservoir_lithology_other_text
-                WHERE id = prospect_reservoir_rec.rp_id;
+                WHERE id = prospect_formation_lithology_rec.rp_id;
 
             ELSE
 
                 INSERT INTO remi.reservoir_properties (
                     id,
                     reservoir_submission_detail_id,
-                    age_stage,
-                    age_stage_manual,
                     formation_name,
                     formation_name_manual,
                     lithology,
                     lithology_other
                 ) VALUES (
                     gen_random_uuid(),
-                    prospect_reservoir_rec.rsd_id,
-                    reservoir_age,
-                    reservoir_manual_age,
+                    prospect_formation_lithology_rec.rsd_id,
                     reservoir_formation,
                     reservoir_manual_formation,
                     reservoir_lithology_option,
@@ -712,7 +665,60 @@ BEGIN
 
     END LOOP;
 
-    FOR discovery_reservoir_rec IN (
+    FOR prospect_reservoir_age_rec IN (
+        SELECT prdh.*, sd.id sd_id, rsd.id rsd_id, rp.id rp_id, pcc.remi_enum
+        FROM remi.padi_res_data_header prdh
+        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
+        LEFT JOIN remi.reservoir_properties rp ON rp.reservoir_submission_detail_id = rsd.id
+        LEFT JOIN remi.padi_chrono_codes pcc ON pcc.chrono_code = prdh.reservoir_horizon
+        WHERE r.type = 'PROSPECT'
+    )
+    LOOP
+
+        reservoir_age := NULL;
+        reservoir_manual_age := NULL;
+
+        IF prospect_reservoir_age_rec.remi_enum IS NULL THEN
+            reservoir_manual_age := prospect_reservoir_age_rec.reservoir_horizon;
+        END IF;
+
+        IF COALESCE(
+                prospect_reservoir_age_rec.remi_enum,
+                reservoir_manual_age
+        ) IS NOT NULL THEN
+
+            IF prospect_reservoir_age_rec.rp_id IS NOT NULL THEN
+
+                UPDATE remi.reservoir_properties
+                SET
+                    age_stage = prospect_reservoir_age_rec.remi_enum,
+                    age_stage_manual = reservoir_manual_age
+                WHERE id = prospect_reservoir_age_rec.rp_id;
+
+            ELSE
+
+                INSERT INTO remi.reservoir_properties (
+                    id,
+                    reservoir_submission_detail_id,
+                    age_stage,
+                    age_stage_manual
+                ) VALUES (
+                     gen_random_uuid(),
+                     prospect_reservoir_age_rec.rsd_id,
+                     prospect_reservoir_age_rec.remi_enum,
+                     reservoir_manual_age
+                 );
+
+            END IF;
+
+        END IF;
+
+    END LOOP;
+
+    FOR discovery_formation_lithology_rec IN (
         SELECT prdc.*, rsd.id rsd_id, rp.id rp_id
         FROM remi.padi_res_data_cos prdc
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdc.resdat_id
@@ -723,9 +729,14 @@ BEGIN
     )
     LOOP
 
+        reservoir_formation := NULL;
+        reservoir_manual_formation := NULL;
+        reservoir_lithology_option := NULL;
+        reservoir_lithology_other_text := NULL;
+
         SELECT
             CASE
-                WHEN REPLACE(REPLACE(UPPER(discovery_reservoir_rec.play_reservoir_formation), ' ', '_'), '''', '')
+                WHEN REPLACE(REPLACE(UPPER(discovery_formation_lithology_rec.play_reservoir_formation), ' ', '_'), '''', '')
                     IN ('ASGARD',
                         'AUK',
                         'BALDER',
@@ -834,57 +845,17 @@ BEGIN
                         'WICK',
                         'YESNABY_SANDSTONE',
                         'YOREDALE')
-                    THEN REPLACE(REPLACE(UPPER(discovery_reservoir_rec.play_reservoir_formation), ' ', '_'), '''', '')
+                    THEN REPLACE(REPLACE(UPPER(discovery_formation_lithology_rec.play_reservoir_formation), ' ', '_'), '''', '')
                 END
         INTO reservoir_formation;
 
         IF reservoir_formation IS NULL THEN
-            reservoir_manual_formation := discovery_reservoir_rec.play_reservoir_formation;
+            reservoir_manual_formation := discovery_formation_lithology_rec.play_reservoir_formation;
         END IF;
 
         SELECT
             CASE
-                WHEN REPLACE(REPLACE(UPPER(discovery_reservoir_rec.play_reservoir_age), ' ', '_'), '&', 'AND')
-                    IN (
-                        'PLEISTOCENE',
-                        'PLIOCENE',
-                        'UPPER_MIOCENE',
-                        'MIDDLE_MIOCENE',
-                        'LOWER_MIOCENE',
-                        'UPPER_OLIGOCENE',
-                        'LOWER_OLIGOCENE',
-                        'UPPER_EOCENE',
-                        'MIDDLE_EOCENE',
-                        'LOWER_EOCENE',
-                        'UPPER_PALEOCENE',
-                        'LOWER_PALEOCENE',
-                        'UPPER_CRETACEOUS',
-                        'LOWER_CRETACEOUS',
-                        'UPPER_JURASSIC',
-                        'MIDDLE_JURASSIC',
-                        'LOWER_JURASSIC',
-                        'UPPER_TRIASSIC',
-                        'MIDDLE_TRIASSIC',
-                        'LOWER_TRIASSIC',
-                        'UPPER_PERMIAN',
-                        'LR_AND_MIDDLE_PERMIAN',
-                        'UPPER_CARBONIFEROUS',
-                        'LOWER_CARBONIFEROUS',
-                        'UPPER_DEVONIAN',
-                        'MIDDLE_DEVONIAN',
-                        'LOWER_DEVONIAN'
-                         )
-                    THEN REPLACE(REPLACE(UPPER(discovery_reservoir_rec.play_reservoir_age), ' ', '_'), '&', 'AND')
-                END
-        INTO reservoir_age;
-
-        IF reservoir_age IS NULL THEN
-            reservoir_manual_age := discovery_reservoir_rec.play_reservoir_age;
-        END IF;
-
-        SELECT
-            CASE
-                WHEN REPLACE(UPPER(discovery_reservoir_rec.play_reservoir_lithology), ' ', '_')
+                WHEN REPLACE(UPPER(discovery_formation_lithology_rec.play_reservoir_lithology), ' ', '_')
                     IN (
                         'SANDSTONE',
                         'SILTSTONE',
@@ -897,35 +868,86 @@ BEGIN
                         'FRACTURED_BASEMENT',
                         'VOLCANICS'
                          )
-                    THEN REPLACE(UPPER(discovery_reservoir_rec.play_reservoir_lithology), ' ', '_')
-                WHEN discovery_reservoir_rec.play_reservoir_lithology IS NOT NULL THEN 'OTHER'
+                    THEN REPLACE(UPPER(discovery_formation_lithology_rec.play_reservoir_lithology), ' ', '_')
+                WHEN discovery_formation_lithology_rec.play_reservoir_lithology IS NOT NULL THEN 'OTHER'
                 END
         INTO reservoir_lithology_option;
 
         IF reservoir_lithology_option = 'OTHER' THEN
-            reservoir_lithology_other_text := discovery_reservoir_rec.play_reservoir_lithology;
+            reservoir_lithology_other_text := discovery_formation_lithology_rec.play_reservoir_lithology;
         END IF;
 
         IF COALESCE(
             reservoir_formation,
             reservoir_manual_formation,
-            reservoir_age,
-            reservoir_manual_age,
             reservoir_lithology_option,
             reservoir_lithology_other_text
         ) IS NOT NULL THEN
 
-            IF discovery_reservoir_rec.rp_id IS NOT NULL THEN
+            IF discovery_formation_lithology_rec.rp_id IS NOT NULL THEN
 
                 UPDATE remi.reservoir_properties
                 SET
                     formation_name = reservoir_formation,
                     formation_name_manual = reservoir_manual_formation,
-                    age_stage = reservoir_age,
-                    age_stage_manual = reservoir_manual_age,
                     lithology = reservoir_lithology_option,
                     lithology_other = reservoir_lithology_other_text
-                WHERE id = discovery_reservoir_rec.rp_id;
+                WHERE id = discovery_formation_lithology_rec.rp_id;
+
+            ELSE
+
+                INSERT INTO remi.reservoir_properties (
+                    id,
+                    reservoir_submission_detail_id,
+                    formation_name,
+                    formation_name_manual,
+                    lithology,
+                    lithology_other
+                ) VALUES (
+                    gen_random_uuid(),
+                    discovery_formation_lithology_rec.rsd_id,
+                    reservoir_formation,
+                    reservoir_manual_formation,
+                    reservoir_lithology_option,
+                    reservoir_lithology_other_text
+                );
+
+            END IF;
+
+        END IF;
+
+    END LOOP;
+
+    FOR discovery_reservoir_age_rec IN (
+        SELECT prdh.*, rsd.id rsd_id, rp.id rp_id, pcc.remi_enum
+        FROM remi.padi_res_data_header prdh
+        JOIN remi.padi_reservoirs pr ON pr.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.reservoir = pr.remi_reservoir_id
+        LEFT JOIN remi.reservoir_properties rp ON rp.reservoir_submission_detail_id = rsd.id
+        LEFT JOIN remi.padi_chrono_codes pcc ON pcc.chrono_code = prdh.reservoir_horizon
+        WHERE prdh.opportunity_type = 'Discovery'
+    )
+    LOOP
+
+        reservoir_age := NULL;
+        reservoir_manual_age := NULL;
+
+        IF discovery_reservoir_age_rec.remi_enum IS NULL THEN
+            reservoir_manual_age := discovery_reservoir_age_rec.reservoir_horizon;
+        END IF;
+
+        IF COALESCE(
+            discovery_reservoir_age_rec.remi_enum,
+            reservoir_manual_age
+       ) IS NOT NULL THEN
+
+            IF discovery_reservoir_age_rec.rp_id IS NOT NULL THEN
+
+                UPDATE remi.reservoir_properties
+                SET
+                    age_stage = discovery_reservoir_age_rec.remi_enum,
+                    age_stage_manual = reservoir_manual_age
+                WHERE id = discovery_reservoir_age_rec.rp_id;
 
             ELSE
 
@@ -933,21 +955,13 @@ BEGIN
                     id,
                     reservoir_submission_detail_id,
                     age_stage,
-                    age_stage_manual,
-                    formation_name,
-                    formation_name_manual,
-                    lithology,
-                    lithology_other
+                    age_stage_manual
                 ) VALUES (
-                    gen_random_uuid(),
-                    discovery_reservoir_rec.rsd_id,
-                    reservoir_age,
-                    reservoir_manual_age,
-                    reservoir_formation,
-                    reservoir_manual_formation,
-                    reservoir_lithology_option,
-                    reservoir_lithology_other_text
-                );
+                     gen_random_uuid(),
+                     discovery_reservoir_age_rec.rsd_id,
+                     discovery_reservoir_age_rec.remi_enum,
+                     reservoir_manual_age
+                 );
 
             END IF;
 
