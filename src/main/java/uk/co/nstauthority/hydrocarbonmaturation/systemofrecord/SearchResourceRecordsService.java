@@ -315,6 +315,16 @@ public class SearchResourceRecordsService {
     return searchSelectorService.buildPrePopulatedSelection(resourceName);
   }
 
+  public Map<String, String> getPreSelectedRegulatorResourceName(SearchResourceRecordsForm form) {
+    var regulatorResourceName = form.getRegulatorResourceName();
+
+    if (regulatorResourceName == null) {
+      return Map.of();
+    }
+
+    return searchSelectorService.buildPrePopulatedSelection(regulatorResourceName);
+  }
+
   public Map<String, String> getPreSelectedFieldName(SearchResourceRecordsForm form) {
     var fieldNameForResourceSubmission = form.getFieldNameForResourceSubmission();
 

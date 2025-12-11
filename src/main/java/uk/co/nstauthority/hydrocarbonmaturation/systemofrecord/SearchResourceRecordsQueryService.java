@@ -7,17 +7,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationRepository;
 
 @Service
 public class SearchResourceRecordsQueryService {
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
+  private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
 
   @Autowired
   public SearchResourceRecordsQueryService(SearchResourceRecordsService searchResourceRecordsService,
-                                           ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory) {
+                                           ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
+                                           RegulatorManagedInformationRepository regulatorManagedInformationRepository) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
+    this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
   }
 
   public RestSearchResult searchFields(String searchTerm, User user) {
@@ -45,6 +50,21 @@ public class SearchResourceRecordsQueryService {
         form, resourceRecordQueryServiceFactory.getQueryServiceStrategy(user), user);
 
     List<RestSearchItem> restSearchItems = results.stream()
+        .sorted()
+        .map(item -> new RestSearchItem(item, item))
+        .toList();
+
+    return new RestSearchResult(restSearchItems);
+  }
+
+  public RestSearchResult searchRegulatorResourceNames(String searchTerm) {
+    var regulatorResourceNames = regulatorManagedInformationRepository.findAllByResourceNameContainingIgnoreCase(searchTerm)
+        .stream()
+        .map(RegulatorManagedInformation::getResourceName)
+        .distinct()
+        .toList();
+
+    List<RestSearchItem> restSearchItems = regulatorResourceNames.stream()
         .sorted()
         .map(item -> new RestSearchItem(item, item))
         .toList();

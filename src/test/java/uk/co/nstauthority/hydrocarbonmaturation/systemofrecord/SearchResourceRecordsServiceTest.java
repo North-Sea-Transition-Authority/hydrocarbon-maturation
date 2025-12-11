@@ -140,6 +140,7 @@ class SearchResourceRecordsServiceTest {
 
       var result1 = buildAndMockResourceRecordQueryResult(
           "resource-name1",
+          "regulator-resource-name1",
           ResourceType.PROSPECT,
           null,
           "1/12",
@@ -154,6 +155,7 @@ class SearchResourceRecordsServiceTest {
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "resource-name2",
+          "regulator-resource-name2",
           ResourceType.DISCOVERY,
           null,
           null,
@@ -223,6 +225,7 @@ class SearchResourceRecordsServiceTest {
 
       var result1 = buildAndMockResourceRecordQueryResult(
         "resource-name1",
+        "regulator-resource-name1",
         ResourceType.PROSPECT,
         null,
         "1/12",
@@ -237,6 +240,7 @@ class SearchResourceRecordsServiceTest {
       );
       var result2 = buildAndMockResourceRecordQueryResult(
         "resource-name2",
+        "regulator-resource-name2",
         ResourceType.DISCOVERY,
         null,
         null,
@@ -294,6 +298,7 @@ class SearchResourceRecordsServiceTest {
       var fieldId3 = 3;
       var result1 = buildAndMockResourceRecordQueryResult(
           "field-name1",
+          null,
           ResourceType.FIELD,
           fieldId1,
           "1/12",
@@ -308,6 +313,7 @@ class SearchResourceRecordsServiceTest {
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "field-name2",
+          null,
           ResourceType.FIELD,
           fieldId2,
           null,
@@ -322,6 +328,7 @@ class SearchResourceRecordsServiceTest {
       );
       var result3 = buildAndMockResourceRecordQueryResult(
           "field-name3",
+          null,
           ResourceType.FIELD,
           fieldId3,
           null,
@@ -431,6 +438,7 @@ class SearchResourceRecordsServiceTest {
       var fieldId3 = 3;
       var result1 = buildAndMockResourceRecordQueryResult(
         "field-name1",
+        null,
         ResourceType.FIELD,
         fieldId1,
         "1/12",
@@ -445,6 +453,7 @@ class SearchResourceRecordsServiceTest {
       );
       var result2 = buildAndMockResourceRecordQueryResult(
         "field-name2",
+        null,
         ResourceType.FIELD,
         fieldId2,
         null,
@@ -459,6 +468,7 @@ class SearchResourceRecordsServiceTest {
       );
       var result3 = buildAndMockResourceRecordQueryResult(
           "field-name3",
+          null,
           ResourceType.FIELD,
           fieldId3,
           null,
@@ -554,6 +564,7 @@ class SearchResourceRecordsServiceTest {
     }
 
     private ResourceRecordQueryResult buildAndMockResourceRecordQueryResult(String resourceName,
+                                                                            String regulatorResourceName,
                                                                             ResourceType resourceType,
                                                                             Integer fieldIdentifier,
                                                                             String centreOfInterest,
@@ -575,6 +586,7 @@ class SearchResourceRecordsServiceTest {
           resourceType,
           fieldIdentifier,
           resourceName,
+          regulatorResourceName,
           centreOfInterest,
           organisationResponsibleId,
           licencesTheResourceIsOn,
@@ -616,10 +628,10 @@ class SearchResourceRecordsServiceTest {
     void getResourceRecordSearchResultsDistinctResourceNames() {
       var licenceId = 100;
       var licenceDto = new LicenceDto("L100", licenceId, LicenceStatus.EXTANT);
-      var result1 = newSearchResult("Result Z", ResourceType.PROSPECT, null, null, null);
-      var result2 = newSearchResult("Result A", ResourceType.DISCOVERY, null, ORGANISATION_ID_1, List.of(licenceId));
+      var result1 = newSearchResult("Result Z", "Reg Result Z", ResourceType.PROSPECT, null, null, null);
+      var result2 = newSearchResult("Result A", "Reg Result A", ResourceType.DISCOVERY, null, ORGANISATION_ID_1, List.of(licenceId));
       var fieldId1 = 10;
-      var result3 = newSearchResult("Result b", ResourceType.FIELD, fieldId1, null, null);
+      var result3 = newSearchResult("Result b", "Reg Result b", ResourceType.FIELD, fieldId1, null, null);
       var searchResults = List.of(result1, result2, result3);
 
       var form = new SearchResourceRecordsForm();
@@ -658,12 +670,13 @@ class SearchResourceRecordsServiceTest {
     }
 
     private ResourceRecordQueryResult newSearchResult(String resourceName,
+                                                      String regulatorResourceName,
                                                       ResourceType resourceType,
                                                       Integer fieldIdentifier,
                                                       Integer organisationId,
                                                       List<Integer> licencesTheResourceIsOn) {
       return new ResourceRecordQueryResult(null, null, null, null,resourceType, fieldIdentifier,
-          resourceName, null, organisationId, licencesTheResourceIsOn, null, null, null, null, false);
+          resourceName, regulatorResourceName, null, organisationId, licencesTheResourceIsOn, null, null, null, null, false);
     }
   }
 

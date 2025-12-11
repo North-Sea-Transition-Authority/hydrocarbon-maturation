@@ -68,6 +68,7 @@ class ResourceQueryCommonService {
             RESOURCES.TYPE,
             FIELDS.FIELD_IDENTIFIER,
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
+            DSL.val((String) null),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             DSL.val((Integer) null),
             DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
@@ -144,6 +145,7 @@ class ResourceQueryCommonService {
             RESOURCES.TYPE,
             DSL.val(null, FIELDS.FIELD_IDENTIFIER),
             RESOURCE_DETAILS.RESOURCE_NAME,
+            REGULATOR_MANAGED_INFORMATION.RESOURCE_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)

@@ -97,7 +97,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .showSearchResourceRecordsScreen(null, null)))
                 .with(user(USER))
-                .flashAttr("searchProspectAndDiscoveryRecordsFilter", getFullFilter(true)))
+                .flashAttr("searchProspectAndDiscoveryRecordsFilter", getFullFilter()))
         .andExpect(status().isOk());
 
     verify(searchResourceRecordsService, times(1))
@@ -106,7 +106,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
 
   @Test
   void clearSearchResourceRecordFilter_verifyFilterDefaultsSet() throws Exception {
-    var filter = getFullFilter(true);
+    var filter = getFullFilter();
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .clearSearchResourceRecordFilter(null, null)))
@@ -164,7 +164,10 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchProspectsAndDiscoveries(null, null))),
+            entry("regulatorResourceNameApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+                .searchRegulatorResourceNames(null))),
             entry("resourceName", Map.of()),
+            entry("regulatorResourceName", Map.of()),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
                 .searchOrganisationUnits(null, null))),
             entry("responsibleOrganisation", Map.of()),
@@ -176,9 +179,9 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
         );
   }
 
-  SearchProspectAndDiscoveryRecordsFilter getFullFilter(boolean showResults) {
+  SearchProspectAndDiscoveryRecordsFilter getFullFilter() {
     var filter = new SearchProspectAndDiscoveryRecordsFilter();
-    filter.setShowResults(showResults);
+    filter.setShowResults(true);
     filter.setCentreOfInterestBlock("2/15");
     filter.setGeographicalArea(List.of(GeographicalArea.ONSHORE.name()));
     filter.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
@@ -186,6 +189,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
     filter.setLicenceId("2");
     filter.setLicenceRound("2");
     filter.setResourceNameFromResourceDetail("random id");
+    filter.setRegulatorResourceName("regulator name");
     filter.setResponsibleOrganisationId(1);
     filter.setShowArchivedResources(false);
     return filter;

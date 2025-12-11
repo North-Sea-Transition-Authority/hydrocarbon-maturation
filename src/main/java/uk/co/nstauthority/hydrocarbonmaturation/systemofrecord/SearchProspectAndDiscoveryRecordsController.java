@@ -104,10 +104,13 @@ public class SearchProspectAndDiscoveryRecordsController {
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchProspectsAndDiscoveries(null, null)))
+        .addObject("regulatorResourceNameApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+            .searchRegulatorResourceNames(null)))
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
         .addObject("preselectedLicence", searchResourceRecordsService.getPreselectedLicence(form))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedResourceName(form))
+        .addObject("regulatorResourceName", searchResourceRecordsService.getPreSelectedRegulatorResourceName(form))
         .addObject("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
             .searchOrganisationUnits(null, null)))
         .addObject("responsibleOrganisation", searchResourceRecordsService.getPreSelectedOrganisationUnit(form))

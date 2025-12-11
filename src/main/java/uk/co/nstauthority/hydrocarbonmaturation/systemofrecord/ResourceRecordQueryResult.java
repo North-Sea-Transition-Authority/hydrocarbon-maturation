@@ -16,6 +16,7 @@ public record ResourceRecordQueryResult(
     ResourceType resourceType,
     Integer fieldIdentifier,
     String resourceName,
+    String regulatorResourceName,
     String centreOfInterestQuadBlock,
     Integer prospectOrDiscoveryOrganisationId,
     List<Integer> licencesTheResourceIsOn,

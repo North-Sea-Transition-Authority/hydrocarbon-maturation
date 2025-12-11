@@ -20,6 +20,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
       );
 
   private String resourceNameFromResourceDetail;
+  private String regulatorResourceName;
   private Integer responsibleOrganisationId;
   private List<String> resourceTypes = new ArrayList<>();
   private List<String> opportunityTypes = new ArrayList<>();
@@ -43,6 +44,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setLicenceId(form.getLicenceId());
     setLicenceRound(form.getLicenceRound());
     setResourceNameFromResourceDetail(form.getResourceNameFromResourceDetail());
+    setRegulatorResourceName(form.getRegulatorResourceName());
     setCentreOfInterestBlock(form.getCentreOfInterestBlock());
     setResponsibleOrganisationId(form.getResponsibleOrganisationId());
     setGeographicalArea(form.getGeographicalArea());
@@ -61,6 +63,14 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
 
   public void setResourceNameFromResourceDetail(String resourceNameFromResourceDetail) {
     this.resourceNameFromResourceDetail = resourceNameFromResourceDetail;
+  }
+
+  public String getRegulatorResourceName() {
+    return regulatorResourceName;
+  }
+
+  public void setRegulatorResourceName(String regulatorResourceName) {
+    this.regulatorResourceName = regulatorResourceName;
   }
 
   public Integer getResponsibleOrganisationId() {
@@ -144,6 +154,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setCentreOfInterestBlock(null);
     setLicenceId(null);
     setResourceNameFromResourceDetail(null);
+    setRegulatorResourceName(null);
     setResponsibleOrganisationId(null);
     setResourceTypes(SEARCHABLE_TYPES);
     var oppTypes = new ArrayList<>(EnumUtils.getEnumNames(OpportunityType.class));

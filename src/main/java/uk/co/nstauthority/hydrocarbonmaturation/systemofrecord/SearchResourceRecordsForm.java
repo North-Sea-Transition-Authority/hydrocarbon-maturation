@@ -6,6 +6,7 @@ import java.util.List;
 public class SearchResourceRecordsForm {
 
   private String resourceNameFromResourceDetail;
+  private String regulatorResourceName;
   private String fieldNameForResourceSubmission;
   private Integer responsibleOrganisationId;
   private List<String> resourceTypes = new ArrayList<>();
@@ -24,6 +25,14 @@ public class SearchResourceRecordsForm {
 
   public void setResourceNameFromResourceDetail(String resourceNameFromResourceDetail) {
     this.resourceNameFromResourceDetail = resourceNameFromResourceDetail;
+  }
+
+  public String getRegulatorResourceName() {
+    return regulatorResourceName;
+  }
+
+  public void setRegulatorResourceName(String regulatorResourceName) {
+    this.regulatorResourceName = regulatorResourceName;
   }
 
   public Integer getResponsibleOrganisationId() {
@@ -122,6 +131,7 @@ public class SearchResourceRecordsForm {
     form.setLicenceId(filter.getLicenceId());
     form.setLicenceRound(filter.getLicenceRound());
     form.setResourceNameFromResourceDetail(filter.getResourceNameFromResourceDetail());
+    form.setRegulatorResourceName(filter.getRegulatorResourceName());
     form.setCentreOfInterestBlock(filter.getCentreOfInterestBlock());
     form.setResponsibleOrganisationId(filter.getResponsibleOrganisationId());
     form.setGeographicalArea(filter.getGeographicalArea());

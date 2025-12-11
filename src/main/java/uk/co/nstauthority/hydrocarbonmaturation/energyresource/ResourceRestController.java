@@ -78,6 +78,11 @@ public class ResourceRestController {
     return searchResourceRecordsQueryService.searchProspectsAndDiscoveries(searchTerm, user);
   }
 
+  @GetMapping("/resources/regulator-resource-names")
+  public RestSearchResult searchRegulatorResourceNames(@RequestParam("term") String searchTerm) {
+    return searchResourceRecordsQueryService.searchRegulatorResourceNames(searchTerm);
+  }
+
   @GetMapping("/resources/fields")
   public RestSearchResult searchFieldsByFieldName(@RequestParam("term") String searchTerm, User user) {
     return searchResourceRecordsQueryService.searchFields(searchTerm, user);

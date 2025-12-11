@@ -29,6 +29,18 @@
             selectorMinInputLength=2
             preselectedItems=resourceName!{}/>
         </@fdsSearch.searchFilterItem>
+        <#if isRegulatorOrAreaTeamUser>
+          <@fdsSearch.searchFilterItem itemName="${customerBranding.mnemonic()} resource name" expanded=regulatorResourceName?has_content>
+            <@fdsSearchSelector.searchSelectorRest
+            path="form.regulatorResourceName"
+            restUrl=springUrl(regulatorResourceNameApiEndpoint)
+            labelText="${customerBranding.mnemonic()} resource name"
+            labelClass="govuk-visually-hidden"
+            inputClass="govuk-!-width-three-quarters"
+            selectorMinInputLength=2
+            preselectedItems=regulatorResourceName!{}/>
+          </@fdsSearch.searchFilterItem>
+        </#if>
         <@fdsSearch.searchFilterItem itemName="Responsible organisation" expanded=responsibleOrganisation?has_content>
           <@fdsSearchSelector.searchSelectorRest
             path="form.responsibleOrganisationId"
