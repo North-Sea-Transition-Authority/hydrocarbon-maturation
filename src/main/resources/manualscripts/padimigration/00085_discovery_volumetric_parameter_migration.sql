@@ -1017,30 +1017,223 @@ DO $$
                         comments,
                         reservoir_submission_detail_id
                     ) VALUES (
+                     gen_random_uuid(),
+                     reservoir_volumetric_parameters.sd_id,
+                     padi_distribution_type,
+                     padi_other_distribution_type,
+                     CASE
+                         WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate')
+                             THEN 'GAS_FORMATION_VOLUME_FACTOR_DISCOVERY'
+                         WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'oil'
+                             THEN 'OIL_FORMATION_VOLUME_FACTOR_DISCOVERY'
+                         END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p90) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_mode) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p50) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_mean) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p10) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p01) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p01) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.fvf_mean) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_mean) END,
+                     reservoir_volumetric_parameters.fvf_comment,
+                     reservoir_volumetric_parameters.rsd_id
+                 );
+
+                END IF;
+
+                IF reservoir_volumetric_parameters.hydrocarbon_case IN ('gas','condensate','oil') THEN
+
+                    padi_distribution_type := NULL;
+                    padi_other_distribution_type := NULL;
+
+                    -- Hydrocarbon saturation
+                    IF COALESCE(
+                            reservoir_volumetric_parameters.hsc_p99,
+                            reservoir_volumetric_parameters.hsc_p90,
+                            reservoir_volumetric_parameters.hsc_mode,
+                            reservoir_volumetric_parameters.hsc_p50,
+                            reservoir_volumetric_parameters.hsc_mean,
+                            reservoir_volumetric_parameters.hsc_p10,
+                            reservoir_volumetric_parameters.hsc_p01
+                       ) IS NOT NULL THEN
+
+                        SELECT
+                            CASE reservoir_volumetric_parameters.hsc_dist
+                                WHEN N THEN NORMAL
+                                WHEN L THEN LOGNORMAL
+                                WHEN B THEN BETA
+                                WHEN T THEN TRIANGULAR
+                                WHEN R THEN RECTANGULAR
+                                WHEN C THEN CONSTANT
+                                END
+                        INTO padi_distribution_type;
+
+                        IF padi_distribution_type IS NULL AND reservoir_volumetric_parameters.hsc_dist != Z THEN
+                            padi_other_distribution_type := reservoir_volumetric_parameters.hsc_dist;
+                        END IF;
+
+                        INSERT INTO remi.probability_distributions (
+                            id,
+                            submission_detail_id,
+                            distribution_type,
+                            other_distribution_type,
+                            instance,
+                            min_value,
+                            p99,
+                            p90,
+                            mode_value,
+                            p50,
+                            mean_value,
+                            p10,
+                            p1,
+                            max_value,
+                            constant_value,
+                            most_likely_value,
+                            comments,
+                            reservoir_submission_detail_id
+                        ) VALUES (
                          gen_random_uuid(),
                          reservoir_volumetric_parameters.sd_id,
                          padi_distribution_type,
                          padi_other_distribution_type,
                          CASE
-                             WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate')
-                                 THEN 'GAS_FORMATION_VOLUME_FACTOR_DISCOVERY'
-                             WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'oil'
-                                 THEN 'OIL_FORMATION_VOLUME_FACTOR_DISCOVERY'
+                             WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate') THEN 'GAS_HYDROCARBON_SATURATION_DISCOVERY'
+                             WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'oil' THEN 'OIL_HYDROCARBON_SATURATION_DISCOVERY'
                              END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p90) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_mode) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p50) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_mean) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p10) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p01) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p01) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.fvf_mean) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_mean) END,
-                         reservoir_volumetric_parameters.fvf_comment,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p90) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mode) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p50) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p10) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p01) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p01) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         reservoir_volumetric_parameters.hsc_comment,
                          reservoir_volumetric_parameters.rsd_id
                      );
+
+                    END IF;
+
+                END IF;
+
+                IF reservoir_volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN
+
+                    padi_distribution_type := NULL;
+                    padi_other_distribution_type := NULL;
+
+                    -- Hydrocarbon saturation
+                    IF COALESCE(
+                            reservoir_volumetric_parameters.hsc_p99,
+                            reservoir_volumetric_parameters.hsc_p90,
+                            reservoir_volumetric_parameters.hsc_mode,
+                            reservoir_volumetric_parameters.hsc_p50,
+                            reservoir_volumetric_parameters.hsc_mean,
+                            reservoir_volumetric_parameters.hsc_p10,
+                            reservoir_volumetric_parameters.hsc_p01
+                       ) IS NOT NULL THEN
+
+                        SELECT
+                            CASE reservoir_volumetric_parameters.hsc_dist
+                                WHEN N THEN NORMAL
+                                WHEN L THEN LOGNORMAL
+                                WHEN B THEN BETA
+                                WHEN T THEN TRIANGULAR
+                                WHEN R THEN RECTANGULAR
+                                WHEN C THEN CONSTANT
+                                END
+                        INTO padi_distribution_type;
+
+                        IF padi_distribution_type IS NULL AND reservoir_volumetric_parameters.hsc_dist != Z THEN
+                            padi_other_distribution_type := reservoir_volumetric_parameters.hsc_dist;
+                        END IF;
+
+                        INSERT INTO remi.probability_distributions (
+                            id,
+                            submission_detail_id,
+                            distribution_type,
+                            other_distribution_type,
+                            instance,
+                            min_value,
+                            p99,
+                            p90,
+                            mode_value,
+                            p50,
+                            mean_value,
+                            p10,
+                            p1,
+                            max_value,
+                            constant_value,
+                            most_likely_value,
+                            comments,
+                            reservoir_submission_detail_id
+                        ) VALUES (
+                         gen_random_uuid(),
+                         reservoir_volumetric_parameters.sd_id,
+                         padi_distribution_type,
+                         padi_other_distribution_type,
+                         'MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY',
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p90) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mode) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p50) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p10) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p01) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p01) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         reservoir_volumetric_parameters.hsc_comment,
+                         reservoir_volumetric_parameters.rsd_id
+                     );
+
+                        INSERT INTO remi.probability_distributions (
+                            id,
+                            submission_detail_id,
+                            distribution_type,
+                            other_distribution_type,
+                            instance,
+                            min_value,
+                            p99,
+                            p90,
+                            mode_value,
+                            p50,
+                            mean_value,
+                            p10,
+                            p1,
+                            max_value,
+                            constant_value,
+                            most_likely_value,
+                            comments,
+                            reservoir_submission_detail_id
+                        ) VALUES (
+                         gen_random_uuid(),
+                         reservoir_volumetric_parameters.sd_id,
+                         padi_distribution_type,
+                         padi_other_distribution_type,
+                         'MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY',
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p90) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mode) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p50) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p10) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p01) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p01) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_mean) END,
+                         reservoir_volumetric_parameters.hsc_comment,
+                         reservoir_volumetric_parameters.rsd_id
+                     );
+
+                    END IF;
 
                 END IF;
 
