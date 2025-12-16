@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -192,13 +193,13 @@ public class TeamManagementController {
           .addObject("registerUrl", energyPortalConfiguration.registrationUrl());
     }
 
-    var wuaId = teamManagementService.getEnergyPortalUser(form.getUsername()).stream()
-        .filter(user -> !user.getIsAccountShared() && user.getCanLogin())
-        .map(user -> user.getWebUserAccountId().longValue())
+    var wuaId = teamManagementService.getEnergyPortalUser(form.getEmailAddress()).stream()
+        .filter(EnergyPortalUserDto::canLogin)
+        .map(EnergyPortalUserDto::webUserAccountId)
         .findFirst()
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.BAD_REQUEST,
-            "user with username %s not found or is shared account".formatted(form.getUsername()))
+            "user with email address %s does not exist".formatted(form.getEmailAddress()))
         );
 
     return ReverseRouter.redirect(on(TeamManagementController.class).renderUserTeamRoles(teamId, wuaId, null));

@@ -16,7 +16,8 @@ import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
-import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
@@ -36,19 +37,23 @@ public class TeamManagementService {
   private final UserApi userApi;
   private final EnergyPortalServiceAccessService energyPortalServiceAccessService;
   private final EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService;
+  private final EnergyPortalUserService energyPortalUserService;
 
   public TeamManagementService(TeamRepository teamRepository,
                                TeamRoleRepository teamRoleRepository,
                                UserApi userApi,
                                TeamQueryService teamQueryService,
                                EnergyPortalServiceAccessService energyPortalServiceAccessService,
-                               EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService) {
+                               EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService,
+                               EnergyPortalUserService energyPortalUserService
+  ) {
     this.teamRepository = teamRepository;
     this.teamRoleRepository = teamRoleRepository;
     this.userApi = userApi;
     this.teamQueryService = teamQueryService;
     this.energyPortalServiceAccessService = energyPortalServiceAccessService;
     this.energyPortalServiceProviderUserRolesService = energyPortalServiceProviderUserRolesService;
+    this.energyPortalUserService = energyPortalUserService;
   }
 
   public Team createScopedTeam(String name, TeamType teamType, TeamScopeReference scopeRef) {
@@ -134,12 +139,18 @@ public class TeamManagementService {
     return teamRepository.findById(teamId);
   }
 
-  public List<User> getEnergyPortalUser(String username) {
-    var projection = new UsersProjectionRoot()
-        .webUserAccountId()
-        .isAccountShared()
-        .canLogin();
-    return userApi.searchUsersByEmail(username, projection, new RequestPurpose("Find user to add to team"));
+  public Optional<EnergyPortalUserDto> getEnergyPortalUser(String emailAddress) {
+    var energyPortalUserDtos = energyPortalUserService.findUsersByEmailAddress(emailAddress);
+
+    if (energyPortalUserDtos.size() > 1) {
+      throw new TeamManagementException(
+          "More than one UK Energy Portal user exists with the email address %s".formatted(emailAddress)
+      );
+    }
+
+    return energyPortalUserDtos
+        .stream()
+        .findFirst();
   }
 
   public TeamMemberView getTeamMemberView(Team team, Long wuaId) {

@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -493,9 +494,8 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
 
   @Test
   void handleAddMemberToTeam() throws Exception {
-    var epaUser = new uk.co.fivium.energyportalapi.generated.types.User.Builder()
-        .webUserAccountId(999L)
-        .isAccountShared(false)
+    var epaUser = EnergyPortalUserDtoTestUtil.Builder()
+        .withWebUserAccountId(999L)
         .canLogin(true)
         .build();
 
@@ -509,12 +509,12 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(true);
 
     when(teamManagementService.getEnergyPortalUser("foo"))
-        .thenReturn(List.of(epaUser));
+        .thenReturn(Optional.of(epaUser));
 
     mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).handleAddMemberToTeam(regTeam.getId(), null, null)))
         .with(csrf())
         .with(user(invokingUser))
-        .param("username", "foo"))
+        .param("emailAddress", "foo"))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TeamManagementController.class).renderUserTeamRoles(regTeam.getId(), 999L, null))));
   }
@@ -551,7 +551,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(true);
 
     when(teamManagementService.getEnergyPortalUser("foo"))
-        .thenReturn(List.of());
+        .thenReturn(Optional.empty());
 
     mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).handleAddMemberToTeam(regTeam.getId(), null, null)))
         .with(csrf())

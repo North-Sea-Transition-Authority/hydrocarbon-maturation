@@ -36,7 +36,7 @@ class EnergyPortalUserServiceTest {
   }
 
   @Test
-  void findUserByUsername_whenNoResults_thenEmptyList() {
+  void findUsersByEmailAddress_whenNoResults_thenEmptyList() {
 
     var username = "username";
 
@@ -49,7 +49,7 @@ class EnergyPortalUserServiceTest {
         any(LogCorrelationId.class)
     )).thenReturn(Collections.emptyList());
 
-    assertTrue(energyPortalUserService.findUserByUsername(username).isEmpty());
+    assertTrue(energyPortalUserService.findUsersByEmailAddress(username).isEmpty());
   }
 
   @Test
@@ -69,7 +69,7 @@ class EnergyPortalUserServiceTest {
         any(LogCorrelationId.class)
     )).thenReturn(List.of(expectedUser));
 
-    assertThat(energyPortalUserService.findUserByUsername(username))
+    assertThat(energyPortalUserService.findUsersByEmailAddress(username))
         .extracting(
             EnergyPortalUserDto::webUserAccountId,
             EnergyPortalUserDto::title,
@@ -95,7 +95,7 @@ class EnergyPortalUserServiceTest {
   }
 
   @Test
-  void findUserByUsername_whenUsersFound_thenOnlyThoseWithCanLoginTrueReturned() {
+  void findUsersByEmailAddress_whenUsersFound_thenOnlyThoseWithCanLoginTrueReturned() {
 
     var username = "username";
 
@@ -121,7 +121,7 @@ class EnergyPortalUserServiceTest {
         notLoginUser
     ));
 
-    assertThat(energyPortalUserService.findUserByUsername(username))
+    assertThat(energyPortalUserService.findUsersByEmailAddress(username))
         .extracting(EnergyPortalUserDto::webUserAccountId)
         .containsExactly(Long.valueOf(canLoginUser.getWebUserAccountId()));
   }

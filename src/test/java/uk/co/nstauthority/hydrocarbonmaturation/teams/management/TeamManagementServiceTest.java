@@ -33,6 +33,8 @@ import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
@@ -63,6 +65,9 @@ public class TeamManagementServiceTest {
 
   @Mock
   private EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService;
+
+  @Mock
+  private EnergyPortalUserService energyPortalUserService;
 
   @InjectMocks
   private TeamManagementService teamManagementService;
@@ -263,14 +268,21 @@ public class TeamManagementServiceTest {
 
   @Test
   void getEnergyPortalUser() {
-    var expectedProjection = new UsersProjectionRoot()
-        .webUserAccountId()
-        .isAccountShared()
-        .canLogin();
-
     teamManagementService.getEnergyPortalUser("foo");
+    verify(energyPortalUserService).findUsersByEmailAddress("foo");
+  }
 
-    verify(userApi).searchUsersByEmail(eq("foo"), refEq(expectedProjection), any(RequestPurpose.class));
+  @Test
+  void getEnergyPortalUser_whenMultipleUsersFound_thenThrow() {
+    var emailAddress = "foo";
+
+    when(energyPortalUserService.findUsersByEmailAddress(emailAddress))
+        .thenReturn(List.of(EnergyPortalUserDtoTestUtil.Builder().build(), EnergyPortalUserDtoTestUtil.Builder().build()));
+
+    assertThatThrownBy(() -> teamManagementService.getEnergyPortalUser("foo"))
+        .isInstanceOf(TeamManagementException.class)
+        .hasMessage("More than one UK Energy Portal user exists with the email address %s".formatted(emailAddress)
+        );
   }
 
   @Test
