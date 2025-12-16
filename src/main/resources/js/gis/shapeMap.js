@@ -81,12 +81,21 @@ export default class ShapeMap {
       }
     })
 
-    this.fieldDeterminationBoundariesOffshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_FieldDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.fieldDeterminationBoundariesOnshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/ENG_Onshore_FieldsDets_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.quadBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_ReferenceBlocks_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.licenseBlockUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Licences_WGS84/FeatureServer/1/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.fieldBlobOffshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
-    this.fieldBlobOnshoreUrl = 'https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/ENG_Onshore_Fields_WGS84/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&f=geojson';
+    const buildServiceUrl = (resourcePath, outFields = '') => {
+      const serviceBase = 'https://services-eu1.arcgis.com/OZMfUznmLTnWccBc/arcgis/rest/services/';
+      const querySuffix = '/FeatureServer/0/query?where=1%3D1&f=geojson';
+      const encodedOutFields = outFields ? `&outFields=${encodeURIComponent(outFields)}` : '';
+
+      return `${serviceBase}${resourcePath}${querySuffix}${encodedOutFields}`;
+    };
+
+    this.fieldDeterminationBoundariesOffshoreUrl = buildServiceUrl('Petroleum_field_determinations_(WGS84)', 'FIELDNAME');
+    this.fieldDeterminationBoundariesOnshoreUrl = buildServiceUrl('Onshore_petroleum_field_determinations_(WGS84)', 'FIELDNAME');
+    this.quadBlockUrl = buildServiceUrl('UKCS_blocks_(WGS84)', 'BLOCK_REF');
+    this.licenseOffshoreBlockUrl = buildServiceUrl('UKCS offshore petroleum licence blocks WGS84', 'BLOCKREF');
+    this.licenseOnshoreBlockUrl = buildServiceUrl('England onshore petroleum licence blocks WGS84', 'BLOCKREF');
+    this.fieldBlobOffshoreUrl = buildServiceUrl('Offshore_hydrocarbon_fields_(WGS84)', 'FIELDNAME,FIELDTYPE');
+    this.fieldBlobOnshoreUrl = buildServiceUrl('Onshore_hydrocarbon_fields_(WGS84)', 'FIELDNAME,FIELDTYPE');
   }
 
   async init() {
@@ -154,10 +163,19 @@ export default class ShapeMap {
     );
   }
 
-  getLicenceBlocksLayer() {
+  getLicenceOffshoreBlocksLayer() {
     return ShapeMap._getVectorLayer(
       'License Blocks',
-      ShapeMap._getVectorSource(this.licenseBlockUrl, this.mapAttributions),
+      ShapeMap._getVectorSource(this.licenseOffshoreBlockUrl, this.mapAttributions),
+      this.licenseBlockStyle,
+      'BLOCKREF'
+    );
+  }
+
+  getLicenceOnshoreBlocksLayer() {
+    return ShapeMap._getVectorLayer(
+      'License Blocks',
+      ShapeMap._getVectorSource(this.licenseOnshoreBlockUrl, this.mapAttributions),
       this.licenseBlockStyle,
       'BLOCKREF'
     );
@@ -194,7 +212,8 @@ export default class ShapeMap {
     }
 
     if (this.showLicenceBlocksLayer) {
-      layers.push(this.getLicenceBlocksLayer());
+      layers.push(this.getLicenceOffshoreBlocksLayer());
+      layers.push(this.getLicenceOnshoreBlocksLayer());
     }
 
     if (this.showFieldDeterminationBoundariesLayer) {
@@ -296,9 +315,40 @@ export default class ShapeMap {
 
   static _getVectorSource(layerUrl, attributions) {
     return new VectorSource({
-      url: layerUrl,
       format: new GeoJSON(),
-      attributions: attributions
+      attributions: attributions,
+      loader: async function(extent, resolution, projection) {
+        const urlObj = new URL(layerUrl);
+        const format = this.getFormat();
+
+        let offset = 0;
+        let hasMore = true;
+
+        try {
+          while (hasMore) {
+            urlObj.searchParams.set('resultOffset', offset);
+
+            const response = await fetch(urlObj.toString());
+            if (!response.ok) {
+              throw new Error(`Failed to fetch ${urlObj.toString()}: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            const features = format.readFeatures(data, {
+              featureProjection: projection
+            });
+
+            this.addFeatures(features);
+
+            offset += features.length;
+            hasMore = data?.properties?.exceededTransferLimit === true;
+          }
+        } catch (error) {
+          console.error('Error loading vector source:', error);
+          this.removeLoadedExtent(extent);
+        }
+      }
     });
   }
 
