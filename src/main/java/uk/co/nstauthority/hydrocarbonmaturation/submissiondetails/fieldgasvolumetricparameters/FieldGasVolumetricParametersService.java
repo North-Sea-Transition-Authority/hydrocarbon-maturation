@@ -43,6 +43,11 @@ public class FieldGasVolumetricParametersService {
         ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD
     ));
 
+    form.setGasExpansionFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD
+    ));
+
     form.setCondensateGasRatioLifeOfField(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT
@@ -76,6 +81,13 @@ public class FieldGasVolumetricParametersService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasRecoveryFactor,
         gasCaseVolumetricParametersForm.getGasRecoveryFactor(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+
+    var gasExpansionFactor = ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD;
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        gasExpansionFactor,
+        gasCaseVolumetricParametersForm.getGasExpansionFactor(),
         submissionDetail,
         reservoirSubmissionDetail);
 

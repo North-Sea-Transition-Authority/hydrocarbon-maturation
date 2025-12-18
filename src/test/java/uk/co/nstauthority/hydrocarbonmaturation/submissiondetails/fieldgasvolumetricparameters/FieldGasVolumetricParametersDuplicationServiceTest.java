@@ -114,6 +114,7 @@ class FieldGasVolumetricParametersDuplicationServiceTest {
               Set.of(
                   ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT,
                   ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
+                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD,
                   ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD,
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD
               )));

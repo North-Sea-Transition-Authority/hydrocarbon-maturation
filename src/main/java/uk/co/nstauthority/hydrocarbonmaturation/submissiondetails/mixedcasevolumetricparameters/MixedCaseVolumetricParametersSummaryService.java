@@ -26,6 +26,8 @@ public class MixedCaseVolumetricParametersSummaryService {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
+
+    listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR);
     // Oil section
     if (resourceType == ResourceType.PROSPECT) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT);

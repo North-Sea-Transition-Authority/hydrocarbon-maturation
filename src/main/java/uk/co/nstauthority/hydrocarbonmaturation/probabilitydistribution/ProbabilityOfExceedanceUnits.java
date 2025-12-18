@@ -7,7 +7,6 @@ public enum ProbabilityOfExceedanceUnits {
   PERCENT("%"),
   KM2("km2"),
   SCF_RCF("scf/rcf"),
-  RBBL_MSCF("rbbl/mscf"),
   STB_MMCF("stb/mmcf"),
   RB_STB("rb/stb"),
   SCF_STB("scf/stb"),

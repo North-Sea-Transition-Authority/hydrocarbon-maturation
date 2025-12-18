@@ -53,6 +53,8 @@ class MixedCaseVolumetricParametersFormValidatorTest {
 
     assertThat(extractedErrors)
         .containsExactly(
+            entry("gasExpansionFactor.probabilityDistributionType",
+                Set.of("gasExpansionFactor.probabilityDistributionType.required")),
             entry("oilFormationVolumeFactor.probabilityDistributionType",
                 Set.of("oilFormationVolumeFactor.probabilityDistributionType.required")),
             entry("oilHydrocarbonSaturation.probabilityDistributionType",
@@ -102,7 +104,9 @@ class MixedCaseVolumetricParametersFormValidatorTest {
             entry("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedGasOilRatioLifeOfField." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error"))
+                Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -135,7 +139,9 @@ class MixedCaseVolumetricParametersFormValidatorTest {
             entry("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error"))
+                Set.of("gasRecoveryFactor." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error",
+                Set.of("gasExpansionFactor." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -155,6 +161,7 @@ class MixedCaseVolumetricParametersFormValidatorTest {
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilFormationVolumeFactor(probabilityDistributionForm);
     form.setGasFormationVolumeFactor(probabilityDistributionForm);
+    form.setGasExpansionFactor(probabilityDistributionForm);
     return form;
   }
 
@@ -173,6 +180,7 @@ class MixedCaseVolumetricParametersFormValidatorTest {
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilFormationVolumeFactor(probabilityDistributionForm);
     form.setGasFormationVolumeFactor(probabilityDistributionForm);
+    form.setGasExpansionFactor(probabilityDistributionForm);
     return form;
   }
 
@@ -189,6 +197,7 @@ class MixedCaseVolumetricParametersFormValidatorTest {
     form.setOilHydrocarbonSaturation(probabilityDistributionForm);
     form.setOilFormationVolumeFactor(probabilityDistributionForm);
     form.setGasFormationVolumeFactor(probabilityDistributionForm);
+    form.setGasExpansionFactor(probabilityDistributionForm);
     return form;
   }
 }

@@ -273,17 +273,17 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   GAS_FORMATION_VOLUME_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RBBL_MSCF,
+      ProbabilityOfExceedanceUnits.RB_STB,
       "Gas formation volume factor (Bg)"
   ),
   GAS_FORMATION_VOLUME_FACTOR_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RBBL_MSCF,
+      ProbabilityOfExceedanceUnits.RB_STB,
       "Gas formation volume factor (Bg)"
   ),
   GAS_FORMATION_VOLUME_FACTOR_FIELD(
       List.of(CONSTANT),
-      ProbabilityOfExceedanceUnits.RBBL_MSCF,
+      ProbabilityOfExceedanceUnits.RB_STB,
       "Gas formation volume factor (Bg)"
   ),
 
@@ -357,12 +357,12 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RBBL_MSCF,
+      ProbabilityOfExceedanceUnits.RB_STB,
       "Gas formation volume factor (Bg)"
   ),
   MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
-      ProbabilityOfExceedanceUnits.RBBL_MSCF,
+      ProbabilityOfExceedanceUnits.RB_STB,
       "Gas formation volume factor (Bg)"
   ),
   MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT(

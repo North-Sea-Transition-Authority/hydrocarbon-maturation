@@ -27,6 +27,10 @@ class MixedCaseVolumetricParametersFormService {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
+    form.setGasExpansionFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
+    ));
     if (resourceType == ResourceType.PROSPECT) {
       form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,

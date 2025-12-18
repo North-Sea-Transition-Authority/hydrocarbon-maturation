@@ -137,6 +137,7 @@ class MixedCaseVolumetricParametersDuplicationServiceTest {
                   ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
                   ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
                   ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
                   ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT
               )));
     } else if (resourceType == ResourceType.DISCOVERY) {
@@ -150,6 +151,7 @@ class MixedCaseVolumetricParametersDuplicationServiceTest {
                   ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
                   ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
                   ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+                  ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
                   ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY
               )));
     }

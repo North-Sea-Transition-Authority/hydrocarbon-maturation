@@ -94,6 +94,9 @@ public class MixedCaseVolumetricParametersController {
   ) {
     var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseVolumetrics")
         .addObject("form", form)
+        .addObject("gasExpansionFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR))
         .addObject("associatedGasOilRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD))
@@ -103,6 +106,7 @@ public class MixedCaseVolumetricParametersController {
         .addObject("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR))
+        .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
@@ -159,6 +163,11 @@ public class MixedCaseVolumetricParametersController {
     var modelAndView = getMixedCaseVolumetricsModelAndView(form, submissionDetail);
 
     return modelAndView
+        .addObject("gasExpansionFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasExpansionFactor",
+                form.getGasExpansionFactor()))
         .addObject("oilFormationVolumeFactorError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

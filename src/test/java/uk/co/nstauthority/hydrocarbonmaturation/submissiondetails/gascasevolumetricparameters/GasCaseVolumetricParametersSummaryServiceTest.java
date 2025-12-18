@@ -81,6 +81,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             List.of(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
                 ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
                 ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
@@ -107,6 +108,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             List.of(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
                 ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
                 ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
@@ -152,6 +154,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
         .thenReturn(true);
 
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);

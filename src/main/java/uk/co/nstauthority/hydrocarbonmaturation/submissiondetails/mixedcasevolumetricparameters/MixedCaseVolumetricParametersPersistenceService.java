@@ -25,6 +25,10 @@ class MixedCaseVolumetricParametersPersistenceService {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
+    var gasExpansionFactor = ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR;
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(gasExpansionFactor,
+        mixedCaseVolumetricParametersForm.getGasExpansionFactor(), submissionDetail, reservoirSubmissionDetail);
+
     var condensateGasRatioLifeOfField = ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(condensateGasRatioLifeOfField,
         mixedCaseVolumetricParametersForm.getCondensateGasRatioLifeOfField(), submissionDetail, reservoirSubmissionDetail);

@@ -40,7 +40,8 @@ class GasCaseVolumetricParametersDuplicationService implements ReservoirSectionD
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
       var applicableInstances = new HashSet<>(Set.of(
           ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-          ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR));
+          ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+          ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR));
       var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
       if (resourceType == ResourceType.PROSPECT) {
         applicableInstances.addAll(Set.of(

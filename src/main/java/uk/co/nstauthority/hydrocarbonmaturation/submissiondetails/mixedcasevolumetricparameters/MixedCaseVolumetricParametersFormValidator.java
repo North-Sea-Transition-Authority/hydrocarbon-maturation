@@ -15,6 +15,14 @@ class MixedCaseVolumetricParametersFormValidator implements SubmissionValidator 
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var mixedCaseVolumetricsForm = (MixedCaseVolumetricParametersForm) form;
 
+    var gasExpansionFactor = mixedCaseVolumetricsForm.getGasExpansionFactor();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        gasExpansionFactor,
+        errors,
+        "gasExpansionFactor",
+        "Gas expansion factor"
+    );
+
     var oilFormationVolumeFactor = mixedCaseVolumetricsForm.getOilFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validatePartial(
         oilFormationVolumeFactor,
@@ -83,6 +91,18 @@ class MixedCaseVolumetricParametersFormValidator implements SubmissionValidator 
   @Override
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var mixedCaseVolumetricsForm = (MixedCaseVolumetricParametersForm) form;
+
+    ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
+        "gasExpansionFactor.probabilityDistributionType.required",
+        "Select gas expansion factor distribution used");
+
+    var gasExpansionFactor = mixedCaseVolumetricsForm.getGasExpansionFactor();
+    ProbabilityDistributionValidationUtil.validateFull(
+        gasExpansionFactor,
+        errors,
+        "gasExpansionFactor",
+        "Gas expansion factor"
+    );
 
     ValidationUtils.rejectIfEmpty(errors, "oilFormationVolumeFactor.probabilityDistributionType",
         "oilFormationVolumeFactor.probabilityDistributionType.required",

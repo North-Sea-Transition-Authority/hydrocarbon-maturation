@@ -17,6 +17,14 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var gasCaseVolumetricsForm = (GasCaseVolumetricParametersForm) form;
 
+    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
+    ProbabilityDistributionValidationUtil.validatePartial(
+        gasExpansionFactor,
+        errors,
+        "gasExpansionFactor",
+        "Gas expansion factor"
+    );
+
     var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validatePartial(
         gasFormationVolumeFactor,
@@ -62,6 +70,18 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
   @Override
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var gasCaseVolumetricsForm = (GasCaseVolumetricParametersForm) form;
+
+    ValidationUtils.rejectIfEmpty(errors, "gasExpansionFactor.probabilityDistributionType",
+        "gasExpansionFactor.probabilityDistributionType.required",
+        "Select gas expansion factor distribution used");
+
+    var gasExpansionFactor = gasCaseVolumetricsForm.getGasExpansionFactor();
+    ProbabilityDistributionValidationUtil.validateFull(
+        gasExpansionFactor,
+        errors,
+        "gasExpansionFactor",
+        "Gas expansion factor"
+    );
 
     ValidationUtils.rejectIfEmpty(errors, "gasFormationVolumeFactor.probabilityDistributionType",
         "gasFormationVolumeFactor.probabilityDistributionType.required",

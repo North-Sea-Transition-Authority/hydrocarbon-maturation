@@ -13,6 +13,7 @@ class MixedCaseVolumetricParametersForm implements SubmissionForm {
   private ProbabilityDistributionForm condensateGasRatioLifeOfField = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilRecoveryFactor = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasRecoveryFactor = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm gasExpansionFactor = new ProbabilityDistributionForm();
 
   public ProbabilityDistributionForm getOilFormationVolumeFactor() {
     return oilFormationVolumeFactor;
@@ -84,5 +85,14 @@ class MixedCaseVolumetricParametersForm implements SubmissionForm {
   public void setGasRecoveryFactor(
       ProbabilityDistributionForm gasRecoveryFactor) {
     this.gasRecoveryFactor = gasRecoveryFactor;
+  }
+
+  public ProbabilityDistributionForm getGasExpansionFactor() {
+    return gasExpansionFactor;
+  }
+
+  public void setGasExpansionFactor(
+      ProbabilityDistributionForm gasExpansionFactor) {
+    this.gasExpansionFactor = gasExpansionFactor;
   }
 }

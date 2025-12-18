@@ -9,6 +9,7 @@ public class GasCaseVolumetricParametersForm implements SubmissionForm {
   private ProbabilityDistributionForm condensateGasRatioLifeOfField = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasRecoveryFactor = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasFormationVolumeFactor = new ProbabilityDistributionForm();
+  private  ProbabilityDistributionForm gasExpansionFactor = new ProbabilityDistributionForm();
 
   public ProbabilityDistributionForm getGasHydrocarbonSaturation() {
     return gasHydrocarbonSaturation;
@@ -44,5 +45,14 @@ public class GasCaseVolumetricParametersForm implements SubmissionForm {
   public void setGasFormationVolumeFactor(
       ProbabilityDistributionForm gasFormationVolumeFactor) {
     this.gasFormationVolumeFactor = gasFormationVolumeFactor;
+  }
+
+  public ProbabilityDistributionForm getGasExpansionFactor() {
+    return gasExpansionFactor;
+  }
+
+  public void setGasExpansionFactor(
+      ProbabilityDistributionForm gasExpansionFactor) {
+    this.gasExpansionFactor = gasExpansionFactor;
   }
 }

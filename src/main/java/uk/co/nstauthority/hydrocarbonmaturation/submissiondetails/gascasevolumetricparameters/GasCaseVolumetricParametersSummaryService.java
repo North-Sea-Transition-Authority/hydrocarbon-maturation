@@ -39,6 +39,8 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
+
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR);
     if (resourceType == ResourceType.PROSPECT) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT);
 
@@ -81,6 +83,7 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);

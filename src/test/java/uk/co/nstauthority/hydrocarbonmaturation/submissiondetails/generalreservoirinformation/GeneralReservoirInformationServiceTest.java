@@ -259,10 +259,12 @@ class GeneralReservoirInformationServiceTest {
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
             ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD,
             ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD,
             ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT,
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD,
             ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
             ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
             ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
@@ -284,11 +286,6 @@ class GeneralReservoirInformationServiceTest {
         .thenReturn(Optional.of(reservoirHydrocarbons));
 
     generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
-
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
-        List.of(ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR, ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD),
-        reservoirSubmissionDetail
-    );
   }
 
   @Test

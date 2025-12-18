@@ -40,6 +40,7 @@ class MixedCaseVolumetricParametersDuplicationService implements ReservoirSectio
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
       var applicableInstances = new HashSet<>(Set.of(
+          ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
           ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
           ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
           ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR));

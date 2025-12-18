@@ -214,6 +214,9 @@ class GasCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
             entry("gasRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR)),
+            entry("gasExpansionFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR)),
+            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
@@ -265,6 +268,9 @@ class GasCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
             entry("gasRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR)),
+            entry("gasExpansionFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR)),
+            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),

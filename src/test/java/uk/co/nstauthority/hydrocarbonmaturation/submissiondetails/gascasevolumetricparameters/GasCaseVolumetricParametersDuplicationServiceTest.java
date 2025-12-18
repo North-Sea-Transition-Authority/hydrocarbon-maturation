@@ -134,7 +134,8 @@ class GasCaseVolumetricParametersDuplicationServiceTest {
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
                   ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
                   ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-                  ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
+                  ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR
               )));
     } else if (resourceType == ResourceType.DISCOVERY) {
       return when(
@@ -143,7 +144,8 @@ class GasCaseVolumetricParametersDuplicationServiceTest {
                   ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_DISCOVERY,
                   ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
                   ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-                  ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR
+                  ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+                  ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR
               )));
     }
     return when(

@@ -45,6 +45,9 @@ class FieldGasVolumetricParametersServiceTest {
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT))
         .thenReturn(new ProbabilityDistributionForm());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
@@ -56,8 +59,10 @@ class FieldGasVolumetricParametersServiceTest {
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getCondensateGasRatioLifeOfField().getProbabilityDistributionType(),
-            form -> form.getGasFormationVolumeFactor().getProbabilityDistributionType()
+            form -> form.getGasFormationVolumeFactor().getProbabilityDistributionType(),
+            form -> form.getGasExpansionFactor().getProbabilityDistributionType()
         ).containsExactly(
+            null,
             null,
             null,
             null,
@@ -77,6 +82,9 @@ class FieldGasVolumetricParametersServiceTest {
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD))
+        .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT))
         .thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
@@ -91,6 +99,9 @@ class FieldGasVolumetricParametersServiceTest {
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getConstant().getConstant(),
             form -> form.getGasRecoveryFactor().getConstant().getComments(),
+            form -> form.getGasExpansionFactor().getProbabilityDistributionType(),
+            form -> form.getGasExpansionFactor().getConstant().getConstant(),
+            form -> form.getGasExpansionFactor().getConstant().getComments(),
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasHydrocarbonSaturation().getCustom().getConstant(),
             form -> form.getGasHydrocarbonSaturation().getCustom().getComments(),
@@ -98,6 +109,9 @@ class FieldGasVolumetricParametersServiceTest {
             form -> form.getCondensateGasRatioLifeOfField().getConstant().getConstant(),
             form -> form.getCondensateGasRatioLifeOfField().getConstant().getComments())
         .containsExactly(
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getConstant().getConstant(),
+            probabilityDistributionForm.getConstant().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getConstant().getConstant(),
             probabilityDistributionForm.getConstant().getComments(),
@@ -141,6 +155,13 @@ class FieldGasVolumetricParametersServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
             form.getGasRecoveryFactor(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD,
+            form.getGasExpansionFactor(),
             submissionDetail,
             reservoirSubmissionDetail);
 

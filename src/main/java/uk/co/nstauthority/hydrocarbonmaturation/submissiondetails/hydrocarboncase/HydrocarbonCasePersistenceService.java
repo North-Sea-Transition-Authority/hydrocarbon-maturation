@@ -102,6 +102,7 @@ public class HydrocarbonCasePersistenceService {
               ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
               ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
               ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
+              ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
               ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
@@ -138,6 +139,7 @@ public class HydrocarbonCasePersistenceService {
               ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
               ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
               ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+              ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
               ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
               ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
               ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT,
@@ -153,14 +155,5 @@ public class HydrocarbonCasePersistenceService {
       );
       prospectMixedCaseOutputsPersistenceService.deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
     }
-
-    // delete gas expansion factor as this is migration only data that should be removed on saving a new version of the submission
-    probabilityDistributionPersistenceService.deleteProbabilityDistributions(
-        List.of(
-            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
-        ),
-        reservoirSubmissionDetail
-    );
   }
 }

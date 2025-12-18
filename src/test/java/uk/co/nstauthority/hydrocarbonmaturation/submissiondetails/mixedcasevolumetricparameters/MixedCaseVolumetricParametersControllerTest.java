@@ -239,6 +239,10 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
             entry("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR)),
+            entry("gasExpansionFactorTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR)),
+            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
@@ -307,6 +311,10 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
             entry("gasRecoveryFactorTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR)),
+            entry("gasExpansionFactorTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR)),
+            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),

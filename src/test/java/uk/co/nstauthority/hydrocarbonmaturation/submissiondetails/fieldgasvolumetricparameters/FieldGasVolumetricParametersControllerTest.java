@@ -218,10 +218,13 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
                 ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD)),
             entry("gasRecoveryFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD)),
+            entry("gasExpansionFactorTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR_FIELD)),
             entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
             entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
+            entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError()),
+            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         );
   }
 }

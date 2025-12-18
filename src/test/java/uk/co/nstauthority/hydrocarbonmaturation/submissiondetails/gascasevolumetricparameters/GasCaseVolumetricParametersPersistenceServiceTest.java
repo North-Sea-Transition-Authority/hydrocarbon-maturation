@@ -58,6 +58,13 @@ class GasCaseVolumetricParametersPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            form.getGasExpansionFactor(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_PROSPECT,
             form.getGasHydrocarbonSaturation(),
             submissionDetail,
@@ -95,6 +102,13 @@ class GasCaseVolumetricParametersPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR,
             form.getGasRecoveryFactor(),
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR,
+            form.getGasExpansionFactor(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
 

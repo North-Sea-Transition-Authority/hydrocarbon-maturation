@@ -99,12 +99,16 @@ public class GasCaseVolumetricParametersController {
                                                          ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
         .addObject("form", form)
+        .addObject("gasExpansionFactorTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.GAS_EXPANSION_FACTOR))
         .addObject("condensateGasRatioLifeOfFieldTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD))
         .addObject("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR))
+        .addObject("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError())
         .addObject("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError())
@@ -142,6 +146,11 @@ public class GasCaseVolumetricParametersController {
     var modelAndView = getGasCaseVolumetricsModelAndView(form, reservoirSubmissionDetail);
 
     return modelAndView
+        .addObject("gasExpansionFactorError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "gasExpansionFactor",
+                form.getGasExpansionFactor()))
         .addObject("gasFormationVolumeFactorError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

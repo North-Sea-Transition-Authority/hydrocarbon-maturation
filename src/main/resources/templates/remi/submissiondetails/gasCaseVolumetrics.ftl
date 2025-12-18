@@ -23,6 +23,12 @@
   <@fdsForm.htmlForm>
 
     <@probabilityDistribution.probabilityDistributionTemplate
+      probabilityDistributionPath="form.gasExpansionFactor"
+      labelText="Gas expansion factor"
+      template=gasExpansionFactorTemplate
+      error=gasExpansionFactorError/>
+
+    <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.gasFormationVolumeFactor"
       labelText="Gas formation volume factor (Bg)"
       template=gasFormationVolumeFactorTemplate

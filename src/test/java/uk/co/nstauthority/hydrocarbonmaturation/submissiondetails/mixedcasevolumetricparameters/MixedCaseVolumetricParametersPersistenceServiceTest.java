@@ -64,6 +64,13 @@ class MixedCaseVolumetricParametersPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+            form.getGasExpansionFactor(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
             form.getCondensateGasRatioLifeOfField(),
             submissionDetail,
@@ -128,6 +135,13 @@ class MixedCaseVolumetricParametersPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
             form.getGasRecoveryFactor(),
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
+            form.getGasExpansionFactor(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
 
