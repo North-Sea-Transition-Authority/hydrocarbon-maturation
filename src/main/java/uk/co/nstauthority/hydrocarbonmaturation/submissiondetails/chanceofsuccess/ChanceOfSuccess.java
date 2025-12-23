@@ -2,14 +2,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucce
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
@@ -18,8 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 public class ChanceOfSuccess implements SubmissionDetailChildEntity {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @UuidGenerator
   private UUID id;
 
   @ManyToOne
@@ -46,35 +44,41 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
 
   private BigDecimal playTotal;
 
-  @Column(name = "prospect_specific_trap_percentage")
-  private BigDecimal prospectTrapPercentage;
+  @Column(name = "prospect_specific_trap_presence")
+  private BigDecimal prospectTrapPresence;
 
-  @Column(name = "prospect_specific_trap_comments")
-  private String prospectTrapComments;
+  @Column(name = "prospect_specific_trap_presence_comments")
+  private String prospectTrapPresenceComments;
 
-  @Column(name = "prospect_specific_migration_percentage")
-  private BigDecimal prospectMigrationPercentage;
+  @Column(name = "prospect_specific_trap_effectiveness")
+  private BigDecimal prospectTrapEffectiveness;
 
-  @Column(name = "prospect_specific_migration_comments")
-  private String prospectMigrationComments;
+  @Column(name = "prospect_specific_trap_effectiveness_comments")
+  private String prospectTrapEffectivenessComments;
 
-  @Column(name = "prospect_specific_source_percentage")
-  private BigDecimal prospectSourcePercentage;
+  @Column(name = "prospect_specific_source_presence")
+  private BigDecimal prospectSourcePresence;
 
-  @Column(name = "prospect_specific_source_comments")
-  private String prospectSourceComments;
+  @Column(name = "prospect_specific_source_presence_comments")
+  private String prospectSourcePresenceComments;
 
-  @Column(name = "prospect_specific_reservoir_percentage")
-  private BigDecimal prospectReservoirPercentage;
+  @Column(name = "prospect_specific_source_effectiveness")
+  private BigDecimal prospectSourceEffectiveness;
 
-  @Column(name = "prospect_specific_reservoir_comments")
-  private String prospectReservoirComments;
+  @Column(name = "prospect_specific_source_effectiveness_comments")
+  private String prospectSourceEffectivenessComments;
 
-  @Column(name = "prospect_specific_top_seal_percentage")
-  private BigDecimal prospectTopSealPercentage;
+  @Column(name = "prospect_specific_reservoir_presence")
+  private BigDecimal prospectReservoirPresence;
 
-  @Column(name = "prospect_specific_top_seal_comments")
-  private String prospectTopSealComments;
+  @Column(name = "prospect_specific_reservoir_presence_comments")
+  private String prospectReservoirPresenceComments;
+
+  @Column(name = "prospect_specific_reservoir_effectiveness")
+  private BigDecimal prospectReservoirEffectiveness;
+
+  @Column(name = "prospect_specific_reservoir_effectiveness_comments")
+  private String prospectReservoirEffectivenessComments;
 
   private BigDecimal prospectSpecificTotal;
 
@@ -110,8 +114,8 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return sourcePercentage;
   }
 
-  public void setSourcePercentage(BigDecimal sourcePercentage) {
-    this.sourcePercentage = sourcePercentage;
+  public void setSourcePercentage(BigDecimal sourcePresence) {
+    this.sourcePercentage = sourcePresence;
   }
 
   public String getSourceComments() {
@@ -126,8 +130,8 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return reservoirPercentage;
   }
 
-  public void setReservoirPercentage(BigDecimal reservoirPercentage) {
-    this.reservoirPercentage = reservoirPercentage;
+  public void setReservoirPercentage(BigDecimal reservoirPresence) {
+    this.reservoirPercentage = reservoirPresence;
   }
 
   public String getReservoirComments() {
@@ -142,8 +146,8 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return topSealPercentage;
   }
 
-  public void setTopSealPercentage(BigDecimal topSealPercentage) {
-    this.topSealPercentage = topSealPercentage;
+  public void setTopSealPercentage(BigDecimal topSealPresence) {
+    this.topSealPercentage = topSealPresence;
   }
 
   public String getTopSealComments() {
@@ -162,84 +166,100 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     this.playTotal = playTotal;
   }
 
-  public BigDecimal getProspectTrapPercentage() {
-    return prospectTrapPercentage;
+  public BigDecimal getProspectTrapPresence() {
+    return prospectTrapPresence;
   }
 
-  public void setProspectTrapPercentage(BigDecimal prospectTrapPercentage) {
-    this.prospectTrapPercentage = prospectTrapPercentage;
+  public void setProspectTrapPresence(BigDecimal prospectTrapPresence) {
+    this.prospectTrapPresence = prospectTrapPresence;
   }
 
-  public String getProspectTrapComments() {
-    return prospectTrapComments;
+  public String getProspectTrapPresenceComments() {
+    return prospectTrapPresenceComments;
   }
 
-  public void setProspectTrapComments(String prospectTrapComments) {
-    this.prospectTrapComments = prospectTrapComments;
+  public void setProspectTrapPresenceComments(String prospectTrapComments) {
+    this.prospectTrapPresenceComments = prospectTrapComments;
   }
 
-  public BigDecimal getProspectMigrationPercentage() {
-    return prospectMigrationPercentage;
+  public BigDecimal getProspectTrapEffectiveness() {
+    return prospectTrapEffectiveness;
   }
 
-  public void setProspectMigrationPercentage(BigDecimal prospectMigrationPercentage) {
-    this.prospectMigrationPercentage = prospectMigrationPercentage;
+  public void setProspectTrapEffectiveness(BigDecimal prospectTopSealPresence) {
+    this.prospectTrapEffectiveness = prospectTopSealPresence;
   }
 
-  public String getProspectMigrationComments() {
-    return prospectMigrationComments;
+  public String getProspectTrapEffectivenessComments() {
+    return prospectTrapEffectivenessComments;
   }
 
-  public void setProspectMigrationComments(String prospectMigrationComments) {
-    this.prospectMigrationComments = prospectMigrationComments;
+  public void setProspectTrapEffectivenessComments(String prospectTopSealComments) {
+    this.prospectTrapEffectivenessComments = prospectTopSealComments;
   }
 
-  public BigDecimal getProspectSourcePercentage() {
-    return prospectSourcePercentage;
+  public BigDecimal getProspectSourcePresence() {
+    return prospectSourcePresence;
   }
 
-  public void setProspectSourcePercentage(BigDecimal prospectSourcePercentage) {
-    this.prospectSourcePercentage = prospectSourcePercentage;
+  public void setProspectSourcePresence(BigDecimal prospectSourcePresence) {
+    this.prospectSourcePresence = prospectSourcePresence;
   }
 
-  public String getProspectSourceComments() {
-    return prospectSourceComments;
+  public BigDecimal getProspectSourceEffectiveness() {
+    return prospectSourceEffectiveness;
   }
 
-  public void setProspectSourceComments(String prospectSourceComments) {
-    this.prospectSourceComments = prospectSourceComments;
+  public void setProspectSourceEffectiveness(BigDecimal prospectMigrationPresence) {
+    this.prospectSourceEffectiveness = prospectMigrationPresence;
   }
 
-  public BigDecimal getProspectReservoirPercentage() {
-    return prospectReservoirPercentage;
+  public String getProspectSourceEffectivenessComments() {
+    return prospectSourceEffectivenessComments;
   }
 
-  public void setProspectReservoirPercentage(BigDecimal prospectReservoirPercentage) {
-    this.prospectReservoirPercentage = prospectReservoirPercentage;
+  public void setProspectSourceEffectivenessComments(String prospectMigrationComments) {
+    this.prospectSourceEffectivenessComments = prospectMigrationComments;
   }
 
-  public String getProspectReservoirComments() {
-    return prospectReservoirComments;
+  public String getProspectSourcePresenceComments() {
+    return prospectSourcePresenceComments;
   }
 
-  public void setProspectReservoirComments(String prospectReservoirComments) {
-    this.prospectReservoirComments = prospectReservoirComments;
+  public void setProspectSourcePresenceComments(String prospectSourceComments) {
+    this.prospectSourcePresenceComments = prospectSourceComments;
   }
 
-  public BigDecimal getProspectTopSealPercentage() {
-    return prospectTopSealPercentage;
+  public BigDecimal getProspectReservoirPresence() {
+    return prospectReservoirPresence;
   }
 
-  public void setProspectTopSealPercentage(BigDecimal prospectTopSealPercentage) {
-    this.prospectTopSealPercentage = prospectTopSealPercentage;
+  public void setProspectReservoirPresence(BigDecimal prospectReservoirPresence) {
+    this.prospectReservoirPresence = prospectReservoirPresence;
   }
 
-  public String getProspectTopSealComments() {
-    return prospectTopSealComments;
+  public String getProspectReservoirPresenceComments() {
+    return prospectReservoirPresenceComments;
   }
 
-  public void setProspectTopSealComments(String prospectTopSealComments) {
-    this.prospectTopSealComments = prospectTopSealComments;
+  public void setProspectReservoirPresenceComments(String prospectReservoirComments) {
+    this.prospectReservoirPresenceComments = prospectReservoirComments;
+  }
+
+  public BigDecimal getProspectReservoirEffectiveness() {
+    return prospectReservoirEffectiveness;
+  }
+
+  public void setProspectReservoirEffectiveness(BigDecimal prospectReservoirEffectiveness) {
+    this.prospectReservoirEffectiveness = prospectReservoirEffectiveness;
+  }
+
+  public String getProspectReservoirEffectivenessComments() {
+    return prospectReservoirEffectivenessComments;
+  }
+
+  public void setProspectReservoirEffectivenessComments(String prospectReservoirEffectivenessComments) {
+    this.prospectReservoirEffectivenessComments = prospectReservoirEffectivenessComments;
   }
 
   public BigDecimal getProspectSpecificTotal() {
@@ -270,8 +290,8 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return geophysicallyModifiedPercentage;
   }
 
-  public void setGeophysicallyModifiedPercentage(BigDecimal geophysicallyModifiedPercentage) {
-    this.geophysicallyModifiedPercentage = geophysicallyModifiedPercentage;
+  public void setGeophysicallyModifiedPercentage(BigDecimal geophysicallyModifiedPresence) {
+    this.geophysicallyModifiedPercentage = geophysicallyModifiedPresence;
   }
 
   public String getGeophysicallyModifiedComments() {
@@ -294,8 +314,8 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return wellModifiedPercentage;
   }
 
-  public void setWellModifiedPercentage(BigDecimal wellModifiedPercentage) {
-    this.wellModifiedPercentage = wellModifiedPercentage;
+  public void setWellModifiedPercentage(BigDecimal wellModifiedPresence) {
+    this.wellModifiedPercentage = wellModifiedPresence;
   }
 
   public String getWellModifiedComments() {

@@ -5,7 +5,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 class ChanceOfSuccessForm implements SubmissionForm {
 
-  private ChanceOfSuccessDetailsForm playChanceOfSuccess;
+  private PlayChanceOfSuccessDetailsForm playChanceOfSuccess;
   private ProspectSpecificChanceOfSuccessForm prospectSpecificChanceOfSuccess;
   private Boolean geophysicallyModified;
   private DecimalInput geophysicallyModifiedPercentage = new DecimalInput();
@@ -14,12 +14,12 @@ class ChanceOfSuccessForm implements SubmissionForm {
   private DecimalInput wellModifiedPercentage = new DecimalInput();
   private String wellModifiedComments;
 
-  public ChanceOfSuccessDetailsForm getPlayChanceOfSuccess() {
+  public PlayChanceOfSuccessDetailsForm getPlayChanceOfSuccess() {
     return playChanceOfSuccess;
   }
 
   public void setPlayChanceOfSuccess(
-      ChanceOfSuccessDetailsForm playChanceOfSuccess) {
+      PlayChanceOfSuccessDetailsForm playChanceOfSuccess) {
     this.playChanceOfSuccess = playChanceOfSuccess;
   }
 

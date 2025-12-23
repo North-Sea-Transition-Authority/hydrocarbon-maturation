@@ -7,36 +7,38 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class ChanceOfSuccessTestUtil {
 
   static ChanceOfSuccess createChanceOfSuccess(SubmissionDetail submissionDetail) {
-      var chanceOfSuccess = new ChanceOfSuccess();
-      chanceOfSuccess.setSubmissionDetail(submissionDetail);
-      chanceOfSuccess.setSourcePercentage(BigDecimal.valueOf(1));
-      chanceOfSuccess.setSourceComments("source comments");
-      chanceOfSuccess.setReservoirPercentage(BigDecimal.valueOf(2));
-      chanceOfSuccess.setReservoirComments("reservoir comments");
-      chanceOfSuccess.setTopSealPercentage(BigDecimal.valueOf(3));
-      chanceOfSuccess.setTopSealComments("top seal comments");
-      chanceOfSuccess.setProspectTrapPercentage(BigDecimal.valueOf(4));
-      chanceOfSuccess.setProspectTrapComments("prospect trap comments");
-      chanceOfSuccess.setProspectMigrationPercentage(BigDecimal.valueOf(5));
-      chanceOfSuccess.setProspectMigrationComments("prospect migration comments");
-      chanceOfSuccess.setProspectSourcePercentage(BigDecimal.valueOf(6));
-      chanceOfSuccess.setProspectSourceComments("prospect source comments");
-      chanceOfSuccess.setProspectReservoirPercentage(BigDecimal.valueOf(7));
-      chanceOfSuccess.setProspectReservoirComments("prospect reservoir comments");
-      chanceOfSuccess.setProspectTopSealPercentage(BigDecimal.valueOf(8));
-      chanceOfSuccess.setProspectTopSealComments("prospect top seal comments");
-      chanceOfSuccess.setGeophysicallyModified(true);
-      chanceOfSuccess.setGeophysicallyModifiedPercentage(BigDecimal.valueOf(9));
-      chanceOfSuccess.setGeophysicallyModifiedComments("geophysically modified comments");
-      chanceOfSuccess.setRelatedToSpecificWellLocation(true);
-      chanceOfSuccess.setWellModifiedPercentage(BigDecimal.valueOf(10));
-      chanceOfSuccess.setWellModifiedComments("well modified comments");
-      return chanceOfSuccess;
+    var chanceOfSuccess = new ChanceOfSuccess();
+    chanceOfSuccess.setSubmissionDetail(submissionDetail);
+    chanceOfSuccess.setSourcePercentage(BigDecimal.valueOf(1));
+    chanceOfSuccess.setSourceComments("source comments");
+    chanceOfSuccess.setReservoirPercentage(BigDecimal.valueOf(2));
+    chanceOfSuccess.setReservoirComments("reservoir comments");
+    chanceOfSuccess.setTopSealPercentage(BigDecimal.valueOf(3));
+    chanceOfSuccess.setTopSealComments("top seal comments");
+    chanceOfSuccess.setProspectTrapPresence(BigDecimal.valueOf(4));
+    chanceOfSuccess.setProspectTrapPresenceComments("prospect trap comments");
+    chanceOfSuccess.setProspectTrapEffectiveness(BigDecimal.valueOf(11));
+    chanceOfSuccess.setProspectTrapEffectivenessComments("prospect trap effectiveness comments");
+    chanceOfSuccess.setProspectSourcePresence(BigDecimal.valueOf(6));
+    chanceOfSuccess.setProspectSourcePresenceComments("prospect source comments");
+    chanceOfSuccess.setProspectSourceEffectiveness(BigDecimal.valueOf(5));
+    chanceOfSuccess.setProspectSourceEffectivenessComments("prospect source effectiveness comments");
+    chanceOfSuccess.setProspectReservoirPresence(BigDecimal.valueOf(7));
+    chanceOfSuccess.setProspectReservoirPresenceComments("prospect reservoir comments");
+    chanceOfSuccess.setProspectReservoirEffectiveness(BigDecimal.valueOf(8));
+    chanceOfSuccess.setProspectReservoirEffectivenessComments("prospect reservoir effectiveness comments");
+    chanceOfSuccess.setGeophysicallyModified(true);
+    chanceOfSuccess.setGeophysicallyModifiedPercentage(BigDecimal.valueOf(9));
+    chanceOfSuccess.setGeophysicallyModifiedComments("geophysically modified comments");
+    chanceOfSuccess.setRelatedToSpecificWellLocation(true);
+    chanceOfSuccess.setWellModifiedPercentage(BigDecimal.valueOf(10));
+    chanceOfSuccess.setWellModifiedComments("well modified comments");
+    return chanceOfSuccess;
   }
 
   static ChanceOfSuccessForm createChanceOfSuccessForm() {
     var form = new ChanceOfSuccessForm();
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
 
     chanceOfSuccessDetailsForm.setSourcePercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(1)));
@@ -46,19 +48,26 @@ class ChanceOfSuccessTestUtil {
     chanceOfSuccessDetailsForm.setTopSealPercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(3)));
     chanceOfSuccessDetailsForm.setTopSealComments("top seal comments");
 
-    var prospectSpecificChanceOfSuccessDetails = new ChanceOfSuccessDetailsForm();
+    var prospectSpecificChanceOfSuccessDetails = new PlayChanceOfSuccessDetailsForm();
     prospectSpecificChanceOfSuccessDetails.setSourcePercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(4)));
     prospectSpecificChanceOfSuccessDetails.setSourceComments("prospect source comments");
     prospectSpecificChanceOfSuccessDetails.setReservoirPercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(5)));
     prospectSpecificChanceOfSuccessDetails.setReservoirComments("prospect reservoir comments");
     prospectSpecificChanceOfSuccessDetails.setTopSealPercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(6)));
     prospectSpecificChanceOfSuccessDetails.setTopSealComments("top seal comments");
-    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(prospectSpecificChanceOfSuccessDetails);
 
-    prospectSpecificChanceOfSuccessForm.setTrapPercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(7)));
-    prospectSpecificChanceOfSuccessForm.setTrapComments("prospect trap comments");
-    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(DecimalInput.createDecimalInput(BigDecimal.valueOf(8)));
-    prospectSpecificChanceOfSuccessForm.setMigrationComments("prospect migration comments");
+    prospectSpecificChanceOfSuccessForm.setTrapPresence(DecimalInput.createDecimalInput(BigDecimal.valueOf(7)));
+    prospectSpecificChanceOfSuccessForm.setTrapPresenceComments("prospect trap comments");
+    prospectSpecificChanceOfSuccessForm.setTrapEffectiveness(DecimalInput.createDecimalInput(BigDecimal.valueOf(8)));
+    prospectSpecificChanceOfSuccessForm.setTrapEffectivenessComments("prospect trap effectiveness comments");
+    prospectSpecificChanceOfSuccessForm.setSourcePresence(DecimalInput.createDecimalInput(BigDecimal.valueOf(8)));
+    prospectSpecificChanceOfSuccessForm.setSourcePresenceComments("prospect source comments");
+    prospectSpecificChanceOfSuccessForm.setSourceEffectiveness(DecimalInput.createDecimalInput(BigDecimal.valueOf(8)));
+    prospectSpecificChanceOfSuccessForm.setSourceEffectivenessComments("prospect source effectiveness comments");
+    prospectSpecificChanceOfSuccessForm.setReservoirPresence(DecimalInput.createDecimalInput(BigDecimal.valueOf(8)));
+    prospectSpecificChanceOfSuccessForm.setReservoirPresenceComments("prospect reservoir comments");
+    prospectSpecificChanceOfSuccessForm.setReservoirEffectiveness(DecimalInput.createDecimalInput(BigDecimal.valueOf(8)));
+    prospectSpecificChanceOfSuccessForm.setReservoirEffectivenessComments("prospect reservoir effectiveness comments");
 
     form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
     form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
@@ -78,16 +87,19 @@ class ChanceOfSuccessTestUtil {
     newChanceOfSuccessForm.setPlayChanceOfSuccess(createChanceOfSuccessDetailsForm());
 
     var newProspectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
-    newProspectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(createChanceOfSuccessDetailsForm());
-    newProspectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput());
-    newProspectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setTrapPresence(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setTrapEffectiveness(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setSourcePresence(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setSourceEffectiveness(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setReservoirPresence(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setReservoirEffectiveness(new DecimalInput());
     newChanceOfSuccessForm.setProspectSpecificChanceOfSuccess(newProspectSpecificChanceOfSuccessForm);
 
     return newChanceOfSuccessForm;
   }
 
-  static ChanceOfSuccessDetailsForm createChanceOfSuccessDetailsForm() {
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+  static PlayChanceOfSuccessDetailsForm createChanceOfSuccessDetailsForm() {
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput());
     chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput());
     chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput());

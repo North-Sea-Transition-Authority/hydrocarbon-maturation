@@ -38,26 +38,30 @@ public class ChanceOfSuccessSummaryService {
     var totalPlayChanceOfSuccess = chanceOfSuccess.getPlayTotal() != null
         ? chanceOfSuccess.getPlayTotal().toString() + "%" : "";
 
-    var prospectSpecificSourcePercentage = chanceOfSuccess.getProspectSourcePercentage() != null
-        ? chanceOfSuccess.getProspectSourcePercentage().toString() + "%" : "";
-    var prospectSpecificSourceComments = chanceOfSuccess.getProspectSourceComments() != null
-        ? chanceOfSuccess.getProspectSourceComments() : "";
-    var prospectSpecificReservoirPercentage = chanceOfSuccess.getProspectReservoirPercentage() != null
-        ? chanceOfSuccess.getProspectReservoirPercentage().toString() + "%" : "";
-    var prospectSpecificReservoirComments = chanceOfSuccess.getProspectReservoirComments() != null
-        ? chanceOfSuccess.getProspectReservoirComments() : "";
-    var prospectSpecificTopSealPercentage = chanceOfSuccess.getProspectTopSealPercentage() != null
-        ? chanceOfSuccess.getProspectTopSealPercentage().toString() + "%" : "";
-    var prospectSpecificTopSealComments = chanceOfSuccess.getProspectTopSealComments() != null
-        ? chanceOfSuccess.getProspectTopSealComments() : "";
-    var prospectSpecificTrapPercentage = chanceOfSuccess.getProspectTrapPercentage() != null
-        ? chanceOfSuccess.getProspectTrapPercentage().toString() + "%" : "";
-    var prospectSpecificTrapComments = chanceOfSuccess.getProspectTrapComments() != null
-        ? chanceOfSuccess.getProspectTrapComments() : "";
-    var prospectSpecificMigrationPercentage = chanceOfSuccess.getProspectMigrationPercentage() != null
-        ? chanceOfSuccess.getProspectMigrationPercentage().toString() + "%" : "";
-    var prospectSpecificMigrationComments = chanceOfSuccess.getProspectMigrationComments() != null
-        ? chanceOfSuccess.getProspectMigrationComments() : "";
+    var prospectSpecificTrapPresence = chanceOfSuccess.getProspectTrapPresence() != null
+        ? chanceOfSuccess.getProspectTrapPresence().toString() + "%" : "";
+    var prospectSpecificTrapPresenceComments = chanceOfSuccess.getProspectTrapPresenceComments() != null
+        ? chanceOfSuccess.getProspectTrapPresenceComments() : "";
+    var prospectSpecificTrapEffectiveness = chanceOfSuccess.getProspectTrapEffectiveness() != null
+        ? chanceOfSuccess.getProspectTrapEffectiveness().toString() + "%" : "";
+    var prospectSpecificTrapEffectivenessComments = chanceOfSuccess.getProspectTrapEffectivenessComments() != null
+        ? chanceOfSuccess.getProspectTrapEffectivenessComments() : "";
+    var prospectSpecificSourcePresence = chanceOfSuccess.getProspectSourcePresence() != null
+        ? chanceOfSuccess.getProspectSourcePresence().toString() + "%" : "";
+    var prospectSpecificSourcePresenceComments = chanceOfSuccess.getProspectSourcePresenceComments() != null
+        ? chanceOfSuccess.getProspectSourcePresenceComments() : "";
+    var prospectSpecificSourceEffectiveness = chanceOfSuccess.getProspectSourceEffectiveness() != null
+        ? chanceOfSuccess.getProspectSourceEffectiveness().toString() + "%" : "";
+    var prospectSpecificSourceEffectivenessComments = chanceOfSuccess.getProspectSourceEffectivenessComments() != null
+        ? chanceOfSuccess.getProspectSourceEffectivenessComments() : "";
+    var prospectSpecificReservoirPresence = chanceOfSuccess.getProspectReservoirPresence() != null
+        ? chanceOfSuccess.getProspectReservoirPresence().toString() + "%" : "";
+    var prospectSpecificReservoirPresenceComments = chanceOfSuccess.getProspectReservoirPresenceComments() != null
+        ? chanceOfSuccess.getProspectReservoirPresenceComments() : "";
+    var prospectSpecificReservoirEffectiveness = chanceOfSuccess.getProspectReservoirEffectiveness() != null
+        ? chanceOfSuccess.getProspectReservoirEffectiveness().toString() + "%" : "";
+    var prospectSpecificReservoirEffectivenessComments = chanceOfSuccess.getProspectReservoirEffectivenessComments() != null
+        ? chanceOfSuccess.getProspectReservoirEffectivenessComments() : "";
 
     var prospectSpecificChance = chanceOfSuccess.getProspectSpecificTotal() != null
         ? chanceOfSuccess.getProspectSpecificTotal().toString() + "%" : "";
@@ -86,16 +90,18 @@ public class ChanceOfSuccessSummaryService {
         playTopSealPercentage,
         playTopSealComments,
         totalPlayChanceOfSuccess,
-        prospectSpecificSourcePercentage,
-        prospectSpecificSourceComments,
-        prospectSpecificReservoirPercentage,
-        prospectSpecificReservoirComments,
-        prospectSpecificTopSealPercentage,
-        prospectSpecificTopSealComments,
-        prospectSpecificTrapPercentage,
-        prospectSpecificTrapComments,
-        prospectSpecificMigrationPercentage,
-        prospectSpecificMigrationComments,
+        prospectSpecificTrapPresence,
+        prospectSpecificTrapPresenceComments,
+        prospectSpecificTrapEffectiveness,
+        prospectSpecificTrapEffectivenessComments,
+        prospectSpecificSourcePresence,
+        prospectSpecificSourcePresenceComments,
+        prospectSpecificSourceEffectiveness,
+        prospectSpecificSourceEffectivenessComments,
+        prospectSpecificReservoirPresence,
+        prospectSpecificReservoirPresenceComments,
+        prospectSpecificReservoirEffectiveness,
+        prospectSpecificReservoirEffectivenessComments,
         prospectSpecificChance,
         overallChanceOfSuccess,
         geophysicallyModified,

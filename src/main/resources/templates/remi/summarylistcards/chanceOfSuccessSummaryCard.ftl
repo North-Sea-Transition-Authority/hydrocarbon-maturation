@@ -27,36 +27,42 @@
   </@fdsSummaryList.summaryListCard>
 
   <@fdsSummaryList.summaryListCard headingText="Prospect-specific chance of success" summaryListId="prospectChanceOfSuccess">
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific source percentage">
-      ${chanceOfSuccessValues.prospectSpecificSourcePercentage()}
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific trap presence">
+          ${chanceOfSuccessValues.prospectSpecificTrapPresence()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific trap presence comments">
+          ${chanceOfSuccessValues.prospectSpecificTrapPresenceComments()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific trap effectiveness">
+          ${chanceOfSuccessValues.prospectSpecificTrapEffectiveness()}
+      </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific trap effectiveness comments">
+      ${chanceOfSuccessValues.prospectSpecificTrapEffectivenessComments()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific source comments">
-      ${chanceOfSuccessValues.prospectSpecificSourceComments()}
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific source presence">
+          ${chanceOfSuccessValues.prospectSpecificSourcePresence()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific source presence comments">
+          ${chanceOfSuccessValues.prospectSpecificSourcePresenceComments()}
+      </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific source effectiveness">
+      ${chanceOfSuccessValues.prospectSpecificSourceEffectiveness()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific reservoir percentage">
-      ${chanceOfSuccessValues.prospectSpecificReservoirPercentage()}
+    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific source effectiveness comments">
+      ${chanceOfSuccessValues.prospectSpecificSourceEffectivenessComments()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific reservoir comments">
-      ${chanceOfSuccessValues.prospectSpecificReservoirComments()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific top seal percentage">
-      ${chanceOfSuccessValues.prospectSpecificTopSealPercentage()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific top seal comments">
-      ${chanceOfSuccessValues.prospectSpecificTopSealComments()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific trap percentage">
-      ${chanceOfSuccessValues.prospectSpecificTrapPercentage()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific trap comments">
-      ${chanceOfSuccessValues.prospectSpecificTrapComments()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific migration percentage">
-      ${chanceOfSuccessValues.prospectSpecificMigrationPercentage()}
-    </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific migration comments">
-      ${chanceOfSuccessValues.prospectSpecificMigrationComments()}
-    </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific reservoir presence">
+          ${chanceOfSuccessValues.prospectSpecificReservoirPresence()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific reservoir presence comments">
+          ${chanceOfSuccessValues.prospectSpecificReservoirPresenceComments()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific reservoir effectiveness">
+          ${chanceOfSuccessValues.prospectSpecificReservoirEffectiveness()}
+      </@fdsSummaryList.summaryListRowNoAction>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Prospect-specific reservoir effectiveness comments">
+          ${chanceOfSuccessValues.prospectSpecificReservoirEffectivenessComments()}
+      </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Total prospect-specific chance of success">
       ${chanceOfSuccessValues.totalProspectSpecificChance()}
     </@fdsSummaryList.summaryListRowNoAction>

@@ -77,16 +77,18 @@ class ChanceOfSuccessFormValidatorTest {
                 Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.required")),
             entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
                 Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.required")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.required")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.required")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.required")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.required")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue.required")),
+            entry("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue.required")),
             entry("geophysicallyModified",
                 Set.of("geophysicallyModified.required")),
             entry("relatedToSpecificWellLocation",
@@ -99,7 +101,7 @@ class ChanceOfSuccessFormValidatorTest {
   void validate_whenInValidForm_thenValidationErrors_maxValueExceeded(ValidationType validationType) {
     var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("101"));
     chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("101"));
     chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("101"));
@@ -107,9 +109,12 @@ class ChanceOfSuccessFormValidatorTest {
     form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
     var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
-    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
-    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("101"));
-    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setTrapPresence(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setTrapEffectiveness(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setSourcePresence(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setSourceEffectiveness(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setReservoirPresence(new DecimalInput("101"));
+    prospectSpecificChanceOfSuccessForm.setReservoirEffectiveness(new DecimalInput("101"));
 
     form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
 
@@ -129,16 +134,18 @@ class ChanceOfSuccessFormValidatorTest {
                 Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.moreThanMaxValue")),
             entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
                 Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.moreThanMaxValue")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue.moreThanMaxValue")),
+            entry("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue.moreThanMaxValue")),
             entry("geophysicallyModifiedPercentage.decimalInputValue",
                 Set.of("geophysicallyModifiedPercentage.decimalInputValue.moreThanMaxValue")),
             entry("wellModifiedPercentage.decimalInputValue",
@@ -151,7 +158,7 @@ class ChanceOfSuccessFormValidatorTest {
   void validate_whenInValidForm_thenValidationErrors_minValueExceeded(ValidationType validationType) {
     var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("0"));
     chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("0"));
     chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("0"));
@@ -159,9 +166,12 @@ class ChanceOfSuccessFormValidatorTest {
     form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
     var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
-    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
-    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("0"));
-    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setTrapPresence(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setTrapEffectiveness(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setSourcePresence(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setSourceEffectiveness(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setReservoirPresence(new DecimalInput("0"));
+    prospectSpecificChanceOfSuccessForm.setReservoirEffectiveness(new DecimalInput("0"));
 
     form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
 
@@ -181,16 +191,18 @@ class ChanceOfSuccessFormValidatorTest {
                 Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.lessThanMinValue")),
             entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
                 Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.lessThanMinValue")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue.lessThanMinValue")),
+            entry("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue.lessThanMinValue")),
             entry("geophysicallyModifiedPercentage.decimalInputValue",
                 Set.of("geophysicallyModifiedPercentage.decimalInputValue.lessThanMinValue")),
             entry("wellModifiedPercentage.decimalInputValue",
@@ -203,7 +215,7 @@ class ChanceOfSuccessFormValidatorTest {
   void validate_whenInValidForm_thenValidationErrors_wrongDecimalPlaces(ValidationType validationType) {
     var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("1.1"));
     chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("1.1"));
     chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("1.1"));
@@ -211,9 +223,12 @@ class ChanceOfSuccessFormValidatorTest {
     form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
     var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
-    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
-    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("1.1"));
-    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setTrapPresence(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setTrapEffectiveness(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setSourcePresence(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setSourceEffectiveness(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setReservoirPresence(new DecimalInput("1.1"));
+    prospectSpecificChanceOfSuccessForm.setReservoirEffectiveness(new DecimalInput("1.1"));
 
     form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
 
@@ -233,16 +248,18 @@ class ChanceOfSuccessFormValidatorTest {
                 Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.incorrectDecimalPlaces")),
             entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
                 Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.incorrectDecimalPlaces")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue.incorrectDecimalPlaces")),
+            entry("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue.incorrectDecimalPlaces")),
             entry("geophysicallyModifiedPercentage.decimalInputValue",
                 Set.of("geophysicallyModifiedPercentage.decimalInputValue.incorrectDecimalPlaces")),
             entry("wellModifiedPercentage.decimalInputValue",
@@ -255,7 +272,7 @@ class ChanceOfSuccessFormValidatorTest {
   void validate_whenInValidForm_thenValidationErrors_notNumeric(ValidationType validationType) {
     var form = ChanceOfSuccessTestUtil.createEmptyChanceOfSuccessForm();
 
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput("a"));
     chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput("a"));
     chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput("a"));
@@ -263,9 +280,12 @@ class ChanceOfSuccessFormValidatorTest {
     form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
 
     var prospectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
-    prospectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
-    prospectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput("a"));
-    prospectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setTrapPresence(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setTrapEffectiveness(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setSourcePresence(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setSourceEffectiveness(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setReservoirPresence(new DecimalInput("a"));
+    prospectSpecificChanceOfSuccessForm.setReservoirEffectiveness(new DecimalInput("a"));
 
     form.setProspectSpecificChanceOfSuccess(prospectSpecificChanceOfSuccessForm);
 
@@ -285,16 +305,18 @@ class ChanceOfSuccessFormValidatorTest {
                 Set.of("playChanceOfSuccess.reservoirPercentage.decimalInputValue.notNumeric")),
             entry("playChanceOfSuccess.topSealPercentage.decimalInputValue",
                 Set.of("playChanceOfSuccess.topSealPercentage.decimalInputValue.notNumeric")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue.notNumeric")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue.notNumeric")),
-            entry("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue.notNumeric")),
-            entry("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue.notNumeric")),
-            entry("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
-                Set.of("prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue.notNumeric")),
+            entry("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue",
+                Set.of("prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue.notNumeric")),
             entry("geophysicallyModifiedPercentage.decimalInputValue",
                 Set.of("geophysicallyModifiedPercentage.decimalInputValue.notNumeric")),
             entry("wellModifiedPercentage.decimalInputValue",

@@ -15,11 +15,12 @@ class ChanceOfSuccessFormValidator extends PartialFullFormValidator {
   private DecimalInputValidator playReservoirValidator;
   private DecimalInputValidator playTopSealValidator;
 
-  private DecimalInputValidator prospectSpecificSourceValidator;
-  private DecimalInputValidator prospectSpecificReservoirValidator;
-  private DecimalInputValidator prospectSpecificTopSealValidator;
-  private DecimalInputValidator prospectSpecificTrapValidator;
-  private DecimalInputValidator prospectSpecificMigrationValidator;
+  private DecimalInputValidator prospectSpecificTrapPresenceValidator;
+  private DecimalInputValidator prospectSpecificTrapEffectivenessValidator;
+  private DecimalInputValidator prospectSpecificSourcePresenceValidator;
+  private DecimalInputValidator prospectSpecificSourceEffectivenessValidator;
+  private DecimalInputValidator prospectSpecificReservoirPresenceValidator;
+  private DecimalInputValidator prospectSpecificReservoirEffectivenessValidator;
 
   private static final String GEOPHYSICALLY_MODIFIED_PERCENTAGE_ERROR_MESSAGE_PREFIX
       = "The geophysically-modified chance of success";
@@ -44,11 +45,12 @@ class ChanceOfSuccessFormValidator extends PartialFullFormValidator {
     playReservoirValidator.isOptional().validate();
     playTopSealValidator.isOptional().validate();
 
-    prospectSpecificSourceValidator.isOptional().validate();
-    prospectSpecificReservoirValidator.isOptional().validate();
-    prospectSpecificTopSealValidator.isOptional().validate();
-    prospectSpecificTrapValidator.isOptional().validate();
-    prospectSpecificMigrationValidator.isOptional().validate();
+    prospectSpecificTrapPresenceValidator.isOptional().validate();
+    prospectSpecificTrapEffectivenessValidator.isOptional().validate();
+    prospectSpecificSourcePresenceValidator.isOptional().validate();
+    prospectSpecificSourceEffectivenessValidator.isOptional().validate();
+    prospectSpecificReservoirPresenceValidator.isOptional().validate();
+    prospectSpecificReservoirEffectivenessValidator.isOptional().validate();
 
     var chanceOfSuccessForm = (ChanceOfSuccessForm) form;
 
@@ -81,11 +83,12 @@ class ChanceOfSuccessFormValidator extends PartialFullFormValidator {
     playReservoirValidator.validate();
     playTopSealValidator.validate();
 
-    prospectSpecificSourceValidator.validate();
-    prospectSpecificReservoirValidator.validate();
-    prospectSpecificTopSealValidator.validate();
-    prospectSpecificTrapValidator.validate();
-    prospectSpecificMigrationValidator.validate();
+    prospectSpecificTrapPresenceValidator.validate();
+    prospectSpecificTrapEffectivenessValidator.validate();
+    prospectSpecificSourcePresenceValidator.validate();
+    prospectSpecificSourceEffectivenessValidator.validate();
+    prospectSpecificReservoirPresenceValidator.validate();
+    prospectSpecificReservoirEffectivenessValidator.validate();
 
     var chanceOfSuccessForm = (ChanceOfSuccessForm) form;
 
@@ -123,30 +126,35 @@ class ChanceOfSuccessFormValidator extends PartialFullFormValidator {
         form.getPlayChanceOfSuccess().getTopSealPercentage(),
         "playChanceOfSuccess.topSealPercentage.decimalInputValue", "The play top seal", errors);
 
-    prospectSpecificSourceValidator = PercentageValidationUtils.configurePercentageValidator(
-        form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage(),
-        "prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.sourcePercentage.decimalInputValue",
-        "The prospect specific source", errors);
+    prospectSpecificTrapPresenceValidator = PercentageValidationUtils.configurePercentageValidator(
+        form.getProspectSpecificChanceOfSuccess().getTrapPresence(),
+        "prospectSpecificChanceOfSuccess.trapPresence.decimalInputValue",
+        "The prospect specific trap presence", errors);
 
-    prospectSpecificReservoirValidator = PercentageValidationUtils.configurePercentageValidator(
-        form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage(),
-        "prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.reservoirPercentage.decimalInputValue",
-        "The prospect specific reservoir", errors);
+    prospectSpecificTrapEffectivenessValidator = PercentageValidationUtils.configurePercentageValidator(
+        form.getProspectSpecificChanceOfSuccess().getTrapEffectiveness(),
+        "prospectSpecificChanceOfSuccess.trapEffectiveness.decimalInputValue",
+        "The prospect specific trap effectiveness", errors);
 
-    prospectSpecificTopSealValidator = PercentageValidationUtils.configurePercentageValidator(
-        form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage(),
-        "prospectSpecificChanceOfSuccess.chanceOfSuccessDetailsForm.topSealPercentage.decimalInputValue",
-        "The prospect specific top seal", errors);
+    prospectSpecificSourcePresenceValidator = PercentageValidationUtils.configurePercentageValidator(
+        form.getProspectSpecificChanceOfSuccess().getSourcePresence(),
+        "prospectSpecificChanceOfSuccess.sourcePresence.decimalInputValue",
+        "The prospect specific source presence", errors);
 
-    prospectSpecificTrapValidator = PercentageValidationUtils.configurePercentageValidator(
-        form.getProspectSpecificChanceOfSuccess().getTrapPercentage(),
-        "prospectSpecificChanceOfSuccess.trapPercentage.decimalInputValue",
-        "The prospect specific trap", errors);
+    prospectSpecificSourceEffectivenessValidator = PercentageValidationUtils.configurePercentageValidator(
+        form.getProspectSpecificChanceOfSuccess().getSourceEffectiveness(),
+        "prospectSpecificChanceOfSuccess.sourceEffectiveness.decimalInputValue",
+        "The prospect specific source effectiveness", errors);
 
-    prospectSpecificMigrationValidator = PercentageValidationUtils.configurePercentageValidator(
-        form.getProspectSpecificChanceOfSuccess().getMigrationPercentage(),
-        "prospectSpecificChanceOfSuccess.migrationPercentage.decimalInputValue",
-        "The prospect specific migration", errors);
+    prospectSpecificReservoirPresenceValidator = PercentageValidationUtils.configurePercentageValidator(
+        form.getProspectSpecificChanceOfSuccess().getReservoirPresence(),
+        "prospectSpecificChanceOfSuccess.reservoirPresence.decimalInputValue",
+        "The prospect specific reservoir presence", errors);
+
+    prospectSpecificReservoirEffectivenessValidator = PercentageValidationUtils.configurePercentageValidator(
+        form.getProspectSpecificChanceOfSuccess().getReservoirEffectiveness(),
+        "prospectSpecificChanceOfSuccess.reservoirEffectiveness.decimalInputValue",
+        "The prospect specific reservoir effectiveness", errors);
   }
 
 }

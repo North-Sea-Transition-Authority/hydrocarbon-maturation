@@ -1,0 +1,35 @@
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_source_percentage TO prospect_specific_source_presence;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_source_comments TO prospect_specific_source_presence_comments;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_migration_percentage TO prospect_specific_source_effectiveness;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_migration_comments TO prospect_specific_source_effectiveness_comments;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_reservoir_percentage TO prospect_specific_reservoir_presence;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_reservoir_comments TO prospect_specific_reservoir_presence_comments;
+
+ALTER TABLE remi.chance_of_success
+ADD COLUMN prospect_specific_reservoir_effectiveness NUMERIC;
+
+ALTER TABLE remi.chance_of_success
+ADD COLUMN prospect_specific_reservoir_effectiveness_comments TEXT;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_trap_percentage TO prospect_specific_trap_presence;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_trap_comments TO prospect_specific_trap_presence_comments;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_top_seal_percentage TO prospect_specific_trap_effectiveness;
+
+ALTER TABLE remi.chance_of_success
+RENAME prospect_specific_top_seal_comments TO prospect_specific_trap_effectiveness_comments;

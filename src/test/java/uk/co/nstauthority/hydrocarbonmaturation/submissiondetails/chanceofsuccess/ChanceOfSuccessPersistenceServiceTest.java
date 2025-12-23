@@ -58,16 +58,18 @@ class ChanceOfSuccessPersistenceServiceTest {
             ChanceOfSuccess::getReservoirComments,
             ChanceOfSuccess::getTopSealPercentage,
             ChanceOfSuccess::getTopSealComments,
-            ChanceOfSuccess::getProspectTrapPercentage,
-            ChanceOfSuccess::getProspectTrapComments,
-            ChanceOfSuccess::getProspectMigrationPercentage,
-            ChanceOfSuccess::getProspectMigrationComments,
-            ChanceOfSuccess::getProspectSourcePercentage,
-            ChanceOfSuccess::getProspectSourceComments,
-            ChanceOfSuccess::getProspectReservoirPercentage,
-            ChanceOfSuccess::getProspectReservoirComments,
-            ChanceOfSuccess::getProspectTopSealPercentage,
-            ChanceOfSuccess::getProspectTopSealComments,
+            ChanceOfSuccess::getProspectTrapPresence,
+            ChanceOfSuccess::getProspectTrapPresenceComments,
+            ChanceOfSuccess::getProspectTrapEffectiveness,
+            ChanceOfSuccess::getProspectTrapEffectivenessComments,
+            ChanceOfSuccess::getProspectSourcePresence,
+            ChanceOfSuccess::getProspectSourcePresenceComments,
+            ChanceOfSuccess::getProspectSourceEffectiveness,
+            ChanceOfSuccess::getProspectSourceEffectivenessComments,
+            ChanceOfSuccess::getProspectReservoirPresence,
+            ChanceOfSuccess::getProspectReservoirPresenceComments,
+            ChanceOfSuccess::getProspectReservoirEffectiveness,
+            ChanceOfSuccess::getProspectReservoirEffectivenessComments,
             ChanceOfSuccess::getGeophysicallyModified,
             ChanceOfSuccess::getGeophysicallyModifiedPercentage,
             ChanceOfSuccess::getGeophysicallyModifiedComments,
@@ -82,16 +84,18 @@ class ChanceOfSuccessPersistenceServiceTest {
             form.getPlayChanceOfSuccess().getReservoirComments(),
             form.getPlayChanceOfSuccess().getTopSealPercentage().createBigDecimalOrNull(),
             form.getPlayChanceOfSuccess().getTopSealComments(),
-            form.getProspectSpecificChanceOfSuccess().getTrapPercentage().createBigDecimalOrNull(),
-            form.getProspectSpecificChanceOfSuccess().getTrapComments(),
-            form.getProspectSpecificChanceOfSuccess().getMigrationPercentage().createBigDecimalOrNull(),
-            form.getProspectSpecificChanceOfSuccess().getMigrationComments(),
-            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage().createBigDecimalOrNull(),
-            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourceComments(),
-            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage().createBigDecimalOrNull(),
-            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirComments(),
-            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage().createBigDecimalOrNull(),
-            form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealComments(),
+            form.getProspectSpecificChanceOfSuccess().getTrapPresence().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getTrapPresenceComments(),
+            form.getProspectSpecificChanceOfSuccess().getTrapEffectiveness().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getTrapEffectivenessComments(),
+            form.getProspectSpecificChanceOfSuccess().getSourcePresence().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getSourcePresenceComments(),
+            form.getProspectSpecificChanceOfSuccess().getSourceEffectiveness().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getSourceEffectivenessComments(),
+            form.getProspectSpecificChanceOfSuccess().getReservoirPresence().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getReservoirPresenceComments(),
+            form.getProspectSpecificChanceOfSuccess().getReservoirEffectiveness().createBigDecimalOrNull(),
+            form.getProspectSpecificChanceOfSuccess().getReservoirEffectivenessComments(),
             form.getGeophysicallyModified(),
             form.getGeophysicallyModifiedPercentage().createBigDecimalOrNull(),
             form.getGeophysicallyModifiedComments(),
@@ -104,9 +108,8 @@ class ChanceOfSuccessPersistenceServiceTest {
   @Test
   void saveChanceOfSuccess_whenMissingPercentages_totalsAreZero() {
     var form = new ChanceOfSuccessForm();
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     var prospectForm = new ProspectSpecificChanceOfSuccessForm();
-    prospectForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
     form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
     form.setProspectSpecificChanceOfSuccess(prospectForm);
 
@@ -141,11 +144,12 @@ class ChanceOfSuccessPersistenceServiceTest {
             * 100;
 
     var prospectSpecificTotal =
-        ((Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage().getDecimalInputValue()) / 100)
-            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage().getDecimalInputValue()) / 100)
-            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage().getDecimalInputValue()) / 100)
-            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getTrapPercentage().getDecimalInputValue()) / 100)
-            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getMigrationPercentage().getDecimalInputValue()) / 100))
+        ((Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getTrapPresence().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getTrapEffectiveness().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getSourcePresence().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getSourceEffectiveness().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getReservoirPresence().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getReservoirEffectiveness().getDecimalInputValue()) / 100))
             * 100;
 
     var overallTotal = ((playTotal / 100) * (prospectSpecificTotal / 100)) * 100;

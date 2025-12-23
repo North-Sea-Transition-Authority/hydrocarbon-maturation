@@ -48,29 +48,33 @@ function calculateTotalPlayChanceOfSuccess(module) {
   }
 
 function calculateTotalProspectSpecificChance(module) {
-    let reservoirPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-sourcePercentage-decimalInputValue").value.trim();
-    let sourcePercentage = module.querySelector("#prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-reservoirPercentage-decimalInputValue").value.trim();
-    let topSealPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-chanceOfSuccessDetailsForm-topSealPercentage-decimalInputValue").value.trim();
-    let trapPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-trapPercentage-decimalInputValue").value.trim();
-    let migrationPercentage = module.querySelector("#prospectSpecificChanceOfSuccess-migrationPercentage-decimalInputValue").value.trim();
+  let trapPresence = module.querySelector("#prospectSpecificChanceOfSuccess-trapPresence-decimalInputValue").value.trim();
+  let trapEffectiveness = module.querySelector("#prospectSpecificChanceOfSuccess-trapEffectiveness-decimalInputValue").value.trim();
+  let sourcePresence = module.querySelector("#prospectSpecificChanceOfSuccess-sourcePresence-decimalInputValue").value.trim();
+  let sourceEffectiveness = module.querySelector("#prospectSpecificChanceOfSuccess-sourceEffectiveness-decimalInputValue").value.trim();
+  let reservoirPresence = module.querySelector("#prospectSpecificChanceOfSuccess-reservoirPresence-decimalInputValue").value.trim();
+  let reservoirEffectiveness = module.querySelector("#prospectSpecificChanceOfSuccess-reservoirEffectiveness-decimalInputValue").value.trim();
 
     let total = 0;
 
-    if (!isNaN(sourcePercentage)
-      && sourcePercentage.length > 0
-      && !isNaN(reservoirPercentage)
-      && reservoirPercentage.length > 0
-      && !isNaN(topSealPercentage)
-      && topSealPercentage.length > 0
-      && !isNaN(trapPercentage)
-      && trapPercentage.length > 0
-      && !isNaN(migrationPercentage)
-      && migrationPercentage.length > 0) {
-      total = (parseFloat(sourcePercentage) / 100)
-        * (parseFloat(reservoirPercentage) / 100)
-        * (parseFloat(topSealPercentage) / 100)
-        * (parseFloat(trapPercentage) / 100)
-        * (parseFloat(migrationPercentage) / 100);
+    if (!isNaN(trapPresence)
+      && trapPresence.length > 0
+      && !isNaN(trapEffectiveness)
+      && trapEffectiveness.length > 0
+      && !isNaN(sourcePresence)
+      && sourcePresence.length > 0
+      && !isNaN(sourceEffectiveness)
+      && sourceEffectiveness.length > 0
+      && !isNaN(reservoirPresence)
+      && reservoirPresence.length > 0
+      && !isNaN(reservoirEffectiveness)
+      && reservoirEffectiveness.length > 0) {
+      total = (parseFloat(trapPresence) / 100)
+        * (parseFloat(trapEffectiveness) / 100)
+        * (parseFloat(sourcePresence) / 100)
+        * (parseFloat(sourceEffectiveness) / 100)
+        * (parseFloat(reservoirPresence) / 100)
+        * (parseFloat(reservoirEffectiveness) / 100);
     }
 
     totalProspectSpecificChance.innerHTML = roundToTwoDecimalPlaces((total * 100)) + "%";

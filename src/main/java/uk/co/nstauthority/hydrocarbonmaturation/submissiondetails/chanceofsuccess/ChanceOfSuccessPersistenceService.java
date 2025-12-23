@@ -53,41 +53,53 @@ class ChanceOfSuccessPersistenceService {
     }
 
     var prospectSpecificChanceOfSuccessForm = chanceOfSuccessForm.getProspectSpecificChanceOfSuccess();
-    var prospectSpecificDetailsForm = prospectSpecificChanceOfSuccessForm.getChanceOfSuccessDetailsForm();
 
-    var prospectSourcePercentage = prospectSpecificDetailsForm.getSourcePercentage();
-    var prospectReservoirPercentage = prospectSpecificDetailsForm.getReservoirPercentage();
-    var prospectTopSealPercentage = prospectSpecificDetailsForm.getTopSealPercentage();
-    var prospectTrapPercentage = prospectSpecificChanceOfSuccessForm.getTrapPercentage();
-    var prospectMigrationPercentage = prospectSpecificChanceOfSuccessForm.getMigrationPercentage();
+    var prospectTrapPresence = prospectSpecificChanceOfSuccessForm.getTrapPresence();
+    var prospectTrapEffectiveness = prospectSpecificChanceOfSuccessForm.getTrapEffectiveness();
+    var prospectSourcePresence = prospectSpecificChanceOfSuccessForm.getSourcePresence();
+    var prospectSourceEffectiveness = prospectSpecificChanceOfSuccessForm.getSourceEffectiveness();
+    var prospectReservoirPresence = prospectSpecificChanceOfSuccessForm.getReservoirPresence();
+    var prospectReservoirEffectiveness = prospectSpecificChanceOfSuccessForm.getReservoirEffectiveness();
 
     // Set prospect specific properties
-    chanceOfSuccess.setProspectSourcePercentage(prospectSourcePercentage.createBigDecimalOrNull());
-    chanceOfSuccess.setProspectSourceComments(prospectSpecificDetailsForm.getSourceComments());
-    chanceOfSuccess.setProspectReservoirPercentage(prospectReservoirPercentage.createBigDecimalOrNull());
-    chanceOfSuccess.setProspectReservoirComments(prospectSpecificDetailsForm.getReservoirComments());
-    chanceOfSuccess.setProspectTopSealPercentage(prospectTopSealPercentage.createBigDecimalOrNull());
-    chanceOfSuccess.setProspectTopSealComments(prospectSpecificDetailsForm.getTopSealComments());
-    chanceOfSuccess.setProspectTrapPercentage(prospectTrapPercentage.createBigDecimalOrNull());
-    chanceOfSuccess.setProspectTrapComments(prospectSpecificChanceOfSuccessForm.getTrapComments());
-    chanceOfSuccess.setProspectMigrationPercentage(prospectMigrationPercentage.createBigDecimalOrNull());
-    chanceOfSuccess.setProspectMigrationComments(prospectSpecificChanceOfSuccessForm.getMigrationComments());
+    chanceOfSuccess.setProspectTrapPresence(prospectTrapPresence.createBigDecimalOrNull());
+    chanceOfSuccess.setProspectTrapPresenceComments(prospectSpecificChanceOfSuccessForm.getTrapPresenceComments());
+    chanceOfSuccess.setProspectTrapEffectiveness(prospectTrapEffectiveness.createBigDecimalOrNull());
+    chanceOfSuccess.setProspectTrapEffectivenessComments(
+        prospectSpecificChanceOfSuccessForm.getTrapEffectivenessComments()
+    );
+    chanceOfSuccess.setProspectSourcePresence(prospectSourcePresence.createBigDecimalOrNull());
+    chanceOfSuccess.setProspectSourcePresenceComments(prospectSpecificChanceOfSuccessForm.getSourcePresenceComments());
+    chanceOfSuccess.setProspectSourceEffectiveness(prospectSourceEffectiveness.createBigDecimalOrNull());
+    chanceOfSuccess.setProspectSourceEffectivenessComments(
+        prospectSpecificChanceOfSuccessForm.getSourceEffectivenessComments()
+    );
+    chanceOfSuccess.setProspectReservoirPresence(prospectReservoirPresence.createBigDecimalOrNull());
+    chanceOfSuccess.setProspectReservoirPresenceComments(
+        prospectSpecificChanceOfSuccessForm.getReservoirPresenceComments()
+    );
+    chanceOfSuccess.setProspectReservoirEffectiveness(prospectReservoirEffectiveness.createBigDecimalOrNull());
+    chanceOfSuccess.setProspectReservoirEffectivenessComments(
+        prospectSpecificChanceOfSuccessForm.getReservoirEffectivenessComments()
+    );
 
     float prospectSpecificTotal = 0;
     if (ObjectUtils.anyNull(
-        prospectSourcePercentage.getDecimalInputValue(),
-        prospectReservoirPercentage.getDecimalInputValue(),
-        prospectTopSealPercentage.getDecimalInputValue(),
-        prospectTrapPercentage.getDecimalInputValue(),
-        prospectMigrationPercentage.getDecimalInputValue())) {
+        prospectTrapPresence.getDecimalInputValue(),
+        prospectTrapEffectiveness.getDecimalInputValue(),
+        prospectSourcePresence.getDecimalInputValue(),
+        prospectSourceEffectiveness.getDecimalInputValue(),
+        prospectReservoirPresence.getDecimalInputValue(),
+        prospectReservoirEffectiveness.getDecimalInputValue())) {
       chanceOfSuccess.setProspectSpecificTotal(BigDecimal.ZERO);
     } else {
       prospectSpecificTotal =
-          ((Float.parseFloat(prospectSourcePercentage.getDecimalInputValue()) / 100)
-              * (Float.parseFloat(prospectReservoirPercentage.getDecimalInputValue()) / 100)
-              * (Float.parseFloat(prospectTopSealPercentage.getDecimalInputValue()) / 100)
-              * (Float.parseFloat(prospectTrapPercentage.getDecimalInputValue()) / 100)
-              * (Float.parseFloat(prospectMigrationPercentage.getDecimalInputValue()) / 100))
+          ((Float.parseFloat(prospectTrapPresence.getDecimalInputValue()) / 100)
+              * (Float.parseFloat(prospectTrapEffectiveness.getDecimalInputValue()) / 100)
+              * (Float.parseFloat(prospectSourcePresence.getDecimalInputValue()) / 100)
+              * (Float.parseFloat(prospectSourceEffectiveness.getDecimalInputValue()) / 100)
+              * (Float.parseFloat(prospectReservoirPresence.getDecimalInputValue()) / 100)
+              * (Float.parseFloat(prospectReservoirEffectiveness.getDecimalInputValue()) / 100))
               * 100;
       chanceOfSuccess.setProspectSpecificTotal(
           BigDecimal.valueOf(prospectSpecificTotal).setScale(2, RoundingMode.HALF_EVEN)

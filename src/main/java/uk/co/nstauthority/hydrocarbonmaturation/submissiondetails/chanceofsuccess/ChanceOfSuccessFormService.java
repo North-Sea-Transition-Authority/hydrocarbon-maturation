@@ -51,16 +51,19 @@ public class ChanceOfSuccessFormService implements SubmissionFormService {
     newChanceOfSuccessForm.setPlayChanceOfSuccess(createChanceOfSuccessDetailsForm());
 
     var newProspectSpecificChanceOfSuccessForm = new ProspectSpecificChanceOfSuccessForm();
-    newProspectSpecificChanceOfSuccessForm.setChanceOfSuccessDetailsForm(createChanceOfSuccessDetailsForm());
-    newProspectSpecificChanceOfSuccessForm.setTrapPercentage(new DecimalInput());
-    newProspectSpecificChanceOfSuccessForm.setMigrationPercentage(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setTrapPresence(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setTrapEffectiveness(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setSourcePresence(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setSourceEffectiveness(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setReservoirPresence(new DecimalInput());
+    newProspectSpecificChanceOfSuccessForm.setReservoirEffectiveness(new DecimalInput());
     newChanceOfSuccessForm.setProspectSpecificChanceOfSuccess(newProspectSpecificChanceOfSuccessForm);
 
     return newChanceOfSuccessForm;
   }
 
-  ChanceOfSuccessDetailsForm createChanceOfSuccessDetailsForm() {
-    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+  PlayChanceOfSuccessDetailsForm createChanceOfSuccessDetailsForm() {
+    var chanceOfSuccessDetailsForm = new PlayChanceOfSuccessDetailsForm();
     chanceOfSuccessDetailsForm.setSourcePercentage(new DecimalInput());
     chanceOfSuccessDetailsForm.setTopSealPercentage(new DecimalInput());
     chanceOfSuccessDetailsForm.setReservoirPercentage(new DecimalInput());
@@ -93,8 +96,8 @@ public class ChanceOfSuccessFormService implements SubmissionFormService {
     return form;
   }
 
-  private ChanceOfSuccessDetailsForm getPlayChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
-    ChanceOfSuccessDetailsForm form = new ChanceOfSuccessDetailsForm();
+  private PlayChanceOfSuccessDetailsForm getPlayChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
+    PlayChanceOfSuccessDetailsForm form = new PlayChanceOfSuccessDetailsForm();
     form.setSourcePercentage(chanceOfSuccess.getSourcePercentage() != null
         ? new DecimalInput(chanceOfSuccess.getSourcePercentage().toString())
         : new DecimalInput());
@@ -114,33 +117,34 @@ public class ChanceOfSuccessFormService implements SubmissionFormService {
   private ProspectSpecificChanceOfSuccessForm getProspectSpecificChanceOfSuccessFromEntity(ChanceOfSuccess chanceOfSuccess) {
     ProspectSpecificChanceOfSuccessForm form = new ProspectSpecificChanceOfSuccessForm();
 
-    ChanceOfSuccessDetailsForm chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
-    chanceOfSuccessDetailsForm.setSourcePercentage(
-        chanceOfSuccess.getProspectSourcePercentage() != null
-        ? new DecimalInput(chanceOfSuccess.getProspectSourcePercentage().toString())
+    form.setTrapPresence(chanceOfSuccess.getProspectTrapPresence() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectTrapPresence().toString())
         : new DecimalInput());
-    chanceOfSuccessDetailsForm.setSourceComments(chanceOfSuccess.getProspectSourceComments());
-    chanceOfSuccessDetailsForm.setTopSealPercentage(
-        chanceOfSuccess.getProspectTopSealPercentage() != null
-        ? new DecimalInput(chanceOfSuccess.getProspectTopSealPercentage().toString())
-        : new DecimalInput()
-    );
-    chanceOfSuccessDetailsForm.setTopSealComments(chanceOfSuccess.getProspectTopSealComments());
-    chanceOfSuccessDetailsForm.setReservoirPercentage(
-        chanceOfSuccess.getProspectReservoirPercentage() != null
-        ? new DecimalInput(chanceOfSuccess.getProspectReservoirPercentage().toString())
+    form.setTrapPresenceComments(chanceOfSuccess.getProspectTrapPresenceComments());
+    form.setTrapEffectiveness(chanceOfSuccess.getProspectTrapEffectiveness() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectTrapEffectiveness().toString())
         : new DecimalInput());
-    chanceOfSuccessDetailsForm.setReservoirComments(chanceOfSuccess.getProspectReservoirComments());
-    form.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
-
-    form.setTrapPercentage(chanceOfSuccess.getProspectTrapPercentage() != null
-        ? new DecimalInput(chanceOfSuccess.getProspectTrapPercentage().toString())
+    form.setTrapEffectivenessComments(chanceOfSuccess.getProspectTrapEffectivenessComments());
+    form.setSourcePresence(
+        chanceOfSuccess.getProspectSourcePresence() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectSourcePresence().toString())
         : new DecimalInput());
-    form.setTrapComments(chanceOfSuccess.getProspectTrapComments());
-    form.setMigrationPercentage(chanceOfSuccess.getProspectMigrationPercentage() != null
-        ? new DecimalInput(chanceOfSuccess.getProspectMigrationPercentage().toString())
+    form.setSourcePresenceComments(chanceOfSuccess.getProspectSourcePresenceComments());
+    form.setSourceEffectiveness(
+        chanceOfSuccess.getProspectSourceEffectiveness() != null
+            ? new DecimalInput(chanceOfSuccess.getProspectSourceEffectiveness().toString())
+            : new DecimalInput());
+    form.setSourceEffectivenessComments(chanceOfSuccess.getProspectSourceEffectivenessComments());
+    form.setReservoirPresence(
+        chanceOfSuccess.getProspectReservoirPresence() != null
+        ? new DecimalInput(chanceOfSuccess.getProspectReservoirPresence().toString())
         : new DecimalInput());
-    form.setMigrationComments(chanceOfSuccess.getProspectMigrationComments());
+    form.setReservoirPresenceComments(chanceOfSuccess.getProspectReservoirPresenceComments());
+    form.setReservoirEffectiveness(
+        chanceOfSuccess.getProspectReservoirEffectiveness() != null
+            ? new DecimalInput(chanceOfSuccess.getProspectReservoirEffectiveness().toString())
+            : new DecimalInput());
+    form.setReservoirEffectivenessComments(chanceOfSuccess.getProspectReservoirEffectivenessComments());
     return form;
   }
 }

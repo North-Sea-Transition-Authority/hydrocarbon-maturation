@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucce
 
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
-public class ChanceOfSuccessDetailsForm {
+public class PlayChanceOfSuccessDetailsForm {
 
   private DecimalInput sourcePercentage = new DecimalInput();
   private String sourceComments;
