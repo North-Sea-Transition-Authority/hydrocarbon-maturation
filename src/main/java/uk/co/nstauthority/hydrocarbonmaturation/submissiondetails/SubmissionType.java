@@ -60,16 +60,16 @@ public enum SubmissionType implements Displayable {
       60
   ),
   RELINQUISHMENT_PROSPECT(
-      "Relinquishment",
-      "Advise of a relinquishment",
+      "Prospect relinquishment",
+      "Advise of a prospect relinquishment",
       Set.of(ResourceType.PROSPECT),
       Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       70
   ),
   RELINQUISHMENT_DISCOVERY(
-      "Relinquishment",
-      "Advise of a relinquishment",
+      "Discovery relinquishment",
+      "Advise of a discovery relinquishment",
       Set.of(ResourceType.DISCOVERY),
       Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null,

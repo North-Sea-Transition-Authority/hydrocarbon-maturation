@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
@@ -58,7 +59,8 @@ public class SubmissionHistoryQueryService {
             SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP,
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE)
-        .from(SUBMISSIONS
+        .from(RESOURCES
+          .join(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
                     .from(SUBMISSIONS_2.join(SD_2)
@@ -81,6 +83,7 @@ public class SubmissionHistoryQueryService {
         .orderBy(
             SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc(),
             SUBMISSION_DETAILS.CORRECTION_TIMESTAMP.desc().nullsLast(),
+            RESOURCES.TYPE,
             // below is for legacy cases that have the same submitted date across multiple submissions.
             SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc()
         )
