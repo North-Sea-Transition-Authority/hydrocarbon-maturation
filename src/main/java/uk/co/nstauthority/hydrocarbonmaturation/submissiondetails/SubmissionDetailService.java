@@ -207,7 +207,7 @@ public class SubmissionDetailService {
           .map(ResourceLink::getProspectResource)
           .map(this::getLatestApprovedProspectSubmissionForResource)
           .flatMap(Optional::stream)
-          .min(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
+          .max(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
     }
   }
 

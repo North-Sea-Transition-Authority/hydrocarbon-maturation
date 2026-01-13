@@ -9,7 +9,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -19,7 +18,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexit
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsSubmissionService;
@@ -63,9 +61,11 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
     var sectionsSubmittable = generalDetailSubmissionService.isSectionSubmittable(submissionDetail, user)
         && resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail, user);
 
-    if (isRelatedProspectsRequired(submissionDetail, user)) {
-      return sectionsSubmittable && relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, user);
-    }
+    /*
+        if (areRelatedResourcesRequired(submissionDetail, user)) {
+          return sectionsSubmittable && relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, user);
+        }
+    */
 
     return sectionsSubmittable;
   }
@@ -87,7 +87,9 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
             ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetail.getId(), null)))
     );
 
-    if (isRelatedProspectsRequired(submissionDetail, user)) {
+    /*
+    TODO determine behaviour for related resources on new resource creation
+    if (areRelatedResourcesRequired(submissionDetail, user)) {
 
       listOfItems.add(
           new TaskListItem("Related %s"
@@ -95,10 +97,12 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
                   submissionDetail.getSubmission().getResource().getType() == ResourceType.DISCOVERY
                       ? "discoveries"
                       : "prospects"),
-              TaskListLabel.notStartedOrComplete(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, user)),
+              TaskListLabel.notStartedOrComplete(relatedResourcesSubmissionService.isSectionSubmittable(
+              submissionDetail, user)),
               ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetail.getId(), null)))
       );
     }
+*/
 
     if (submissionDetail.isFieldSubmission()) {
       listOfItems.add(
@@ -117,7 +121,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
     return listOfItems;
   }
 
-  private boolean isRelatedProspectsRequired(SubmissionDetail submissionDetail, User user) {
+  private boolean areRelatedResourcesRequired(SubmissionDetail submissionDetail, User user) {
     var submissionType = submissionDetail.getSubmissionType();
     var isInitialResourceSubmission = submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.CREATE_DISCOVERY

@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup;
 
 import java.util.Arrays;
-import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ class ResourceGroupsFormValidator implements SmartValidator {
 
   private Resource resource;
   private String resourceType;
-  private UUID selectedGroupId;
+  private ResourceGroup selectedGroup;
 
   @Autowired
   ResourceGroupsFormValidator(ResourceGroupQueryService resourceGroupQueryService) {
@@ -33,7 +32,7 @@ class ResourceGroupsFormValidator implements SmartValidator {
     var hints = extractResourceGroupsValidatorHints(validationHints);
     resource = hints.resource();
     resourceType = resource.getType().getDisplayName().toLowerCase();
-    selectedGroupId = hints.selectedGroupId();
+    selectedGroup = hints.selectedGroup();
 
     validate(form, errors);
   }
@@ -58,7 +57,9 @@ class ResourceGroupsFormValidator implements SmartValidator {
           SELECTED_SUBMISSION_DETAIL_ID + ".required",
           "Select a %s or %s group".formatted(resourceType, resourceType));
 
-      if (resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId).isPresent()
+      var activeResourceInGroup = resourceGroupQueryService.getActiveResourceInGroup(selectedGroup);
+      if (activeResourceInGroup.isPresent()
+          && !activeResourceInGroup.get().equals(resource)
           && BooleanUtils.isTrue(resource.getActive())) {
         errors.rejectValue(
             SELECTED_SUBMISSION_DETAIL_ID,

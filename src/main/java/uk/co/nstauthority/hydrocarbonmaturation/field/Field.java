@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
@@ -28,7 +27,6 @@ public class Field {
 
   @JoinColumn(name = "resource_id")
   @ManyToOne
-  @NotAudited
   private Resource resource;
 
   private String legalFieldName;

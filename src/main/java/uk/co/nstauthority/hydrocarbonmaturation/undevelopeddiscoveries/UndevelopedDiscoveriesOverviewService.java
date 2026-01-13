@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
@@ -251,7 +252,7 @@ public class UndevelopedDiscoveriesOverviewService {
     }
 
     var isDuplicate = duplicateResourceIds.contains(resource.getId());
-    if (Boolean.TRUE.equals(isDuplicate)) {
+    if (isDuplicate) {
       tags.add(new Tag("Duplicate", TagColour.RED));
     }
 
@@ -278,14 +279,14 @@ public class UndevelopedDiscoveriesOverviewService {
     var trackedResourceGroupLinks = resourceGroupService.getAllResourceGroupLinksForResources(trackedResources);
 
     // hashmap to count the number of tracked items in each resource group
-    var resourceGroupIdToCountMap = new HashMap<UUID, Integer>();
+    var resourceGroupIdToCountMap = new HashMap<ResourceGroup, Integer>();
     trackedResourceGroupLinks.forEach(trackedResourceGroupLink ->
-        resourceGroupIdToCountMap.merge(trackedResourceGroupLink.getResourceGroupId(), 1, Integer::sum));
+        resourceGroupIdToCountMap.merge(trackedResourceGroupLink.getResourceGroup(), 1, Integer::sum));
 
     // return ID for each resource in a group with more than one tracked resource
     return trackedResourceGroupLinks
         .stream()
-        .filter(resourceGroupLink -> !resourceGroupIdToCountMap.get(resourceGroupLink.getResourceGroupId()).equals(1))
+        .filter(resourceGroupLink -> !resourceGroupIdToCountMap.get(resourceGroupLink.getResourceGroup()).equals(1))
         .map(resourceGroupLink -> resourceGroupLink.getResource().getId())
         .toList();
   }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsPersistenceService;
@@ -90,6 +91,39 @@ public class HydrocarbonCasePersistenceService {
 
   public boolean isMixedOilAndGasPresent(HydrocarbonCaseDetail hydrocarbonCaseDetail) {
     return hydrocarbonCaseDetail.getOilAndGas() != null && hydrocarbonCaseDetail.getOilAndGas();
+  }
+
+  public HydrocarbonsDiscovered getHydrocarbonsDiscoveredForReporting(SubmissionDetail submissionDetail) {
+    var hydrocarbonCaseDetail = getHydrocarbonCaseDetail(submissionDetail);
+    if (hydrocarbonCaseDetail.isPresent()) {
+      var hydrocarbonCase = hydrocarbonCaseDetail.get();
+      if (isMixedOilAndGasPresent(hydrocarbonCase)) {
+        return HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
+      } else if (isGasOnlyPresent(hydrocarbonCase) && !isOilOnlyPresent(hydrocarbonCase)) {
+        return HydrocarbonsDiscovered.GAS_ONLY;
+      } else if (isOilOnlyPresent(hydrocarbonCase) && !isGasOnlyPresent(hydrocarbonCase)) {
+        return HydrocarbonsDiscovered.OIL_ONLY;
+      } else if (isGasOnlyPresent(hydrocarbonCase)
+          && isOilOnlyPresent(hydrocarbonCase)
+          && hydrocarbonCase.getGasOnlyProbability().doubleValue() > hydrocarbonCase.getOilOnlyProbability().doubleValue()
+      ) {
+        return HydrocarbonsDiscovered.GAS_ONLY;
+      } else if (isGasOnlyPresent(hydrocarbonCase)
+          && isOilOnlyPresent(hydrocarbonCase)
+          && hydrocarbonCase.getGasOnlyProbability().doubleValue() < hydrocarbonCase.getOilOnlyProbability().doubleValue()
+      ) {
+        return HydrocarbonsDiscovered.OIL_ONLY;
+        // if both gas and oil are present and have the same probability, return null as cannot determine for reporting
+      } else if (isGasOnlyPresent(hydrocarbonCase)
+          && isOilOnlyPresent(hydrocarbonCase)
+          && hydrocarbonCase.getGasOnlyProbability().doubleValue() == hydrocarbonCase.getOilOnlyProbability().doubleValue()
+      ) {
+        return null;
+      }
+    } else {
+      return null;
+    }
+    return null;
   }
 
   private void cleanHydrocarbonCase(HydrocarbonCaseForm form, SubmissionDetail submissionDetail) {

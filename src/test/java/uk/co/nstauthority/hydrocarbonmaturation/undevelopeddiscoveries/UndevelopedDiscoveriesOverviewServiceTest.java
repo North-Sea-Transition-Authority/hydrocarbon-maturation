@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -809,12 +810,8 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     var regulatorView = new RegulatorManagedInformationSummaryView(
         null,
         "area",
-        "",
-        "",
-        "",
         false,
         List.of(SummaryFileViewRow.empty("")),
-        "",
         "",
         "",
         ""
@@ -841,13 +838,13 @@ class UndevelopedDiscoveriesOverviewServiceTest {
   }
 
   private void mockDuplicateResources(List<Resource> resourcesInQuery, List<Resource> duplicateResources) {
-    var sharedResourceGroupId = UUID.randomUUID();
+    var sharedResourceGroup = new ResourceGroup();
     var trackedResourceGroupLinks = duplicateResources
         .stream()
         .map(resource -> {
           var resourceGroupLink = new ResourceGroupLink();
           resourceGroupLink.setResource(resource);
-          resourceGroupLink.setResourceGroupId(sharedResourceGroupId);
+          resourceGroupLink.setResourceGroup(sharedResourceGroup);
           return resourceGroupLink;
         })
         .toList();

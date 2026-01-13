@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
@@ -52,6 +53,7 @@ public class SubmissionCreateService {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final TeamQueryService teamQueryService;
   private final FieldConfiguration fieldConfiguration;
+  private final ResourceGroupService resourceGroupService;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
@@ -66,7 +68,8 @@ public class SubmissionCreateService {
                                  SubmissionPersistenceService submissionPersistenceService,
                                  ReservoirPersistenceService reservoirPersistenceService,
                                  ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-                                 TeamQueryService teamQueryService, FieldConfiguration fieldConfiguration) {
+                                 TeamQueryService teamQueryService, FieldConfiguration fieldConfiguration,
+                                 ResourceGroupService resourceGroupService) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
@@ -81,6 +84,7 @@ public class SubmissionCreateService {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.teamQueryService = teamQueryService;
     this.fieldConfiguration = fieldConfiguration;
+    this.resourceGroupService = resourceGroupService;
   }
 
   @Transactional
@@ -98,6 +102,9 @@ public class SubmissionCreateService {
     var resourceName = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getResourceName();
     var reservoir = reservoirPersistenceService.createReservoir(resourceName);
     saveReservoirSubmissionDetails(reservoir, submissionDetail);
+
+    // Create default resource group for prospect
+    resourceGroupService.createNewGroupForResource(resource);
 
     return submissionDetail;
   }
@@ -154,6 +161,9 @@ public class SubmissionCreateService {
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
     opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(submissionDetail);
 
+    // Create default resource group for discovery
+    resourceGroupService.createNewGroupForResource(resource);
+
     return submissionDetail;
   }
 
@@ -178,6 +188,10 @@ public class SubmissionCreateService {
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
     opportunityDetailsPersistenceService.createOrUpdateOpportunityDetail(newSubmissionDetail);
+
+    // Create default resource group for discovery
+    resourceGroupService.createNewGroupForResource(discoveryResource);
+
     return newSubmissionDetail;
   }
 

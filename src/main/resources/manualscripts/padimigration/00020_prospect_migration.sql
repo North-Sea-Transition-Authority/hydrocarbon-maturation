@@ -4,9 +4,11 @@ DECLARE
     prospect_rec RECORD;
     resource_rec RECORD;
     remi_res_id UUID;
+    resource_audit_rev INTEGER;
     submission_rec RECORD;
     remi_submission_id UUID;
     reservoir_id UUID;
+    reservoir_audit_rev INTEGER;
     remi_submission_detail_id UUID;
 
 BEGIN
@@ -62,6 +64,30 @@ BEGIN
            now(),
             false
        ) RETURNING id INTO remi_res_id;
+
+        INSERT INTO remi.audit_revisions (
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+            now(),
+                  1
+        ) RETURNING rev INTO resource_audit_rev;
+
+        INSERT INTO remi.resources_aud (
+            rev,
+            revtype,
+            id,
+            type,
+            created_timestamp,
+            active
+        ) VALUES (
+            resource_audit_rev,
+            0,
+            remi_res_id,
+            'PROSPECT',
+            now(),
+            false
+        );
 
         UPDATE remi.padi_resource_groupings
         SET remi_resource_id = remi_res_id
@@ -159,6 +185,26 @@ BEGIN
             gen_random_uuid(),
             submission_rec.name_alternative
         ) RETURNING id INTO reservoir_id;
+
+        INSERT INTO remi.audit_revisions (
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+             now(),
+             1
+         ) RETURNING rev INTO reservoir_audit_rev;
+
+        INSERT INTO remi.reservoirs_aud (
+            rev,
+            revtype,
+            id,
+            name
+        ) VALUES (
+            reservoir_audit_rev,
+            0,
+            reservoir_id,
+            submission_rec.name_alternative
+        );
 
         INSERT INTO remi.reservoir_submission_details (id, reservoir, submission_detail_id, status)
         VALUES (

@@ -20,15 +20,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationPersistenceServiceTest {
@@ -41,9 +37,6 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
   @Mock
   private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
-
-  @Mock
-  private WellQueryService wellQueryService;
 
   @InjectMocks
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -64,33 +57,15 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference")
+            "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.EXPLORATION,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             null,
             null);
   }
@@ -112,33 +87,15 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference")
+            "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             null,
             null);
   }
@@ -160,35 +117,17 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference")
+            "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             null,
-            null,
-            null,
-            null,
-            null,
-            true,
-            null,
-            null);
+            true);
   }
 
   @Test
@@ -197,26 +136,13 @@ class RegulatorManagedInformationPersistenceServiceTest {
     resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
-    var regulatorResourceName = "regulator resource name";
-    form.setResourceName(regulatorResourceName);
-    var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
-    form.setHydrocarbonCase(hydrocarbonCase);
-    var opportunityType = OpportunityType.OTHER;
-    var otherTypeOfOpportunity = "other opportunity";
-    form.setOpportunityType(opportunityType);
-    form.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     form.setLinkedToShelvedCopField(true);
-    var wellId = "1";
-    form.setWell(wellId);
     var fileUploadForm = new UploadedFileForm();
     var listOfUploads = List.of(fileUploadForm);
     form.setRelinquishmentReport(listOfUploads);
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
-    var wellRef = "well-ref";
-    var wellView = new WellView(wellId, wellRef);
-    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -231,36 +157,18 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference"
+            "linkedToShelvedCopField"
         )
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             null,
             GeographicalArea.ONSHORE,
-            regulatorResourceName,
-            hydrocarbonCase,
-            opportunityType,
-            otherTypeOfOpportunity,
-            true,
-            Integer.valueOf(form.getWell()),
-            wellView.reference()
+            true
         );
   }
 
@@ -270,26 +178,13 @@ class RegulatorManagedInformationPersistenceServiceTest {
     resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
-    var regulatorResourceName = "regulator resource name";
-    form.setResourceName(regulatorResourceName);
-    var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
-    form.setHydrocarbonCase(hydrocarbonCase);
-    var opportunityType = OpportunityType.OTHER;
-    var otherTypeOfOpportunity = "other opportunity";
-    form.setOpportunityType(opportunityType);
-    form.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     form.setLinkedToShelvedCopField(false);
-    var wellId = "1";
-    form.setWell(wellId);
     var fileUploadForm = new UploadedFileForm();
     var listOfUploads = List.of(fileUploadForm);
     form.setRelinquishmentReport(listOfUploads);
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
-    var wellRef = "well-ref";
-    var wellView = new WellView(wellId, wellRef);
-    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -304,36 +199,19 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference"
+            "linkedToShelvedCopField"
         )
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             null,
             GeographicalArea.ONSHORE,
-            regulatorResourceName,
-            hydrocarbonCase,
-            opportunityType,
-            otherTypeOfOpportunity,
-            false,
-            Integer.valueOf(form.getWell()),
-            wellView.reference());
+            false
+        );
   }
 
   @Test
@@ -345,24 +223,11 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-    var regulatorResourceName = "regulator resource name";
-    form.setResourceName(regulatorResourceName);
-    var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
-    form.setHydrocarbonCase(hydrocarbonCase);
-    var opportunityType = OpportunityType.OTHER;
-    var otherTypeOfOpportunity = "other opportunity";
-    form.setOpportunityType(opportunityType);
-    form.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     form.setLinkedToShelvedCopField(false);
-    var wellId = "1";
-    form.setWell(wellId);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
-    var wellRef = "well-ref";
-    var wellView = new WellView(wellId, wellRef);
-    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -375,35 +240,18 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference")
+            "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
-            regulatorResourceName,
-            hydrocarbonCase,
-            opportunityType,
-            otherTypeOfOpportunity,
-            false,
-            Integer.valueOf(form.getWell()),
-            wellView.reference());
+            false
+        );
   }
 
   @Test
@@ -415,21 +263,11 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(null);
-    form.setHydrocarbonCase(null);
-    form.setOpportunityType(null);
-    form.setOtherTypeOfOpportunity(null);
-    var regulatorResourceName = "regulator resource name";
-    form.setResourceName(regulatorResourceName);
     form.setLinkedToShelvedCopField(false);
-    var wellId = "1";
-    form.setWell(wellId);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
-    var wellRef = "well-ref";
-    var wellView = new WellView(wellId, wellRef);
-    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -442,35 +280,18 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference")
+            "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
-            regulatorResourceName,
-            null,
-            null,
-            null,
-            false,
-            Integer.valueOf(form.getWell()),
-            wellView.reference());
+            false
+        );
   }
 
   @Test
@@ -490,34 +311,16 @@ class RegulatorManagedInformationPersistenceServiceTest {
             "resource",
             "responsibleTeamType",
             "geographicalArea",
-            "resourceName",
-            "hydrocarbonCase",
-            "opportunityType",
-            "otherTypeOfOpportunity",
-            "linkedToShelvedCopField",
-            "wellId",
-            "wellReference")
+            "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getResourceName,
-            RegulatorManagedInformation::getHydrocarbonCase,
-            RegulatorManagedInformation::getOpportunityType,
-            RegulatorManagedInformation::getOtherTypeOfOpportunity,
-            RegulatorManagedInformation::getLinkedToShelvedCopField,
-            RegulatorManagedInformation::getWellId,
-            RegulatorManagedInformation::getWellReference)
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             responsibleTeamType,
             geographicalArea,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             null
         );
   }

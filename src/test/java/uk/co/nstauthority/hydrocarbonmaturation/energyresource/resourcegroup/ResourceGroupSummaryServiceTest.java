@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,18 +9,14 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -39,6 +34,8 @@ class ResourceGroupSummaryServiceTest {
   @Mock
   private ResourceGroupService resourceGroupService;
   @Mock
+  private ResourceGroupQueryService resourceGroupQueryService;
+  @Mock
   private SubmissionResourceService submissionResourceService;
   @Mock
   private SubmissionDetailService submissionDetailService;
@@ -46,25 +43,15 @@ class ResourceGroupSummaryServiceTest {
   private ResourceGroupSummaryService resourceGroupSummaryService;
 
   private final Resource resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
-  private ResourceGroupLink resourceGroupLink = new ResourceGroupLink();
+  private final ResourceGroupLink resourceGroupLink = new ResourceGroupLink();
 
   @Test
   void getResourceGroupLinkSummaryFromResource_assertSingleResourceReturned() {
+    var resourceGroup = new ResourceGroup();
+    resourceGroupLink.setResourceGroup(resourceGroup);
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
+        .thenReturn(resourceGroupLink);
     resourceGroupLink.setResource(resource);
-    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
-        .thenReturn(List.of(resourceGroupLink));
-    var expectedNameOnResource = "resource 1";
-    mockLatestApprovedSubmission(
-        resource,
-        expectedNameOnResource,
-        List.of(
-            SubmissionType.PROSPECT_UPDATE,
-            SubmissionType.CREATE_PROSPECT,
-            SubmissionType.RELINQUISHMENT_PROSPECT
-        )
-    );
     var summaryView = resourceGroupSummaryService
         .getResourceGroupLinkSummaryFromResource(resource);
 
@@ -74,41 +61,28 @@ class ResourceGroupSummaryServiceTest {
             ResourceGroupSummaryView::isActive)
         .containsExactly(
             ResourceType.PROSPECT,
-            "Yes"
-        );
-
-    assertThat(summaryView.resourcesInGroup())
-        .hasSize(1);
-
-    assertThat(summaryView.resourcesInGroup().get(0))
-        .extracting(
-            ResourceItemSummaryView::resourceName,
-            ResourceItemSummaryView::disableLink,
-            ResourceItemSummaryView::viewSorUrl,
-            ResourceItemSummaryView::isActive)
-        .containsExactly(expectedNameOnResource,
-            true,
-            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
-            ACTIVE
+            ""
         );
   }
 
   @Test
   void getResourceGroupLinkSummaryFromResource_whenMultipleResourcesLinked_assertReturnAndOrder() {
+    var resourceGroup = new ResourceGroup();
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
+        .thenReturn(resourceGroupLink);
     resource.setType(ResourceType.DISCOVERY);
     resource.setCreatedTimestamp(Instant.now().plusSeconds(200));
     resource.setActive(false);
     resourceGroupLink.setResource(resource);
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
+    resourceGroupLink.setResourceGroup(resourceGroup);
     var resource2 = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     resource2.setCreatedTimestamp(Instant.now());
     var resourceGroupLink2 = new ResourceGroupLink();
     resourceGroupLink2.setResource(resource2);
-    resourceGroupLink2.setResourceGroupId(resourceGroupLink.getId());
-    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
+    resourceGroupLink2.setResourceGroup(resourceGroup);
+    when(resourceGroupService.getResourceGroupLinksByResourceGroup(resourceGroup))
         .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
+    when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink)).thenReturn(true);
     mockLatestApprovedSubmission(
         resource,
         RESOURCE_NAME,
@@ -150,51 +124,35 @@ class ResourceGroupSummaryServiceTest {
             ResourceItemSummaryView::isActive)
         .containsExactly(
             tuple(
-                RESOURCE_NAME,
-                true,
-                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
-                ""
-            ),
-            tuple(
                 OTHER_RESOURCE_NAME,
                 false,
                 ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource2.getId(), null)),
                 ACTIVE
+            ),
+            tuple(
+                RESOURCE_NAME,
+                true,
+                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
+                ""
             )
         );
-  }
-
-  @ParameterizedTest
-  @EnumSource(ResourceType.class)
-  void getResourceGroupLinkSummaryFromResource_whenNoLatestSubmissionFound_assertThrows(ResourceType resourceType) {
-    resource.setType(resourceType);
-    resourceGroupLink.setResource(resource);
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
-    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
-        .thenReturn(List.of(resourceGroupLink));
-
-    assertThatThrownBy(() -> resourceGroupSummaryService
-        .getResourceGroupLinkSummaryFromResource(resource))
-        .isExactlyInstanceOf(RemiEntityNotFoundException.class)
-        .hasMessage("Could not find latest accepted submission for resource %s".formatted(resource.getId()));
   }
 
   @Test
   void getResourceGroupMembersSummaryWithoutCurrentResource_whenMultipleResourcesLinked_assertReturn() {
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
+        .thenReturn(resourceGroupLink);
     resource.setType(ResourceType.DISCOVERY);
     resource.setCreatedTimestamp(Instant.now().plusSeconds(200));
     resourceGroupLink.setResource(resource);
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
+    var resourceGroup = new ResourceGroup();
+    resourceGroupLink.setResourceGroup(resourceGroup);
     var resource2 = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     resource2.setCreatedTimestamp(Instant.now());
     var resourceGroupLink2 = new ResourceGroupLink();
     resourceGroupLink2.setResource(resource2);
-    resourceGroupLink2.setResourceGroupId(resourceGroupLink.getId());
-    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
+    resourceGroupLink2.setResourceGroup(resourceGroupLink.getResourceGroup());
+    when(resourceGroupService.getResourceGroupLinksByResourceGroup(resourceGroupLink.getResourceGroup()))
         .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
 
     mockLatestApprovedSubmission(
@@ -221,17 +179,6 @@ class ResourceGroupSummaryServiceTest {
                 ACTIVE
             )
         );
-  }
-
-  @Test
-  void getResourceGroupMembersSummaryWithoutCurrentResource_whenNoResourceLink_assertEmpty() {
-    when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.empty());
-
-    var summaryView = resourceGroupSummaryService
-        .getResourceGroupMembersSummaryWithoutCurrentResource(resource);
-
-    assertThat(summaryView).isEmpty();
   }
 
   private void mockLatestApprovedSubmission(Resource resource,

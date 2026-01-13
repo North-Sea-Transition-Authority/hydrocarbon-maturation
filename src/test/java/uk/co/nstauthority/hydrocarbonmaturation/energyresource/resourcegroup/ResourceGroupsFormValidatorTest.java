@@ -10,7 +10,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegr
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +60,7 @@ class ResourceGroupsFormValidatorTest {
 
     var bindingResult = validateRelatedProspectsForm_fullValidation(form,
         getResourceGroupLink(ResourceType.PROSPECT),
-        UUID.randomUUID());
+        new ResourceGroup());
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -70,7 +69,7 @@ class ResourceGroupsFormValidatorTest {
     var form = new RelatedResourcesForm();
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form,
         getResourceGroupLink(ResourceType.PROSPECT),
-        UUID.randomUUID()));
+        new ResourceGroup()));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -85,7 +84,7 @@ class ResourceGroupsFormValidatorTest {
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateRelatedProspectsForm_fullValidation(form,
         getResourceGroupLink(ResourceType.PROSPECT),
-        UUID.randomUUID()));
+        new ResourceGroup()));
 
     assertThat(extractedErrors)
         .containsExactly(
@@ -149,7 +148,7 @@ class ResourceGroupsFormValidatorTest {
     var bindingResult = validateRelatedProspectsForm_fullValidation(
         form,
         getResourceGroupLink(ResourceType.PROSPECT),
-        UUID.randomUUID());
+        new ResourceGroup());
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     var extractedMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
 
@@ -168,17 +167,17 @@ class ResourceGroupsFormValidatorTest {
     var form = getValidRelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource("some-id");
-    var selectedGroupId = UUID.randomUUID();
+    var selectedGroup = new ResourceGroup();
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     resource.setActive(true);
     var existingLink = getResourceGroupLink(ResourceType.PROSPECT);
-    existingLink.setResourceGroupId(selectedGroupId);
-    when(resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId))
+    existingLink.setResourceGroup(selectedGroup);
+    when(resourceGroupQueryService.getActiveResourceInGroup(selectedGroup))
       .thenReturn(Optional.of(ResourceTestUtils.buildResource(ResourceType.PROSPECT)));
     var validator = new ResourceGroupsFormValidator(resourceGroupQueryService);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validator.validate(form, bindingResult, new ResourceGroupsValidatorHints(
-      resource, selectedGroupId));
+      resource, selectedGroup));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
       .containsKey(SELECTED_SUBMISSION_DETAIL_ID);
@@ -189,17 +188,17 @@ class ResourceGroupsFormValidatorTest {
     var form = getValidRelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource("some-id");
-    var selectedGroupId = UUID.randomUUID();
+    var selectedGroup = new ResourceGroup();
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     resource.setActive(false);
     var existingLink = getResourceGroupLink(ResourceType.PROSPECT);
-    existingLink.setResourceGroupId(selectedGroupId);
-    when(resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId))
+    existingLink.setResourceGroup(selectedGroup);
+    when(resourceGroupQueryService.getActiveResourceInGroup(selectedGroup))
       .thenReturn(Optional.of(ResourceTestUtils.buildResource(ResourceType.PROSPECT)));
     var validator = new ResourceGroupsFormValidator(resourceGroupQueryService);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validator.validate(form, bindingResult, new ResourceGroupsValidatorHints(
-      resource, selectedGroupId));
+      resource, selectedGroup));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
       .doesNotContainKey(SELECTED_SUBMISSION_DETAIL_ID);
@@ -210,17 +209,17 @@ class ResourceGroupsFormValidatorTest {
     var form = getValidRelatedResourcesForm();
     form.setRelatedToAnotherResource(true);
     form.setSubmissionDetailIdOfRelatedResource("some-id");
-    var selectedGroupId = UUID.randomUUID();
+    var selectedGroup = new ResourceGroup();
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     resource.setActive(false);
     var existingLink = getResourceGroupLink(ResourceType.PROSPECT);
-    existingLink.setResourceGroupId(selectedGroupId);
-    when(resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId))
+    existingLink.setResourceGroup(selectedGroup);
+    when(resourceGroupQueryService.getActiveResourceInGroup(selectedGroup))
       .thenReturn(Optional.empty());
     var validator = new ResourceGroupsFormValidator(resourceGroupQueryService);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validator.validate(form, bindingResult, new ResourceGroupsValidatorHints(
-      resource, selectedGroupId));
+      resource, selectedGroup));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
       .doesNotContainKey(SELECTED_SUBMISSION_DETAIL_ID);
@@ -228,12 +227,12 @@ class ResourceGroupsFormValidatorTest {
 
   private BindingResult validateRelatedProspectsForm_fullValidation(RelatedResourcesForm form,
                                                                     ResourceGroupLink currentResourceLink,
-                                                                    UUID selectedResourceGroupId) {
+                                                                    ResourceGroup selectedResourceGroup) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     resourceGroupsFormValidator.validate(
         form, bindingResult, new ResourceGroupsValidatorHints(
-            currentResourceLink.getResource(), selectedResourceGroupId));
+            currentResourceLink.getResource(), selectedResourceGroup));
 
     return bindingResult;
   }
@@ -242,7 +241,7 @@ class ResourceGroupsFormValidatorTest {
     var resource = ResourceTestUtils.buildResource(resourceType);
     var link = new ResourceGroupLink();
     link.setResource(resource);
-    link.setResourceGroupId(UUID.randomUUID());
+    link.setResourceGroup(new ResourceGroup());
     return link;
   }
 

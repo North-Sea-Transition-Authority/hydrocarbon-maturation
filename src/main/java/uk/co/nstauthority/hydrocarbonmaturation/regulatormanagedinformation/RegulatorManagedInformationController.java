@@ -21,7 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationPr
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -36,8 +35,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -180,11 +177,7 @@ public class RegulatorManagedInformationController {
         .addObject("pageName", pageName)
         .addObject("geographicalAreas", DisplayableEnumOptionUtil
             .getDisplayableOptions(GeographicalArea.class))
-        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
-        .addObject("well", regulatorManagedInformationFormService.getPreSelectedWell(form.getWell()))
-        .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished)
-        .addObject("hydrocarbonCase", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
-        .addObject("opportunityTypes", DisplayableEnumOptionUtil.getDisplayableOptions(OpportunityType.class));
+        .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
     if (isResourceBeingRelinquished) {
       modelAndView
           .addObject("relinquishmentReportTemplate",

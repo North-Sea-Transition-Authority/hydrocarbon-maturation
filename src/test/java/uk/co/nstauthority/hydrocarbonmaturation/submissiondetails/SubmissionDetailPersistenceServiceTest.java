@@ -21,7 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionType;
@@ -42,6 +45,8 @@ class SubmissionDetailPersistenceServiceTest {
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   @Mock
   private InternalTeamService internalTeamService;
+  @Mock
+  private RegulatorReportingInformationService regulatorReportingInformationService;
 
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
@@ -53,7 +58,8 @@ class SubmissionDetailPersistenceServiceTest {
         clock,
         resourceGroupService,
         resourceDetailsPersistenceService,
-        internalTeamService);
+        internalTeamService,
+        regulatorReportingInformationService);
   }
 
   @Test
@@ -117,8 +123,17 @@ class SubmissionDetailPersistenceServiceTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void approveSubmission_whenSubmissionType_assertApprovedByAndCreateResourceGroupLink(SubmissionType submissionType) {
-    var submissionDetail = new SubmissionDetail();
-    submissionDetail.setSubmissionType(submissionType);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    var resourceGroup = new ResourceGroup();
+    var resourceGroupLink = new ResourceGroupLink();
+    resourceGroupLink.setResourceGroup(resourceGroup);
+    resourceGroupLink.setResource(submissionDetail.getSubmission().getResource());
+    if (submissionType == SubmissionType.CREATE_PROSPECT
+        || submissionType == SubmissionType.CREATE_DISCOVERY
+        || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+      when(resourceGroupService.getResourceGroupLinkByResource(submissionDetail.getSubmission().getResource()))
+          .thenReturn(resourceGroupLink);
+    }
     submissionDetailPersistenceService.approveSubmission(submissionDetail, USER);
 
     assertThat(submissionDetail)
@@ -138,6 +153,8 @@ class SubmissionDetailPersistenceServiceTest {
         || submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
       verify(resourceGroupService, times(1)).createResourceGroupLink(submissionDetail, USER);
+      verify(regulatorReportingInformationService, times(1))
+          .saveRegulatorReportingInformationForNewResource(submissionDetail, resourceGroup);
     } else {
       verifyNoInteractions(resourceGroupService);
     }

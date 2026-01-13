@@ -11,15 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesForm;
 
 @Service
 class ManageResourceGroupsService {
-
-  private static final Integer TWO_IN_GROUP = 2;
 
   private final ResourceGroupLinksRepository resourceGroupLinksRepository;
   private final ResourceGroupService resourceGroupService;
@@ -41,56 +38,51 @@ class ManageResourceGroupsService {
   }
 
   RelatedResourcesForm getRelatedResourcesFormFromResource(Resource resource) {
-    return resourceGroupLinksRepository.findByResource(resource)
-        .map(this::resourceGroupLinkEntityToForm)
-        .orElse(getFormForUnrelatedResource());
+    var resourceGroupLink = resourceGroupLinksRepository.findByResource(resource);
+    return resourceGroupLinkEntityToForm(resourceGroupLink);
   }
 
   BindingResult validateForResource(RelatedResourcesForm form,
                                     BindingResult bindingResult,
                                     Resource resource) {
-    UUID selectedGroupLinkId = getSelectedResourceGroupIdOrNull(form);
+    var selectedGroup = getSelectedResourceGroupOrNull(form);
 
     resourceGroupsFormValidator.validate(
         form,
         bindingResult,
-        new ResourceGroupsValidatorHints(resource, selectedGroupLinkId));
+        new ResourceGroupsValidatorHints(resource, selectedGroup));
     return bindingResult;
   }
 
   @Transactional
   public void updateResourceGroupLinkFromResource(Resource resource, RelatedResourcesForm form) {
-    var existingGroupLinkOpt = resourceGroupService.getResourceGroupLinkByResource(resource);
+    var currentGroupLink = resourceGroupService.getResourceGroupLinkByResource(resource);
+    var currentResourceIsActive = resource.getActive();
     if (isRelatedToAnotherResource(form)) {
-      var selectedSubmissionDetail = submissionDetailService
-          .getSubmissionDetailForIdOrError(UUID.fromString(form.getSubmissionDetailIdOfRelatedResource()));
-      var selectedResourceGroupLinkOpt = resourceGroupService.getResourceGroupLinkByResource(
-          selectedSubmissionDetail.getSubmission().getResource());
-      var selectedGroupLinks =  selectedResourceGroupLinkOpt
-          .map(resourceGroupLink ->
-              resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
-          .orElse(List.of());
-      if (isTheCurrentGroupBeingUpdated(selectedResourceGroupLinkOpt, existingGroupLinkOpt)) {
-        //if the resource is in the same group it was, it updates the link
-        updateCurrentResourceGroup(resource, existingGroupLinkOpt.get(), selectedGroupLinks);
-      } else if (selectedResourceGroupLinkOpt.isPresent()) {
-        //removes the resource from the previous group and adds the resource to an existing group
-        existingGroupLinkOpt.ifPresent(this::removeFromGroup);
-        addToGroupFromForm(resource, selectedResourceGroupLinkOpt.get());
+      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(
+          UUID.fromString(form.getSubmissionDetailIdOfRelatedResource())
+      );
+      var selectedResourceGroupLink = resourceGroupService.getResourceGroupLinkByResource(
+          selectedSubmissionDetail.getSubmission().getResource()
+      );
+      var selectedGroupLinks = resourceGroupService.getResourceGroupLinksByResourceGroup(
+          selectedResourceGroupLink.getResourceGroup()
+      );
+      if (Boolean.TRUE.equals(currentResourceIsActive)) {
+        // if the current resource is active then set all other resources in the group to be part of this group
+        updateOtherResourceGroupLinks(currentGroupLink, selectedGroupLinks);
       } else {
-        //creates a group and removes previous group from resource.
-        existingGroupLinkOpt.ifPresent(this::removeFromGroup);
-        createNewGroupFromForm(resource, selectedSubmissionDetail);
+        // update the current resource to be part of the selected group
+        addToGroupFromForm(currentGroupLink, selectedResourceGroupLink);
       }
     } else {
-      existingGroupLinkOpt.ifPresent(this::removeFromGroup);
+      // if there are other resources in the group then create a new group for this resource,
+      // otherwise do not change the group for the current resource
+      if (resourceGroupQueryService.resourceIsInGroupWithOtherResources(currentGroupLink)) {
+        resourceGroupService.removeResourceFromGroup(resource);
+        resourceGroupService.createNewGroupForResource(resource);
+      }
     }
-  }
-
-  private boolean isTheCurrentGroupBeingUpdated(Optional<ResourceGroupLink> selectedGroupLink,
-                                                Optional<ResourceGroupLink> currentGroupLink) {
-    return selectedGroupLink.isPresent() && currentGroupLink.isPresent()
-        && selectedGroupLink.get().getResourceGroupId().equals(currentGroupLink.get().getResourceGroupId());
   }
 
   private boolean isRelatedToAnotherResource(RelatedResourcesForm form) {
@@ -98,53 +90,18 @@ class ManageResourceGroupsService {
         && Objects.nonNull(form.getSubmissionDetailIdOfRelatedResource());
   }
 
-  private RelatedResourcesForm getFormForUnrelatedResource() {
-    var form = new RelatedResourcesForm();
-    form.setRelatedToAnotherResource(false);
-    return form;
+  private void addToGroupFromForm(ResourceGroupLink currentResourceLink,
+                                  ResourceGroupLink selectedResourceGroupLink) {
+    currentResourceLink.setResourceGroup(selectedResourceGroupLink.getResourceGroup());
+    resourceGroupLinksRepository.save(currentResourceLink);
   }
 
-  private void removeFromGroup(ResourceGroupLink resourceGroupLink) {
-    var resourceGroupLinks = resourceGroupService.getResourceGroupLinksByResourceGroupId(
-        resourceGroupLink.getResourceGroupId());
-    if (resourceGroupLinks.size() == TWO_IN_GROUP) {
-      // if there are only two resources in the group before the current resource is removed,
-      // then dissolve the whole group. A group should not exist with only a single resource in it.
-      resourceGroupLinksRepository.deleteAll(resourceGroupLinks);
-    } else {
-      resourceGroupLinksRepository.delete(resourceGroupLink);
+  private void updateOtherResourceGroupLinks(ResourceGroupLink currentResourceGroupLink,
+                                             List<ResourceGroupLink> resourceGroupLinks) {
+    for (ResourceGroupLink resourceGroupLink : resourceGroupLinks) {
+      resourceGroupLink.setResourceGroup(currentResourceGroupLink.getResourceGroup());
     }
-  }
-
-  private void addToGroupFromForm(Resource currentResource,
-                                  ResourceGroupLink resourceGroupLink) {
-    var newResourceLink = ResourceGroupService.buildResourceGroupLink(
-        resourceGroupLink.getResourceGroupId(), currentResource);
-    resourceGroupLinksRepository.save(newResourceLink);
-  }
-
-  private void createNewGroupFromForm(Resource currentResource,
-                                      SubmissionDetail selectedSubmissionDetail) {
-    var resourceGroupId = UUID.randomUUID();
-    var resourceGroupLinkForCurrentResource = ResourceGroupService.buildResourceGroupLink(
-        resourceGroupId, currentResource);
-
-    var otherResourceLink = ResourceGroupService.buildResourceGroupLink(
-        resourceGroupId, selectedSubmissionDetail.getSubmission().getResource());
-
-    resourceGroupLinksRepository.save(otherResourceLink);
-    resourceGroupLinksRepository.save(resourceGroupLinkForCurrentResource);
-  }
-
-  private void updateCurrentResourceGroup(Resource currentResource,
-                                          ResourceGroupLink currentResourceGroupLink,
-                                          List<ResourceGroupLink> resourceGroupLinks) {
-    var otherLink = resourceGroupLinks.stream()
-          .filter(groupLink -> !groupLink.getResource().getId().equals(currentResource.getId()))
-          .findFirst()
-          .orElseThrow(() ->
-              new RemiEntityNotFoundException("Could not find a second resource in the resource group."));
-    resourceGroupLinksRepository.saveAll(List.of(otherLink, currentResourceGroupLink));
+    resourceGroupLinksRepository.saveAll(resourceGroupLinks);
   }
 
   /**
@@ -152,8 +109,8 @@ class ManageResourceGroupsService {
    *
    * <p>If the resource is part of a group, this method populates the form with group information:
    * <ul>
-   *   <li>Sets relatedToAnotherResource to true if the resource is in a group.</li>
-   *   <li>If the group contains resources, finds the active resource in the group.</li>
+   *   <li>Sets relatedToAnotherResource to true if the resource is in a group with other resources.</li>
+   *   <li>Find the active resource in the group.</li>
    *   <li>If an active resource is found,
    *   sets submissionDetailIdOfRelatedResource to the latest approved submission detail for that resource.</li>
    *   <li>If no active resource is found,
@@ -168,14 +125,14 @@ class ManageResourceGroupsService {
    */
   private RelatedResourcesForm resourceGroupLinkEntityToForm(ResourceGroupLink resourceGroupLink) {
     var form = new RelatedResourcesForm();
-    form.setRelatedToAnotherResource(resourceGroupLink.getResourceGroupId() != null);
+    form.setRelatedToAnotherResource(resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink));
 
     if (BooleanUtils.isTrue(form.getRelatedToAnotherResource())) {
-      var relatedResources = resourceGroupLinksRepository.findByResourceGroupId(resourceGroupLink.getResourceGroupId());
+      var relatedResources = resourceGroupLinksRepository.findByResourceGroup(resourceGroupLink.getResourceGroup());
 
       if (!relatedResources.isEmpty()) {
-        var resourcesInGroup = resourceGroupQueryService.getResourcesInGroupForGroupId(
-            resourceGroupLink.getResourceGroupId());
+        var resourcesInGroup = resourceGroupQueryService.getResourcesInGroup(
+            resourceGroupLink.getResourceGroup());
         var activeResourceInGroup = resourceGroupQueryService.getActiveResourceForResourceList(resourcesInGroup);
 
         if (activeResourceInGroup.isPresent()) {
@@ -202,13 +159,12 @@ class ManageResourceGroupsService {
     return form;
   }
 
-  private UUID getSelectedResourceGroupIdOrNull(RelatedResourcesForm form) {
+  private ResourceGroup getSelectedResourceGroupOrNull(RelatedResourcesForm form) {
     if (form.getSubmissionDetailIdOfRelatedResource() != null) {
-      return resourceGroupLinksRepository.findByResource(submissionDetailService
-              .getSubmissionDetailForIdOrError(UUID.fromString(form.getSubmissionDetailIdOfRelatedResource()))
-              .getSubmission().getResource())
-          .map(ResourceGroupLink::getResourceGroupId)
-          .orElse(null);
+      var selectedResource = submissionDetailService.getSubmissionDetailForIdOrError(
+          UUID.fromString(form.getSubmissionDetailIdOfRelatedResource())
+      ).getSubmission().getResource();
+      return resourceGroupLinksRepository.findByResource(selectedResource).getResourceGroup();
     } else {
       return null;
     }

@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarbonca
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class HydrocarbonCaseForm implements SubmissionForm {
+public class HydrocarbonCaseForm implements SubmissionForm {
 
   private Boolean oilOnlyCaseType;
   private DecimalInput oilOnlyProbability;

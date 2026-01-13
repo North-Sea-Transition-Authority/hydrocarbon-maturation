@@ -8,7 +8,6 @@ import jakarta.persistence.Table;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Entity
@@ -22,10 +21,11 @@ public class ResourceGroupLink {
 
   @ManyToOne
   @JoinColumn(name = "resource_id")
-  @NotAudited
   private Resource resource;
 
-  private UUID resourceGroupId;
+  @ManyToOne
+  @JoinColumn(name = "resource_group_id")
+  private ResourceGroup resourceGroup;
 
   public UUID getId() {
     return id;
@@ -43,11 +43,11 @@ public class ResourceGroupLink {
     this.resource = resource;
   }
 
-  public UUID getResourceGroupId() {
-    return resourceGroupId;
+  public ResourceGroup getResourceGroup() {
+    return resourceGroup;
   }
 
-  public void setResourceGroupId(UUID resourceGroupId) {
-    this.resourceGroupId = resourceGroupId;
+  public void setResourceGroup(ResourceGroup resourceGroupId) {
+    this.resourceGroup = resourceGroupId;
   }
 }

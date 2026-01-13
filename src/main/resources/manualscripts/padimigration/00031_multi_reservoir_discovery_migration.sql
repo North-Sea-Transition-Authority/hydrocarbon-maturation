@@ -4,6 +4,7 @@ DECLARE
 
     multi_reservoir_rec RECORD;
     reservoir_id UUID;
+    reservoir_audit_rev INTEGER;
     submission_rec RECORD;
     remi_submission_id UUID;
     remi_submission_detail_id UUID;
@@ -32,6 +33,26 @@ BEGIN
             gen_random_uuid(),
             multi_reservoir_rec.name_alternative
         ) RETURNING id INTO reservoir_id;
+
+        INSERT INTO remi.audit_revisions (
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+             now(),
+             1
+         ) RETURNING rev INTO reservoir_audit_rev;
+
+        INSERT INTO remi.reservoirs_aud (
+            rev,
+            revtype,
+            id,
+            name
+        ) VALUES (
+             reservoir_audit_rev,
+             0,
+             reservoir_id,
+             multi_reservoir_rec.name_alternative
+         );
 
         INSERT INTO remi.padi_reservoirs (
             id,

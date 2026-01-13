@@ -3,6 +3,7 @@
 <#import '../submissiondetails/summary/_submissionSummary.ftl' as submissionSummary>
 <#import '../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
 <#import '../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
+<#import '../summarylistcards/regulatorReportingInformationSummaryCard.ftl' as regulatorReportingInformationSummary>
 <#import '../summary/_simpleSummary.ftl' as simpleSummary>
 <#import '../summary/_regulatorInformationSummary.ftl' as regulatorSummary>
 
@@ -18,6 +19,7 @@
 <#-- @ftlvariable name="resourceTypeDisplayNameLower" type="String"-->
 <#-- @ftlvariable name="resourceGroupUrl" type="String"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
+<#-- @ftlvariable name="regulatorReportingInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
 
@@ -100,6 +102,12 @@ wrapperWidth=true>
   </@fdsDataItems.dataItem>
   <@fdsAction.buttonGroup>
     <#if canManageRegulatorManagementInfo>
+      <#if !isFieldResource>
+            <@fdsAction.link
+            linkText="Manage resource group"
+            linkClass="govuk-button govuk-button--secondary"
+            linkUrl=springUrl(resourceGroupUrl)/>
+      </#if>
       <#if archived>
         <@fdsAction.link
         linkText="Unarchive ${resourceTypeDisplayNameLower}"
@@ -107,18 +115,14 @@ wrapperWidth=true>
         linkUrl=springUrl(unarchiveUrl)/>
       <#else>
         <@fdsAction.link
-        linkText="Archive ${resourceTypeDisplayNameLower}"
-        linkClass="govuk-button govuk-button--secondary"
-        linkUrl=springUrl(archiveUrl)/>
-        <@fdsAction.link
         linkText=manageResourceInformationText
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(regulatorManagedInformationUrl)/>
         <#if !isFieldResource>
             <@fdsAction.link
-            linkText="Manage resource group"
+            linkText="Manage reporting information"
             linkClass="govuk-button govuk-button--secondary"
-            linkUrl=springUrl(resourceGroupUrl)/>
+            linkUrl=springUrl(manageReportingInformationUrl)/>
         </#if>
         <#if correctionUrl?has_content>
             <@fdsAction.link
@@ -132,6 +136,10 @@ wrapperWidth=true>
           linkClass="govuk-button govuk-button--secondary"
           linkUrl=springUrl(postFieldDiscoveryUrl)/>
         </#if>
+          <@fdsAction.link
+          linkText="Archive ${resourceTypeDisplayNameLower}"
+          linkClass="govuk-button govuk-button--secondary"
+          linkUrl=springUrl(archiveUrl)/>
       </#if>
     </#if>
     <#if canViewRegulatorManagementInfo && fieldStatusUrl?has_content && !archived>
@@ -177,6 +185,8 @@ wrapperWidth=true>
         resourceGroupsValues=resourceGroupsSummaryView
         associatedFieldMap=associatedFieldMap!""
         canSeePostFieldLink=canSeePostFieldLink!false/>
+      <@regulatorReportingInformationSummary.regulatorReportingInformationSummaryCard
+        regulatorReportingInformationValues=regulatorReportingInformationSummaryView/>
     </#if>
   </#if>
 

@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLinksRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupQueryService;
@@ -161,7 +162,7 @@ class RelatedResourcesFormServiceTest {
   }
 
   @Test
-  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdSetAndGroupExists_returnsGroupId() {
+  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdSetAndGroupExists_returnsGroup() {
     var form = new RelatedResourcesForm();
     var relatedSubmissionDetailId = UUID.randomUUID();
     form.setSubmissionDetailIdOfRelatedResource(relatedSubmissionDetailId.toString());
@@ -169,33 +170,19 @@ class RelatedResourcesFormServiceTest {
     relatedSubmissionDetail.setId(relatedSubmissionDetailId);
     var resource = new Resource();
     relatedSubmissionDetail.getSubmission().setResource(resource);
-    var groupId = UUID.randomUUID();
+    var resourceGroup = new ResourceGroup();
     var link = new ResourceGroupLink();
-    link.setResourceGroupId(groupId);
+    link.setResourceGroup(resourceGroup);
     when(submissionDetailService.getSubmissionDetailForIdOrError(relatedSubmissionDetailId)).thenReturn(relatedSubmissionDetail);
-    when(resourceGroupLinksRepository.findByResource(resource)).thenReturn(Optional.of(link));
-    assertThat(relatedResourcesFormService.getSelectedResourceGroupIdOrNull(form)).isEqualTo(groupId);
+    when(resourceGroupLinksRepository.findByResource(resource)).thenReturn(link);
+    assertThat(relatedResourcesFormService.getSelectedResourceGroupOrNull(form)).isEqualTo(resourceGroup);
   }
 
   @Test
-  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdSetAndNoGroup_returnsNull() {
-    var form = new RelatedResourcesForm();
-    var relatedSubmissionDetailId = UUID.randomUUID();
-    form.setSubmissionDetailIdOfRelatedResource(relatedSubmissionDetailId.toString());
-    var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    relatedSubmissionDetail.setId(relatedSubmissionDetailId);
-    var resource = new Resource();
-    relatedSubmissionDetail.getSubmission().setResource(resource);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(relatedSubmissionDetailId)).thenReturn(relatedSubmissionDetail);
-    when(resourceGroupLinksRepository.findByResource(resource)).thenReturn(Optional.empty());
-    assertThat(relatedResourcesFormService.getSelectedResourceGroupIdOrNull(form)).isNull();
-  }
-
-  @Test
-  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIdIsNull_returnsNull() {
+  void getSelectedResourceGroupIdOrNull_whenSubmissionDetailIsNull_returnsNull() {
     var form = new RelatedResourcesForm();
     form.setSubmissionDetailIdOfRelatedResource(null);
-    assertThat(relatedResourcesFormService.getSelectedResourceGroupIdOrNull(form)).isNull();
+    assertThat(relatedResourcesFormService.getSelectedResourceGroupOrNull(form)).isNull();
   }
 
   private RelatedResource getRelatedResource(SubmissionDetail submissionDetail) {

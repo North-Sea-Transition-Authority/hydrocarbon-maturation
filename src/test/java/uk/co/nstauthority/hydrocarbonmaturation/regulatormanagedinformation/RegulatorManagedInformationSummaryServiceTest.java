@@ -31,8 +31,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
@@ -68,17 +66,7 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(geographicalArea);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     regulatorManagedInfo.setResource(resource);
-    var regulatorResourceName = "regulator resource name";
-    regulatorManagedInfo.setResourceName(regulatorResourceName);
-    var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
-    regulatorManagedInfo.setHydrocarbonCase(hydrocarbonCase);
-    var opportunityType = OpportunityType.OTHER;
-    var otherTypeOfOpportunity = "other opportunity";
-    regulatorManagedInfo.setOpportunityType(opportunityType);
-    regulatorManagedInfo.setOtherTypeOfOpportunity(otherTypeOfOpportunity);
     regulatorManagedInfo.setLinkedToShelvedCopField(false);
-    var wellRef = "well-ref";
-    regulatorManagedInfo.setWellReference(wellRef);
 
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
         .thenReturn(false);
@@ -95,25 +83,17 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
-            RegulatorManagedInformationSummaryView::resourceName,
-            RegulatorManagedInformationSummaryView::hydrocarbonCase,
-            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference,
             RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             geographicalArea.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
-            regulatorResourceName,
-            hydrocarbonCase.getDisplayName(),
-            otherTypeOfOpportunity,
             List.of(),
             "",
             "",
-            wellRef,
             "No"
         );
     verifyNoInteractions(resourceSupportingDocumentService);
@@ -125,12 +105,6 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     regulatorManagedInfo.setResource(resource);
-    var regulatorResourceName = "regulator resource name";
-    regulatorManagedInfo.setResourceName(regulatorResourceName);
-    var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
-    regulatorManagedInfo.setHydrocarbonCase(hydrocarbonCase);
-    var opportunityType = OpportunityType.LEAD;
-    regulatorManagedInfo.setOpportunityType(opportunityType);
     regulatorManagedInfo.setLinkedToShelvedCopField(true);
 
     var fieldResource = new Resource();
@@ -156,25 +130,17 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
-            RegulatorManagedInformationSummaryView::resourceName,
-            RegulatorManagedInformationSummaryView::hydrocarbonCase,
-            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference,
             RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             GeographicalArea.NORTHERN_NORTH_SEA.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
-            regulatorResourceName,
-            hydrocarbonCase.getDisplayName(),
-            opportunityType.getDisplayName(),
             List.of(),
             "Name",
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource.getId(), null)),
-            "",
             "No"
         );
     verifyNoInteractions(resourceSupportingDocumentService);
@@ -188,10 +154,6 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(GeographicalArea.ONSHORE);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInfo.setResource(resource);
-    var regulatorResourceName = "regulator resource name";
-    regulatorManagedInfo.setResourceName(regulatorResourceName);
-    var hydrocarbonCase = HydrocarbonsDiscovered.GAS_ONLY;
-    regulatorManagedInfo.setHydrocarbonCase(hydrocarbonCase);
     regulatorManagedInfo.setLinkedToShelvedCopField(false);
 
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
@@ -233,21 +195,13 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
-            RegulatorManagedInformationSummaryView::resourceName,
-            RegulatorManagedInformationSummaryView::hydrocarbonCase,
-            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference,
             RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             GeographicalArea.ONSHORE.getDisplayName(),
             isBeingRelinquished,
             ResponsibleTeamType.EXPLORATION.getDisplayName(),
-            regulatorResourceName,
-            hydrocarbonCase.getDisplayName(),
-            "",
-            "",
             "",
             "",
             "No"
@@ -280,23 +234,15 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::geographicalArea,
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
-            RegulatorManagedInformationSummaryView::resourceName,
-            RegulatorManagedInformationSummaryView::hydrocarbonCase,
-            RegulatorManagedInformationSummaryView::opportunityType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
             RegulatorManagedInformationSummaryView::linkedToFieldUrl,
-            RegulatorManagedInformationSummaryView::wellReference,
             RegulatorManagedInformationSummaryView::isUndevelopedDiscovery)
         .containsExactly(
             "",
             isBeingRelinquished,
             "",
-            "",
-            "",
-            "",
             List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
-            "",
             "",
             "",
             ""

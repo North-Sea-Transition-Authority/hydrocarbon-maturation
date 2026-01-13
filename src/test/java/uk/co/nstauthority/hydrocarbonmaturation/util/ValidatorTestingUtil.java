@@ -1,10 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 /**
@@ -38,6 +41,24 @@ public class ValidatorTestingUtil {
             LinkedHashMap::new,
             Collectors.mapping(FieldError::getDefaultMessage, Collectors.toSet())
         ));
+
+  }
+
+  public static void assertErrorExists(Errors errors,
+                                       String fieldName,
+                                       String expectedFieldCode,
+                                       String expectedErrorMessage
+  ) {
+    var fieldError = errors.getFieldErrors().stream()
+        .filter(error -> error.getField().equals(fieldName))
+        .findFirst();
+
+    if (fieldError.isEmpty()) {
+      throw new AssertionError("Expected error for field '" + fieldName + "' but none found.");
+    }
+
+    assertEquals(fieldError.get().getCode(), expectedFieldCode);
+    assertEquals(fieldError.get().getDefaultMessage(), expectedErrorMessage);
 
   }
 }

@@ -14,8 +14,10 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LAT
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_REPORTING_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUPS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUP_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
@@ -145,7 +147,7 @@ class ResourceQueryCommonService {
             RESOURCES.TYPE,
             DSL.val(null, FIELDS.FIELD_IDENTIFIER),
             RESOURCE_DETAILS.RESOURCE_NAME,
-            REGULATOR_MANAGED_INFORMATION.RESOURCE_NAME,
+            REGULATOR_REPORTING_INFORMATION.RESOURCE_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
@@ -162,13 +164,16 @@ class ResourceQueryCommonService {
             .join(LATEST_SUBMISSION_DETAIL_VIEW)
               .on(LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-            .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
             .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
                 .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
+            .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(RESOURCE_GROUPS).on(RESOURCE_GROUPS.ID.eq(RESOURCE_GROUP_LINKS.RESOURCE_GROUP_ID))
+            .leftJoin(REGULATOR_REPORTING_INFORMATION)
+              .on(RESOURCE_GROUPS.ID.eq(REGULATOR_REPORTING_INFORMATION.RESOURCE_GROUP_ID))
             .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
         .groupBy(
@@ -178,6 +183,8 @@ class ResourceQueryCommonService {
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
             REGULATOR_MANAGED_INFORMATION.ID,
+            REGULATOR_REPORTING_INFORMATION.ID,
+            RESOURCE_GROUPS.ID,
             GENERAL_DETAILS.ID
         )
         .having(aggregateConditionList)

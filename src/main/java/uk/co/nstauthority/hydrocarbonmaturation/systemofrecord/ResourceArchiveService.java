@@ -82,22 +82,19 @@ public class ResourceArchiveService {
 
   public Optional<String> resourceCannotBeUnarchivedWarning(Resource resource) {
     var resourceGroupLink = resourceGroupService.getResourceGroupLinkByResource(resource);
-    if (resourceGroupLink.isPresent()) {
-      var otherActiveResourcesInGroup = resourceGroupService.getResourceGroupLinksByResourceGroupId(
-          resourceGroupLink.get().getResourceGroupId()
-      ).stream()
-          .map(ResourceGroupLink::getResource)
-          .filter(res -> !res.getId().equals(resource.getId()))
-          .filter(res -> BooleanUtils.isTrue(res.getActive()))
-          .toList();
+    var otherActiveResourcesInGroup = resourceGroupService.getResourceGroupLinksByResourceGroup(
+        resourceGroupLink.getResourceGroup()
+    ).stream()
+        .map(ResourceGroupLink::getResource)
+        .filter(res -> !res.getId().equals(resource.getId()))
+        .filter(res -> BooleanUtils.isTrue(res.getActive()))
+        .toList();
 
-      if (otherActiveResourcesInGroup.isEmpty()) {
-        return Optional.empty();
-      }
-
-      return Optional.of(OTHER_ACTIVE_RESOURCE_IN_GROUP.formatted(resource.getType().getDisplayName().toLowerCase()));
+    if (otherActiveResourcesInGroup.isEmpty()) {
+      return Optional.empty();
     }
-    return Optional.empty();
+
+    return Optional.of(OTHER_ACTIVE_RESOURCE_IN_GROUP.formatted(resource.getType().getDisplayName().toLowerCase()));
   }
 
   public void archiveResource(Resource resource) {

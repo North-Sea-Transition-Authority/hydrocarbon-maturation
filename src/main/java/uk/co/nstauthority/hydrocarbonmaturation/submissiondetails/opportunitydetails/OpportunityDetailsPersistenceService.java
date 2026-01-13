@@ -65,7 +65,7 @@ public class OpportunityDetailsPersistenceService {
     opportunityDetailsRepository.save(opportunityDetail);
   }
 
-  Optional<OpportunityDetail> getOpportunityDetail(SubmissionDetail submissionDetail) {
+  public Optional<OpportunityDetail> getOpportunityDetail(SubmissionDetail submissionDetail) {
     return opportunityDetailsRepository.findBySubmissionDetail(submissionDetail);
   }
 }

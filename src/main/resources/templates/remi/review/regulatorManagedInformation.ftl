@@ -1,6 +1,4 @@
 <#include '../layout/layout.ftl'>
-<#import '../coordinates/coordinateInput.ftl' as coordinateInput/>
-<#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelurl" type="String" -->
@@ -69,38 +67,6 @@
         <@fdsRadio.radioNo path="form.linkedToShelvedCopField" />
       </@fdsRadio.radioGroup>
     </#if>
-      <@fdsTextInput.textInput
-       path="form.resourceName"
-       labelText="Resource name"
-       optionalLabel=true/>
-      <@fdsSearchSelector.searchSelectorRest
-      path="form.well"
-      restUrl=springUrl(wellEndpoint)
-      labelText="Principal well"
-      selectorMinInputLength=3
-      preselectedItems=well!{}
-      optionalLabel=true/>
-
-      <@fdsRadio.radioGroup path="form.hydrocarbonCase" labelText="Hydrocarbon case" optionalLabel=true>
-          <#assign firstItem=true/>
-          <#list hydrocarbonCase as key, value>
-              <@fdsRadio.radioItem path="form.hydrocarbonCase" itemMap={key : value} isFirstItem=firstItem/>
-              <#assign firstItem=false/>
-          </#list>
-      </@fdsRadio.radioGroup>
-
-      <@fdsRadio.radioGroup path="form.opportunityType" labelText="Opportunity type" hiddenContent=true optionalLabel=true>
-          <#assign firstItem=true/>
-          <#list opportunityTypes as key, value>
-              <@fdsRadio.radioItem path="form.opportunityType" itemMap={key : value} isFirstItem=firstItem>
-                  <#if key == "OTHER">
-                      <@fdsTextInput.textInput path="form.otherTypeOfOpportunity"
-                      labelText="Enter the other opportunity type" nestingPath="form.opportunityType"/>
-                  </#if>
-                  <#assign firstItem=false/>
-              </@fdsRadio.radioItem>
-          </#list>
-      </@fdsRadio.radioGroup>
 
       <@fdsAction.submitButtons primaryButtonText="Save and complete"
       secondaryLinkText="Cancel"

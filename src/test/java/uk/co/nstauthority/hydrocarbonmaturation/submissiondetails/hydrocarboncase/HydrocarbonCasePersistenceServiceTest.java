@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsPersistenceService;
@@ -361,5 +363,85 @@ class HydrocarbonCasePersistenceServiceTest {
     );
 
     verifyNoInteractions(prospectMixedCaseOutputsPersistenceService);
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenNoHydrocarbonCase_returnsNull() {
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenMixedOilAndGas_returnsMixed() {
+    hydrocarbonCase.setOilAndGas(true);
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isEqualTo(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenGasOnlyTrue_returnsGasOnly() {
+    hydrocarbonCase.setGasOnly(true);
+    hydrocarbonCase.setOilOnly(false);
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isEqualTo(HydrocarbonsDiscovered.GAS_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenOilOnlyTrue_returnsOilOnly() {
+    hydrocarbonCase.setOilOnly(true);
+    hydrocarbonCase.setGasOnly(false);
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isEqualTo(HydrocarbonsDiscovered.OIL_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenBothPresent_gasProbabilityGreater_returnsGasOnly() {
+    hydrocarbonCase.setGasOnly(true);
+    hydrocarbonCase.setOilOnly(true);
+    hydrocarbonCase.setGasOnlyProbability(BigDecimal.valueOf(0.7));
+    hydrocarbonCase.setOilOnlyProbability(BigDecimal.valueOf(0.3));
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isEqualTo(HydrocarbonsDiscovered.GAS_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenBothPresent_oilProbabilityGreater_returnsOilOnly() {
+    hydrocarbonCase.setGasOnly(true);
+    hydrocarbonCase.setOilOnly(true);
+    hydrocarbonCase.setGasOnlyProbability(BigDecimal.valueOf(0.2));
+    hydrocarbonCase.setOilOnlyProbability(BigDecimal.valueOf(0.8));
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isEqualTo(HydrocarbonsDiscovered.OIL_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscoveredForReporting_whenBothPresent_probabilitiesEqual_returnsNull() {
+    hydrocarbonCase.setGasOnly(true);
+    hydrocarbonCase.setOilOnly(true);
+    hydrocarbonCase.setGasOnlyProbability(BigDecimal.valueOf(0.5));
+    hydrocarbonCase.setOilOnlyProbability(BigDecimal.valueOf(0.5));
+    when(hydrocarbonCaseRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(hydrocarbonCase));
+
+    var result = hydrocarbonCasePersistenceService.getHydrocarbonsDiscoveredForReporting(submissionDetail);
+
+    assertThat(result).isNull();
   }
 }

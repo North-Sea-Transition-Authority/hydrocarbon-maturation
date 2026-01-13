@@ -3,15 +3,17 @@ DECLARE
 
     geographic_area_rec RECORD;
     geographic_area TEXT;
+    offshore_rmi_audit_rev INTEGER;
 
 BEGIN
 
     FOR geographic_area_rec IN (
-        SELECT prh.ytf_reporting_area, prg.remi_resource_id, prg.legacy_resource_id
+        SELECT prh.ytf_reporting_area, prg.remi_resource_id, prg.legacy_resource_id, a.rev, a.id rmi_id
         FROM remi.padi_res_header prh
         JOIN remi.padi_resource_groupings prg ON prg.legacy_resource_id = prh.resource_id
+        JOIN remi.regulator_managed_information_aud a ON a.resource_id = prg.remi_resource_id
         WHERE prh.ytf_reporting_area IS NOT NULL
-        GROUP BY prh.ytf_reporting_area, prg.remi_resource_id, prg.legacy_resource_id
+        GROUP BY prh.ytf_reporting_area, prg.remi_resource_id, prg.legacy_resource_id, a.rev, a.id
     )
     LOOP
 
@@ -38,6 +40,30 @@ BEGIN
         SET geographical_area = geographic_area
         WHERE resource_id = geographic_area_rec.remi_resource_id;
 
+        INSERT INTO remi.audit_revisions(
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+             now(),
+             1
+         ) RETURNING rev INTO offshore_rmi_audit_rev;
+
+        INSERT INTO remi.regulator_managed_information_aud (
+            rev,
+            revtype,
+            id,
+            resource_id,
+            responsible_team,
+            geographical_area
+        ) VALUES (
+            offshore_rmi_audit_rev,
+            1,
+            geographic_area_rec.rmi_id,
+            geographic_area_rec.remi_resource_id,
+            'EXPLORATION',
+            geographic_area
+        );
+
     END LOOP;
 
 END;
@@ -48,11 +74,12 @@ DO $$
 DECLARE
 
     onshore_area_rec RECORD;
+    onshore_rmi_audit_rev INTEGER;
 
 BEGIN
 
     FOR onshore_area_rec IN (
-        SELECT rmi.resource_id
+        SELECT rmi.resource_id, rmi.id rmi_id
         FROM remi.resource_details rd
         JOIN remi.submission_details sd ON sd.id = rd.submission_detail_id
         JOIN remi.submissions s ON s.id = sd.submission_id
@@ -66,6 +93,30 @@ BEGIN
         UPDATE remi.regulator_managed_information
         SET geographical_area = 'ONSHORE'
         WHERE resource_id = onshore_area_rec.resource_id;
+
+        INSERT INTO remi.audit_revisions(
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+             now(),
+             1
+         ) RETURNING rev INTO onshore_rmi_audit_rev;
+
+        INSERT INTO remi.regulator_managed_information_aud (
+            rev,
+            revtype,
+            id,
+            resource_id,
+            responsible_team,
+            geographical_area
+        ) VALUES (
+             onshore_rmi_audit_rev,
+             1,
+             onshore_area_rec.rmi_id,
+             onshore_area_rec.resource_id,
+             'EXPLORATION',
+             'ONSHORE'
+         );
 
     END LOOP;
 

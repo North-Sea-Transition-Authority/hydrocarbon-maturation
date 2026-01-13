@@ -43,9 +43,9 @@ public class RelatedResourcesFormValidator implements SubmissionValidator {
       ValidationUtils.rejectIfEmpty(errors, "submissionDetailIdOfRelatedResource", "submissionDetailIdOfRelatedResource.required",
           "Select a %s or %s group".formatted(resourceType, resourceType));
 
-      var selectedGroupId = relatedResourcesFormService.getSelectedResourceGroupIdOrNull(relatedProspectsForm);
+      var selectedGroup = relatedResourcesFormService.getSelectedResourceGroupOrNull(relatedProspectsForm);
 
-      if (resourceGroupQueryService.getActiveResourceInGroupForGroupId(selectedGroupId).isPresent()
+      if (resourceGroupQueryService.getActiveResourceInGroup(selectedGroup).isPresent()
           && BooleanUtils.isTrue(resource.getActive())) {
         errors.rejectValue(
             "submissionDetailIdOfRelatedResource",

@@ -35,6 +35,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
@@ -67,6 +69,7 @@ public class ViewResourceRecordController {
   private final FieldMapViewService fieldMapViewService;
   private final FieldStatusService fieldStatusService;
   private final FieldDisplayService fieldDisplayService;
+  private final RegulatorReportingInformationSummaryService regulatorReportingInformationSummaryService;
 
   @Autowired
   public ViewResourceRecordController(
@@ -84,7 +87,8 @@ public class ViewResourceRecordController {
       FieldMapViewService fieldMapViewService,
       TeamQueryService teamQueryService,
       FieldStatusService fieldStatusService,
-      FieldDisplayService fieldDisplayService) {
+      FieldDisplayService fieldDisplayService,
+      RegulatorReportingInformationSummaryService regulatorReportingInformationSummaryService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -100,6 +104,7 @@ public class ViewResourceRecordController {
     this.fieldMapViewService = fieldMapViewService;
     this.fieldStatusService = fieldStatusService;
     this.fieldDisplayService = fieldDisplayService;
+    this.regulatorReportingInformationSummaryService = regulatorReportingInformationSummaryService;
   }
 
   @GetMapping
@@ -258,10 +263,15 @@ public class ViewResourceRecordController {
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPage(resource.getId(), null)))
+          .addObject("manageReportingInformationUrl",
+              ReverseRouter.route(on(RegulatorReportingInformationController.class)
+                  .renderPage(resource.getId(), null)))
           .addObject("resourceGroupsSummaryView",
               resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
+          .addObject("regulatorReportingInformationSummaryView",
+              regulatorReportingInformationSummaryService.getSummary(resource))
           .addObject("manageResourceInformationText", "Manage resource information")
           .addObject("canCreatePostFieldDiscovery", false)
           .addObject("canSeePostFieldLink", viewResourceRecordService.isRegulatorOrAreaTeamUser(user));

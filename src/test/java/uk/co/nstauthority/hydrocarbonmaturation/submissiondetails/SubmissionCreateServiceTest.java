@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
@@ -106,6 +107,9 @@ class SubmissionCreateServiceTest {
   @Mock
   private FieldConfiguration fieldConfiguration;
 
+  @Mock
+  private ResourceGroupService resourceGroupService;
+
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
 
@@ -135,6 +139,7 @@ class SubmissionCreateServiceTest {
     verify(submissionPersistenceService, times(1)).createSubmission(resource);
     verify(reservoirSubmissionDetailPersistenceService, times(1))
         .saveReservoirSubmissionDetail(reservoir, submissionDetail);
+    verify(resourceGroupService, times(1)).createNewGroupForResource(resource);
   }
 
   @Test
@@ -257,6 +262,7 @@ class SubmissionCreateServiceTest {
         .createSubmission(discoveryResource);
     verify(opportunityDetailsPersistenceService, times(1))
         .createOrUpdateOpportunityDetail(submissionDetailNew);
+    verify(resourceGroupService, times(1)).createNewGroupForResource(discoveryResource);
     verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 
@@ -310,6 +316,7 @@ class SubmissionCreateServiceTest {
     verify(submissionPersistenceService, times(1)).createSubmission(captor.getValue());
     verify(opportunityDetailsPersistenceService, times(1))
         .createOrUpdateOpportunityDetail(any());
+    verify(resourceGroupService, times(1)).createNewGroupForResource(captor.capture());
     verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
   }
 

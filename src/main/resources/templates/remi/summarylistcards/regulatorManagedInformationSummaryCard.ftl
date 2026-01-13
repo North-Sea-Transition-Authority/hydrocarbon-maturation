@@ -14,18 +14,6 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Geographical area">
       ${regulatorManagedInformationValues.geographicalArea()}
     </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="${customerBranding.mnemonic()} resource name">
-          ${regulatorManagedInformationValues.resourceName()}
-      </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="${customerBranding.mnemonic()} hydrocarbon case">
-          ${regulatorManagedInformationValues.hydrocarbonCase()}
-      </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="${customerBranding.mnemonic()} opportunity type">
-          ${regulatorManagedInformationValues.opportunityType()}
-      </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Principal well">
-        ${regulatorManagedInformationValues.wellReference()}
-    </@fdsSummaryList.summaryListRowNoAction>
     <#if regulatorManagedInformationValues.isBeingRelinquished()>
       <@fileUploadSummary.fileUploadSummary filesUploaded=regulatorManagedInformationValues.relinquishmentReport()/>
     </#if>

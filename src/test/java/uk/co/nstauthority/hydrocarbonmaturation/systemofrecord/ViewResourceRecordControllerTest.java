@@ -50,6 +50,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldFamilyView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -99,6 +102,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private FieldStatusService fieldStatusService;
   @MockBean
   private FieldDisplayService fieldDisplayService;
+  @MockBean
+  private RegulatorReportingInformationSummaryService regulatorReportingInformationSummaryService;
 
   private Resource resource;
   private UUID resourceId;
@@ -752,6 +757,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
+    var reportingSummary = RegulatorReportingInformationSummaryView.empty();
+    when(regulatorReportingInformationSummaryService.getSummary(any()))
+        .thenReturn(reportingSummary);
     resource.setId(resourceId);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -787,10 +795,14 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null))),
+            entry("manageReportingInformationUrl",
+                ReverseRouter.route(on(RegulatorReportingInformationController.class)
+                    .renderPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
+            entry("regulatorReportingInformationSummaryView", reportingSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
@@ -898,6 +910,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
+    var reportingSummary = RegulatorReportingInformationSummaryView.empty();
+    when(regulatorReportingInformationSummaryService.getSummary(any()))
+        .thenReturn(reportingSummary);
     resource.setId(resourceId);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -934,10 +949,14 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null))),
+            entry("manageReportingInformationUrl",
+                ReverseRouter.route(on(RegulatorReportingInformationController.class)
+                    .renderPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
+            entry("regulatorReportingInformationSummaryView", reportingSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
@@ -974,6 +993,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
+    var reportingSummary = RegulatorReportingInformationSummaryView.empty();
+    when(regulatorReportingInformationSummaryService.getSummary(any()))
+        .thenReturn(reportingSummary);
     resource.setId(resourceId);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -1009,10 +1031,14 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null))),
+            entry("manageReportingInformationUrl",
+                ReverseRouter.route(on(RegulatorReportingInformationController.class)
+                    .renderPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
+            entry("regulatorReportingInformationSummaryView", reportingSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),

@@ -7,22 +7,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationRepository;
 
 @Service
 public class SearchResourceRecordsQueryService {
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
-  private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
+  private final RegulatorReportingInformationRepository regulatorReportingInformationRepository;
 
   @Autowired
   public SearchResourceRecordsQueryService(SearchResourceRecordsService searchResourceRecordsService,
                                            ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
-                                           RegulatorManagedInformationRepository regulatorManagedInformationRepository) {
+                                           RegulatorReportingInformationRepository regulatorReportingInformationRepository) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
-    this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
+    this.regulatorReportingInformationRepository = regulatorReportingInformationRepository;
   }
 
   public RestSearchResult searchFields(String searchTerm, User user) {
@@ -58,9 +58,9 @@ public class SearchResourceRecordsQueryService {
   }
 
   public RestSearchResult searchRegulatorResourceNames(String searchTerm) {
-    var regulatorResourceNames = regulatorManagedInformationRepository.findAllByResourceNameContainingIgnoreCase(searchTerm)
+    var regulatorResourceNames = regulatorReportingInformationRepository.findAllByResourceNameContainingIgnoreCase(searchTerm)
         .stream()
-        .map(RegulatorManagedInformation::getResourceName)
+        .map(RegulatorReportingInformation::getResourceName)
         .distinct()
         .toList();
 

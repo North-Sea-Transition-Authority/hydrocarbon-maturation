@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
@@ -33,13 +32,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.O
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -1196,14 +1193,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var archivedSubmissionDetail =
             buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(archivedSubmissionDetail, null);
-    buildResourceGroupLink(archivedResource);
 
     createResourceDetail(archivedSubmissionDetail, "Not relevant name", 1);
 
     var nonArchivedResource = buildProspectResource();
     var nonArchivedSubmissionDetail =
             buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    buildResourceGroupLink(nonArchivedResource);
     createGeneralDetail(nonArchivedSubmissionDetail, null);
     createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
 
@@ -1227,14 +1222,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var archivedSubmissionDetail =
             buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(archivedSubmissionDetail, null);
-    buildResourceGroupLink(archivedResource);
 
     createResourceDetail(archivedSubmissionDetail, "Not relevant name", 1);
 
     var nonArchivedResource = buildProspectResource();
     var nonArchivedSubmissionDetail =
             buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
-    buildResourceGroupLink(nonArchivedResource);
     createGeneralDetail(nonArchivedSubmissionDetail, null);
     createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
 
@@ -1460,19 +1453,10 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createArchivedResource(entityManager, ResourceType.PROSPECT);
   }
 
-  private RegulatorManagedInformation buildRegulatorManagedInformation(
-      Resource resource, GeographicalArea geographicalArea) {
-    return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
-        resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
-  }
-
-  private ResourceGroupLink buildResourceGroupLink(Resource resource) {
-    var resourceGroupLink = new ResourceGroupLink();
-    resourceGroupLink.setResource(resource);
-    resourceGroupLink.setResourceGroupId(UUID.randomUUID());
-    entityManager.persist(resourceGroupLink);
-    entityManager.flush();
-    return resourceGroupLink;
+  private void buildRegulatorManagedInformation(Resource resource, GeographicalArea geographicalArea) {
+    SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
+        resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager
+    );
   }
 
   private Resource buildDiscoveryResource() {

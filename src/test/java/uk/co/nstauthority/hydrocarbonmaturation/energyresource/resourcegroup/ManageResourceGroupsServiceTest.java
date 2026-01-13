@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -74,9 +72,9 @@ class ManageResourceGroupsServiceTest {
           UUID.fromString(form.getSubmissionDetailIdOfRelatedResource())))
           .thenReturn(selectedSubmissionDetail);
       var selectedGroupId = UUID.randomUUID();
+      var resourceGroupLink = getResourceGroupLink(selectedGroupId, selectedSubmissionDetail.getSubmission().getResource());
       when(resourceGroupLinksRepository.findByResource(selectedSubmissionDetail.getSubmission().getResource()))
-          .thenReturn(Optional.of(getResourceGroupLink(
-              selectedGroupId, selectedSubmissionDetail.getSubmission().getResource())));
+          .thenReturn(resourceGroupLink);
       var captor = ArgumentCaptor.forClass(ResourceGroupsValidatorHints.class);
 
       underTest.validateForResource(form, bindingResult, submissionDetail.getSubmission().getResource());
@@ -86,10 +84,10 @@ class ManageResourceGroupsServiceTest {
       assertThat(captor.getValue())
           .extracting(
               ResourceGroupsValidatorHints::resource,
-              ResourceGroupsValidatorHints::selectedGroupId)
+              ResourceGroupsValidatorHints::selectedGroup)
           .containsExactly(
               submissionDetail.getSubmission().getResource(),
-              selectedGroupId);
+              resourceGroupLink.getResourceGroup());
     }
   }
 
@@ -101,16 +99,17 @@ class ManageResourceGroupsServiceTest {
       var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var groupId = UUID.randomUUID();
-      var resourceGroupLink = getResourceGroupLink(resource, groupId);
+      var resourceGroupLink = getResourceGroupLink(groupId, resource);
       var resourcesInGroup = List.of(resource, otherResource);
       var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
       submissionDetail.setId(UUID.randomUUID());
 
       when(resourceGroupLinksRepository.findByResource(resource))
-          .thenReturn(Optional.of(resourceGroupLink));
-      when(resourceGroupLinksRepository.findByResourceGroupId(groupId))
+          .thenReturn(resourceGroupLink);
+      when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink)).thenReturn(true);
+      when(resourceGroupLinksRepository.findByResourceGroup(resourceGroupLink.getResourceGroup()))
           .thenReturn(List.of(resourceGroupLink));
-      when(resourceGroupQueryService.getResourcesInGroupForGroupId(groupId))
+      when(resourceGroupQueryService.getResourcesInGroup(resourceGroupLink.getResourceGroup()))
           .thenReturn(resourcesInGroup);
       when(resourceGroupQueryService.getActiveResourceForResourceList(resourcesInGroup))
           .thenReturn(Optional.of(otherResource));
@@ -130,11 +129,11 @@ class ManageResourceGroupsServiceTest {
     void getRelatedResourcesFormFromResource_existingEntityNotSetGroup_thenPopulatedForm() {
       var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var groupId = UUID.randomUUID();
-      var resourceGroupLink = getResourceGroupLink(resource, groupId);
-      resourceGroupLink.setResourceGroupId(null);
+      var resourceGroupLink = getResourceGroupLink(groupId, resource);
+      resourceGroupLink.setResourceGroup(null);
 
       when(resourceGroupLinksRepository.findByResource(resource))
-          .thenReturn(Optional.of(resourceGroupLink));
+          .thenReturn(resourceGroupLink);
 
       var result = underTest.getRelatedResourcesFormFromResource(resource);
 
@@ -149,9 +148,12 @@ class ManageResourceGroupsServiceTest {
     @Test
     void getRelatedResourcesFormFromResource_noEntity_thenNoRelatedResource() {
       var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+      var groupId = UUID.randomUUID();
+      var resourceGroupLink = getResourceGroupLink(groupId, resource);
 
       when(resourceGroupLinksRepository.findByResource(resource))
-          .thenReturn(Optional.empty());
+          .thenReturn(resourceGroupLink);
+      when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink)).thenReturn(false);
 
       var result = underTest.getRelatedResourcesFormFromResource(resource);
 
@@ -167,7 +169,7 @@ class ManageResourceGroupsServiceTest {
       var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var groupId = UUID.randomUUID();
-      var resourceGroupLink = getResourceGroupLink(resource, groupId);
+      var resourceGroupLink = getResourceGroupLink(groupId, resource);
       var resourcesInGroup = List.of(resource, otherResource);
       var submissionDetail1 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
       submissionDetail1.setId(UUID.randomUUID());
@@ -176,10 +178,11 @@ class ManageResourceGroupsServiceTest {
       submissionDetail2.setId(UUID.randomUUID());
       submissionDetail2.setAcceptedTimestamp(Instant.parse("2024-02-01T10:00:00Z"));
       when(resourceGroupLinksRepository.findByResource(resource))
-          .thenReturn(Optional.of(resourceGroupLink));
-      when(resourceGroupLinksRepository.findByResourceGroupId(groupId))
+          .thenReturn(resourceGroupLink);
+      when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink)).thenReturn(true);
+      when(resourceGroupLinksRepository.findByResourceGroup(resourceGroupLink.getResourceGroup()))
           .thenReturn(List.of(resourceGroupLink));
-      when(resourceGroupQueryService.getResourcesInGroupForGroupId(groupId))
+      when(resourceGroupQueryService.getResourcesInGroup(resourceGroupLink.getResourceGroup()))
           .thenReturn(resourcesInGroup);
       when(resourceGroupQueryService.getActiveResourceForResourceList(resourcesInGroup))
           .thenReturn(Optional.empty());
@@ -200,13 +203,14 @@ class ManageResourceGroupsServiceTest {
       var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
       var groupId = UUID.randomUUID();
-      var resourceGroupLink = getResourceGroupLink(resource, groupId);
+      var resourceGroupLink = getResourceGroupLink(groupId, resource);
       var resourcesInGroup = List.of(resource, otherResource);
       when(resourceGroupLinksRepository.findByResource(resource))
-          .thenReturn(Optional.of(resourceGroupLink));
-      when(resourceGroupLinksRepository.findByResourceGroupId(groupId))
+          .thenReturn(resourceGroupLink);
+      when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink)).thenReturn(true);
+      when(resourceGroupLinksRepository.findByResourceGroup(resourceGroupLink.getResourceGroup()))
           .thenReturn(List.of(resourceGroupLink));
-      when(resourceGroupQueryService.getResourcesInGroupForGroupId(groupId))
+      when(resourceGroupQueryService.getResourcesInGroup(resourceGroupLink.getResourceGroup()))
           .thenReturn(resourcesInGroup);
       when(resourceGroupQueryService.getActiveResourceForResourceList(resourcesInGroup))
           .thenReturn(Optional.empty());
@@ -221,13 +225,6 @@ class ManageResourceGroupsServiceTest {
               RelatedResourcesForm::getSubmissionDetailIdOfRelatedResource)
           .containsExactly(true, null);
     }
-
-    private ResourceGroupLink getResourceGroupLink(Resource resource, UUID resourceGroupId) {
-      var resourceGroupLink = new ResourceGroupLink();
-      resourceGroupLink.setResource(resource);
-      resourceGroupLink.setResourceGroupId(resourceGroupId);
-      return resourceGroupLink;
-    }
   }
 
   @Nested
@@ -237,92 +234,19 @@ class ManageResourceGroupsServiceTest {
 
     private final RelatedResourcesForm form = new RelatedResourcesForm();
 
-    private ResourceGroupLink resourceGroupLink;
-
-    @Nested
-    class AndRemovingGroupLink {
-      @BeforeEach
-      void setUp() {
-        form.setRelatedToAnotherResource(false);
-      }
-
-      @Test
-      void WhenTwoGroupLinksPresent_verifyGroupDeleted() {
-        resourceGroupLink = getResourceGroupLink(UUID.randomUUID(), resource);
-        var resourceGroupLink2 = getResourceGroupLink(resourceGroupLink.getResourceGroupId(), resource);
-        when(resourceGroupService.getResourceGroupLinkByResource(resource))
-            .thenReturn(Optional.of(resourceGroupLink));
-        when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
-            .thenReturn(List.of(resourceGroupLink, resourceGroupLink2));
-        underTest.updateResourceGroupLinkFromResource(resource, form);
-
-        verify(resourceGroupLinksRepository, times(1))
-            .deleteAll(List.of(resourceGroupLink, resourceGroupLink2));
-      }
-
-      @Test
-      void WhenThreeGroupLinksPresent_verifyOneDeleted() {
-        resourceGroupLink = getResourceGroupLink(UUID.randomUUID(), resource);
-        var resourceGroupLink2 = getResourceGroupLink(resourceGroupLink.getResourceGroupId(), resource);
-        var resourceGroupLink3 = getResourceGroupLink(resourceGroupLink.getResourceGroupId(), resource);
-
-        when(resourceGroupService.getResourceGroupLinkByResource(resource))
-            .thenReturn(Optional.of(resourceGroupLink));
-        when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupLink.getResourceGroupId()))
-            .thenReturn(List.of(resourceGroupLink, resourceGroupLink2, resourceGroupLink3));
-        underTest.updateResourceGroupLinkFromResource(resource, form);
-
-        verify(resourceGroupLinksRepository, times(1))
-            .delete(resourceGroupLink);
-      }
-
-      @Test
-      void WhenNoGroupLinkPresent_verifyNothingHappened() {
-        when(resourceGroupService.getResourceGroupLinkByResource(resource))
-            .thenReturn(Optional.empty());
-
-        underTest.updateResourceGroupLinkFromResource(resource, form);
-
-        verifyNoInteractions(resourceGroupLinksRepository);
-        verifyNoMoreInteractions(resourceGroupService);
-      }
-    }
-
     @Nested
     class AndUpdatingGroup {
       private static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
       private SubmissionDetail submissionDetail;
-      private ResourceGroupLink resourceGroupLink;
 
       @BeforeEach
       void setUp() {
         submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-        resourceGroupLink = getResourceGroupLink(UUID.randomUUID(), resource);
+        ResourceGroupLink resourceGroupLink = getResourceGroupLink(UUID.randomUUID(), resource);
         form.setRelatedToAnotherResource(true);
         form.setSubmissionDetailIdOfRelatedResource(SUBMISSION_DETAIL_ID.toString());
         when(resourceGroupService.getResourceGroupLinkByResource(resource))
-            .thenReturn(Optional.of(resourceGroupLink));
-      }
-
-      @Test
-      void WhenCreatingNewGroup_assertSavedNewLinks() {
-        when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
-            .thenReturn(submissionDetail);
-
-        when(resourceGroupService.getResourceGroupLinkByResource(
-            submissionDetail.getSubmission().getResource()))
-            .thenReturn(Optional.empty());
-        var captor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        underTest.updateResourceGroupLinkFromResource(resource, form);
-
-        verify(resourceGroupLinksRepository, times(2)).save(captor.capture());
-
-        assertThat(captor.getAllValues())
-            .extracting(
-                ResourceGroupLink::getResource)
-            .containsExactlyInAnyOrder(resourceGroupLink.getResource(), submissionDetail.getSubmission().getResource());
-        assertThat(captor.getAllValues().get(0).getResourceGroupId())
-            .isEqualTo(captor.getAllValues().get(1).getResourceGroupId());
+            .thenReturn(resourceGroupLink);
       }
 
       @Test
@@ -333,9 +257,8 @@ class ManageResourceGroupsServiceTest {
 
         when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
             .thenReturn(submissionDetail);
-        when(resourceGroupService.getResourceGroupLinkByResource(
-            submissionDetail.getSubmission().getResource()))
-            .thenReturn(Optional.of(existingGroupLink1));
+        when(resourceGroupService.getResourceGroupLinkByResource(submissionDetail.getSubmission().getResource()))
+            .thenReturn(existingGroupLink1);
         underTest.updateResourceGroupLinkFromResource(resource, form);
 
         verify(resourceGroupLinksRepository, times(1)).save(captor.capture());
@@ -343,19 +266,99 @@ class ManageResourceGroupsServiceTest {
         assertThat(captor.getValue())
             .extracting(
                 ResourceGroupLink::getResource,
-                ResourceGroupLink::getResourceGroupId)
+                ResourceGroupLink::getResourceGroup)
             .containsExactly(
                 resource,
-                groupId
+                existingGroupLink1.getResourceGroup()
             );
+      }
+
+      @Test
+      void updateResourceGroupLinkFromResource_currentResourceActive_updatesOtherResourceGroupLinks() {
+        // arrange - override setup to mark current resource active and return a known current group link
+        var currentGroupId = UUID.randomUUID();
+        var currentGroupLink = getResourceGroupLink(currentGroupId, resource);
+        when(resourceGroupService.getResourceGroupLinkByResource(resource)).thenReturn(currentGroupLink);
+        when(resource.getActive()).thenReturn(true);
+
+        // ensure the form and submission detail mapping is prepared by parent setup (form has submission id)
+        var selectedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+        when(submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(form.getSubmissionDetailIdOfRelatedResource())))
+            .thenReturn(selectedSubmissionDetail);
+
+        // prepare selected group links (these should be moved into the current group)
+        var otherResource1 = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+        var otherResource2 = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+        var selectedGroupLink1 = new ResourceGroupLink();
+        selectedGroupLink1.setResource(otherResource1);
+        selectedGroupLink1.setResourceGroup(new ResourceGroup());
+        var selectedGroupLink2 = new ResourceGroupLink();
+        selectedGroupLink2.setResource(otherResource2);
+        selectedGroupLink2.setResourceGroup(new ResourceGroup());
+
+        // the selected resource group's link returned for the selected submission detail
+        var selectedResource = selectedSubmissionDetail.getSubmission().getResource();
+        var selectedResourceGroupLink = getResourceGroupLink(UUID.randomUUID(), selectedResource);
+        when(resourceGroupService.getResourceGroupLinkByResource(selectedSubmissionDetail.getSubmission().getResource()))
+            .thenReturn(selectedResourceGroupLink);
+        when(resourceGroupService.getResourceGroupLinksByResourceGroup(selectedResourceGroupLink.getResourceGroup()))
+            .thenReturn(List.of(selectedGroupLink1, selectedGroupLink2));
+
+        // act
+        underTest.updateResourceGroupLinkFromResource(resource, form);
+
+        // assert - verify saveAll called and that each saved link now points to the current group's ResourceGroup
+        @SuppressWarnings("rawtypes")
+        var captor = ArgumentCaptor.forClass(List.class);
+        verify(resourceGroupLinksRepository, times(1)).saveAll(captor.capture());
+        @SuppressWarnings("unchecked")
+        var saved = (List<ResourceGroupLink>) captor.getValue();
+        assertThat(saved).hasSize(2);
+        for (var link : saved) {
+          assertThat(link.getResourceGroup()).isEqualTo(currentGroupLink.getResourceGroup());
+        }
+      }
+
+      @Test
+      void updateResourceGroupLinkFromResource_notRelated_createsNewGroupWhenInGroupWithOthers() {
+        // arrange - form defaults to not related; simulate resource is in group with other resources
+        var formLocal = new RelatedResourcesForm();
+        var currentGroupLink = getResourceGroupLink(UUID.randomUUID(), resource);
+        when(resourceGroupService.getResourceGroupLinkByResource(resource)).thenReturn(currentGroupLink);
+        when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(currentGroupLink)).thenReturn(true);
+
+        // act
+        underTest.updateResourceGroupLinkFromResource(resource, formLocal);
+
+        // assert
+        verify(resourceGroupService, times(1)).removeResourceFromGroup(resource);
+        verify(resourceGroupService, times(1)).createNewGroupForResource(resource);
+      }
+
+      @Test
+      void updateResourceGroupLinkFromResource_notRelated_noActionWhenNotInGroupWithOthers() {
+        // arrange - form defaults to not related; simulate resource is not in group with other resources
+        var formLocal = new RelatedResourcesForm();
+        var currentGroupLink = getResourceGroupLink(UUID.randomUUID(), resource);
+        when(resourceGroupService.getResourceGroupLinkByResource(resource)).thenReturn(currentGroupLink);
+        when(resourceGroupQueryService.resourceIsInGroupWithOtherResources(currentGroupLink)).thenReturn(false);
+
+        // act
+        underTest.updateResourceGroupLinkFromResource(resource, formLocal);
+
+        // assert - no remove/create calls
+        verify(resourceGroupService, times(0)).removeResourceFromGroup(resource);
+        verify(resourceGroupService, times(0)).createNewGroupForResource(resource);
       }
     }
   }
 
   private ResourceGroupLink getResourceGroupLink(UUID resourceGroupId, Resource resource) {
+    var resourceGroup = new ResourceGroup();
+    resourceGroup.setId(resourceGroupId);
     var resourceGroupLink = new ResourceGroupLink();
     resourceGroupLink.setResource(resource);
-    resourceGroupLink.setResourceGroupId(resourceGroupId);
+    resourceGroupLink.setResourceGroup(resourceGroup);
     return resourceGroupLink;
   }
 }

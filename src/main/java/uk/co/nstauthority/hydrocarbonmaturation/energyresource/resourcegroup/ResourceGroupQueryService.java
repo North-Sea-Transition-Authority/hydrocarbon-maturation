@@ -49,6 +49,7 @@ public class ResourceGroupQueryService {
         .flatMap(Optional::stream)
         .map(submissionDetail -> getResourceGroupViewForSubmissionDetail(submissionDetail, currentResourceId))
         .flatMap(Optional::stream)
+        .sorted(Comparator.comparing(ResourceGroupView::getSelectionText))
         .toList();
   }
 
@@ -59,21 +60,21 @@ public class ResourceGroupQueryService {
     var resourceNameCentreOfInterestAndRoundReference = submissionResourceService
         .getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail) + isActiveResourceString;
 
-    var resourceGroupLink = resourceGroupLinksRepository.findByResource(
-        submissionDetail.getSubmission().getResource());
+    var resource = submissionDetail.getSubmission().getResource();
+    var resourceGroupLink = resourceGroupLinksRepository.findByResource(resource);
 
-    var isInGroup = resourceGroupLink.isPresent();
+    var isInGroupWithOtherResources = resourceIsInGroupWithOtherResources(resourceGroupLink);
 
-    if (isInGroup) {
+    if (isInGroupWithOtherResources) {
       var resourceGroupView = new ResourceGroupView(
           submissionDetail.getId(),
           GROUP_PREFIX + resourceNameCentreOfInterestAndRoundReference,
-          resourceGroupLink.get().getResourceGroupId()
+          resourceGroupLink.getResourceGroup().getId()
       );
       return Optional.of(resourceGroupView);
     }
 
-    if (!submissionDetail.getSubmission().getResource().getId().equals(currentResourceId)) {
+    if (!resource.getId().equals(currentResourceId)) {
       //filters out the current resource so the current resource won't be able to have a group with itself.
       var resourceGroupView = new ResourceGroupView(
           submissionDetail.getId(),
@@ -86,8 +87,8 @@ public class ResourceGroupQueryService {
     return Optional.empty();
   }
 
-  public List<Resource> getResourcesInGroupForGroupId(UUID resourceGroupId) {
-    return resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId)
+  public List<Resource> getResourcesInGroup(ResourceGroup resourceGroup) {
+    return resourceGroupLinksRepository.findByResourceGroup(resourceGroup)
             .stream()
             .map(ResourceGroupLink::getResource)
             .toList();
@@ -99,10 +100,15 @@ public class ResourceGroupQueryService {
         .findFirst();
   }
 
-  public Optional<Resource> getActiveResourceInGroupForGroupId(UUID resourceGroupId) {
-    return getResourcesInGroupForGroupId(resourceGroupId)
+  public Optional<Resource> getActiveResourceInGroup(ResourceGroup resourceGroup) {
+    return getResourcesInGroup(resourceGroup)
         .stream()
         .filter(res -> BooleanUtils.isTrue(res.getActive()))
         .findFirst();
+  }
+
+  public boolean resourceIsInGroupWithOtherResources(ResourceGroupLink resourceGroupLink) {
+    var resourcesInGroup = getResourcesInGroup(resourceGroupLink.getResourceGroup());
+    return resourcesInGroup.size() > 1;
   }
 }

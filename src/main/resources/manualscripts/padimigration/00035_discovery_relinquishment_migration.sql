@@ -3,7 +3,11 @@ DO $$
 
         relinquishment_rec RECORD;
         remi_res_id UUID;
+        resource_audit_rev INTEGER;
+        undeveloped_disc_id UUID;
+        undeveloped_disc_audit_rev INTEGER;
         reservoir_id UUID;
+        reservoir_audit_rev INTEGER;
         remi_submission_id UUID;
         remi_submission_detail_id UUID;
         prospect_link_rec RECORD;
@@ -63,12 +67,48 @@ DO $$
                 false
             ) RETURNING id INTO remi_res_id;
 
+            INSERT INTO remi.audit_revisions (
+                updated_at,
+                updated_by_user_id
+            ) VALUES (
+                 now(),
+                 1
+             ) RETURNING rev INTO resource_audit_rev;
+
+            INSERT INTO remi.resources_aud (
+                rev,
+                revtype,
+                id,
+                type,
+                created_timestamp,
+                active
+            ) VALUES (
+                 resource_audit_rev,
+                 0,
+                 remi_res_id,
+                 'DISCOVERY',
+                 now(),
+                 false
+             );
+
             UPDATE remi.padi_resource_groupings prg
             SET remi_resource_id = remi_res_id
             WHERE prg.legacy_res_data_id = relinquishment_rec.resdat_id;
 
             INSERT INTO remi.undeveloped_discoveries(id, is_undeveloped_discovery, resource_id)
-            VALUES (gen_random_uuid(), false, remi_res_id);
+            VALUES (gen_random_uuid(), false, remi_res_id)
+            RETURNING id INTO undeveloped_disc_id;
+
+            INSERT INTO remi.audit_revisions (
+                updated_at,
+                updated_by_user_id
+            ) VALUES (
+                 now(),
+                 1
+             ) RETURNING rev INTO undeveloped_disc_audit_rev;
+
+            INSERT INTO remi.undeveloped_discoveries_aud(rev, revtype, id, is_undeveloped_discovery, resource_id)
+            VALUES (undeveloped_disc_audit_rev, 0, undeveloped_disc_id, false, remi_res_id);
 
             INSERT INTO remi.submissions (id, resource_id)
             VALUES(gen_random_uuid(), remi_res_id)
@@ -79,6 +119,17 @@ DO $$
                 gen_random_uuid(),
                 relinquishment_rec.name_alternative
             ) RETURNING id INTO reservoir_id;
+
+            INSERT INTO remi.audit_revisions (
+                updated_at,
+                updated_by_user_id
+            ) VALUES (
+                 now(),
+                 1
+             ) RETURNING rev INTO reservoir_audit_rev;
+
+            INSERT INTO remi.reservoirs_aud (rev, revtype, id, name)
+            VALUES (reservoir_audit_rev, 0, reservoir_id, relinquishment_rec.name_alternative);
 
             INSERT INTO remi.padi_reservoirs (
                 id,

@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLinksRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupView;
@@ -85,13 +85,12 @@ public class RelatedResourcesFormService {
         Map.of(submissionDetailId, key));
   }
 
-  public UUID getSelectedResourceGroupIdOrNull(RelatedResourcesForm form) {
+  public ResourceGroup getSelectedResourceGroupOrNull(RelatedResourcesForm form) {
     if (form.getSubmissionDetailIdOfRelatedResource() != null) {
-      return resourceGroupLinksRepository.findByResource(submissionDetailService
-              .getSubmissionDetailForIdOrError(UUID.fromString(form.getSubmissionDetailIdOfRelatedResource()))
-              .getSubmission().getResource())
-          .map(ResourceGroupLink::getResourceGroupId)
-          .orElse(null);
+      var resource = submissionDetailService.getSubmissionDetailForIdOrError(
+          UUID.fromString(form.getSubmissionDetailIdOfRelatedResource())
+      ).getSubmission().getResource();
+      return resourceGroupLinksRepository.findByResource(resource).getResourceGroup();
     } else {
       return null;
     }

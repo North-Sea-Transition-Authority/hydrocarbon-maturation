@@ -6,7 +6,6 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileValidationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 
 @Service
@@ -33,11 +32,6 @@ class RegulatorManagedInformationFormValidator implements SmartValidator {
     if (validatorHints.isResponsibleTeamBeingUpdated()) {
       ValidationUtils.rejectIfEmpty(errors, "responsibleTeamType", "responsibleTeamType.required",
           "Select a responsible team");
-    }
-
-    if (form.getOpportunityType() == OpportunityType.OTHER) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherTypeOfOpportunity", "otherTypeOfOpportunity.required",
-          "Enter the other opportunity type");
     }
 
     if (validatorHints.isAreaTeamUser()) {

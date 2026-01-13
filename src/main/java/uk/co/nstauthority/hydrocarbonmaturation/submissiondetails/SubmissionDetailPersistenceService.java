@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatorreportinginformation.RegulatorReportingInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionType;
@@ -20,18 +21,21 @@ public class SubmissionDetailPersistenceService {
   private final ResourceGroupService resourceGroupService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final InternalTeamService internalTeamService;
+  private final RegulatorReportingInformationService regulatorReportingInformationService;
 
   @Autowired
   public SubmissionDetailPersistenceService(SubmissionDetailRepository submissionDetailRepository,
                                             Clock clock,
                                             ResourceGroupService resourceGroupService,
                                             ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                            InternalTeamService internalTeamService) {
+                                            InternalTeamService internalTeamService,
+                                            RegulatorReportingInformationService regulatorReportingInformationService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.clock = clock;
     this.resourceGroupService = resourceGroupService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.internalTeamService = internalTeamService;
+    this.regulatorReportingInformationService = regulatorReportingInformationService;
   }
 
   public SubmissionDetail createInitialSubmissionDetail(Submission submission, SubmissionType submissionType, User user) {
@@ -93,7 +97,11 @@ public class SubmissionDetailPersistenceService {
 
     if (submissionDetail.isInitialResourceSubmission()) {
       resourceGroupService.createResourceGroupLink(submissionDetail, user);
+      var resourceGroup = resourceGroupService.getResourceGroupLinkByResource(submissionDetail.getSubmission().getResource())
+          .getResourceGroup();
+      regulatorReportingInformationService.saveRegulatorReportingInformationForNewResource(submissionDetail, resourceGroup);
     }
+
   }
 
   @Transactional

@@ -4,6 +4,9 @@ DECLARE
     discovery_rec RECORD;
     resource_rec RECORD;
     remi_res_id UUID;
+    resource_audit_rev INTEGER;
+    undeveloped_disc_id UUID;
+    undeveloped_disc_rev INTEGER;
 
 BEGIN
 
@@ -72,6 +75,30 @@ BEGIN
             false
         ) RETURNING id INTO remi_res_id;
 
+        INSERT INTO remi.audit_revisions (
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+            now(),
+            1
+        ) RETURNING rev INTO resource_audit_rev;
+
+        INSERT INTO remi.resources_aud (
+            rev,
+            revtype,
+            id,
+            type,
+            created_timestamp,
+            active
+        ) VALUES (
+            resource_audit_rev,
+            0,
+            remi_res_id,
+            'DISCOVERY',
+            now(),
+            false
+        );
+
         UPDATE remi.padi_resource_groupings prg
         SET remi_resource_id = remi_res_id
         WHERE prg.legacy_resource_id = resource_rec.padi_res_id
@@ -81,7 +108,30 @@ BEGIN
         AND prg.multi_reservoir = resource_rec.multi_reservoir;
 
         INSERT INTO remi.undeveloped_discoveries(id, is_undeveloped_discovery, resource_id)
-        VALUES (gen_random_uuid(), false, remi_res_id);
+        VALUES (gen_random_uuid(), false, remi_res_id)
+        RETURNING id INTO undeveloped_disc_id;
+
+        INSERT INTO remi.audit_revisions (
+            updated_at,
+            updated_by_user_id
+        ) VALUES (
+             now(),
+             1
+         ) RETURNING rev INTO undeveloped_disc_rev;
+
+        INSERT INTO remi.undeveloped_discoveries_aud (
+            rev,
+            revtype,
+            id,
+            is_undeveloped_discovery,
+            resource_id
+        ) VALUES (
+             resource_audit_rev,
+             0,
+             undeveloped_disc_id,
+            false,
+            remi_res_id
+         );
 
     END LOOP;
 

@@ -14,7 +14,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceAr
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkServi
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -258,16 +258,16 @@ class ResourceArchiveServiceTest {
     resource.setActive(false);
     var resourceGroupLink = new ResourceGroupLink();
     resourceGroupLink.setResource(resource);
-    var resourceGroupId = UUID.randomUUID();
-    resourceGroupLink.setResourceGroupId(resourceGroupId);
+    var resourceGroup = new ResourceGroup();
+    resourceGroupLink.setResourceGroup(resourceGroup);
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
+        .thenReturn(resourceGroupLink);
     var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     otherResource.setActive(false);
     var otherResourceGroupLink = new ResourceGroupLink();
     otherResourceGroupLink.setResource(otherResource);
-    otherResourceGroupLink.setResourceGroupId(resourceGroupId);
-    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupId))
+    otherResourceGroupLink.setResourceGroup(resourceGroup);
+    when(resourceGroupService.getResourceGroupLinksByResourceGroup(resourceGroup))
         .thenReturn(List.of(resourceGroupLink, otherResourceGroupLink));
     assertThat(resourceArchiveService.resourceCannotBeUnarchivedWarning(resource)).isEmpty();
   }
@@ -278,18 +278,18 @@ class ResourceArchiveServiceTest {
     resource.setActive(false);
     var resourceGroupLink = new ResourceGroupLink();
     resourceGroupLink.setResource(resource);
-    var resourceGroupId = UUID.randomUUID();
-    resourceGroupLink.setResourceGroupId(resourceGroupId);
+    var resourceGroup = new ResourceGroup();
+    resourceGroupLink.setResourceGroup(resourceGroup);
 
     var otherResource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     otherResource.setActive(true);
     var otherResourceGroupLink = new ResourceGroupLink();
     otherResourceGroupLink.setResource(otherResource);
-    otherResourceGroupLink.setResourceGroupId(resourceGroupId);
+    otherResourceGroupLink.setResourceGroup(resourceGroup);
 
     when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
-    when(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupId))
+        .thenReturn(resourceGroupLink);
+    when(resourceGroupService.getResourceGroupLinksByResourceGroup(resourceGroup))
         .thenReturn(List.of(resourceGroupLink, otherResourceGroupLink));
 
     var warning = resourceArchiveService.resourceCannotBeUnarchivedWarning(resource);
@@ -298,19 +298,6 @@ class ResourceArchiveServiceTest {
     assertThat(warning.get()).contains(
         ResourceArchiveService.OTHER_ACTIVE_RESOURCE_IN_GROUP.formatted(resource.getType().getDisplayName().toLowerCase())
     );
-  }
-
-  // Test: resource not in any group
-  @Test
-  void resourceCannotBeUnarchivedWarning_notInGroup() {
-    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
-
-    when(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .thenReturn(Optional.empty());
-
-    var warning = resourceArchiveService.resourceCannotBeUnarchivedWarning(resource);
-
-    assertThat(warning).isEmpty();
   }
 
   @Test

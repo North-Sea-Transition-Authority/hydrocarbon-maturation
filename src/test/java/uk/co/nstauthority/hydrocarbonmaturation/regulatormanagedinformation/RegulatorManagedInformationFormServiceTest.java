@@ -25,9 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationFormServiceTest {
@@ -61,14 +59,7 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
-    regulatorManagedInformation.setHydrocarbonCase(HydrocarbonsDiscovered.GAS_ONLY);
-    regulatorManagedInformation.setOpportunityType(OpportunityType.OTHER);
-    var otherOpportunityType = "New Play";
-    regulatorManagedInformation.setOtherTypeOfOpportunity(otherOpportunityType);
-    var resourceName = "regulator resource name";
-    regulatorManagedInformation.setResourceName(resourceName);
     regulatorManagedInformation.setLinkedToShelvedCopField(false);
-    regulatorManagedInformation.setWellId(1);
     var relinquishmentReportForms = List.of(mock(UploadedFileForm.class));
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
@@ -82,23 +73,13 @@ class RegulatorManagedInformationFormServiceTest {
             RegulatorManagedInformationForm::getGeographicalArea,
             RegulatorManagedInformationForm::getRelinquishmentReport,
             RegulatorManagedInformationForm::getResponsibleTeamType,
-            RegulatorManagedInformationForm::getLinkedToShelvedCopField,
-            RegulatorManagedInformationForm::getWell,
-            RegulatorManagedInformationForm::getResourceName,
-            RegulatorManagedInformationForm::getHydrocarbonCase,
-            RegulatorManagedInformationForm::getOpportunityType,
-            RegulatorManagedInformationForm::getOtherTypeOfOpportunity
+            RegulatorManagedInformationForm::getLinkedToShelvedCopField
         )
         .containsExactly(
             geographicalArea,
             relinquishmentReportForms,
             regulatorManagedInformation.getResponsibleTeamType(),
-            regulatorManagedInformation.getLinkedToShelvedCopField(),
-            regulatorManagedInformation.getWellId().toString(),
-            regulatorManagedInformation.getResourceName(),
-            regulatorManagedInformation.getHydrocarbonCase(),
-            regulatorManagedInformation.getOpportunityType(),
-            regulatorManagedInformation.getOtherTypeOfOpportunity()
+            regulatorManagedInformation.getLinkedToShelvedCopField()
         );
   }
 

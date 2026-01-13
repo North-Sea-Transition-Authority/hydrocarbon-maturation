@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_REPORTING_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class RegulatorResourceRecordQueryService implements ResourceRecordQueryS
       conditionList.add((RESOURCES.ACTIVE.eq(true)));
     }
     if (form.getRegulatorResourceName() != null) {
-      conditionList.add(REGULATOR_MANAGED_INFORMATION.RESOURCE_NAME.eq(form.getRegulatorResourceName()));
+      conditionList.add(REGULATOR_REPORTING_INFORMATION.RESOURCE_NAME.eq(form.getRegulatorResourceName()));
     }
     return conditionList;
   }

@@ -22,41 +22,43 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 public class ResourceGroupSummaryService {
 
   private final ResourceGroupService resourceGroupService;
+  private final ResourceGroupQueryService resourceGroupQueryService;
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   public ResourceGroupSummaryService(ResourceGroupService resourceGroupService,
+                                     ResourceGroupQueryService resourceGroupQueryService,
                                      SubmissionResourceService submissionResourceService,
                                      SubmissionDetailService submissionDetailService) {
     this.resourceGroupService = resourceGroupService;
+    this.resourceGroupQueryService = resourceGroupQueryService;
     this.submissionResourceService = submissionResourceService;
     this.submissionDetailService = submissionDetailService;
   }
 
   public ResourceGroupSummaryView getResourceGroupLinkSummaryFromResource(Resource resource) {
-    var resourceGroup = resourceGroupService.getResourceGroupLinkByResource(resource);
-    return resourceGroup.map(resourceGroupLink -> createSummaryViewFromResourceGroupLink(resourceGroupLink, resource))
-        .orElse(ResourceGroupSummaryView.empty(resource.getType()));
+    var resourceGroupLink = resourceGroupService.getResourceGroupLinkByResource(resource);
+    if (resourceGroupQueryService.resourceIsInGroupWithOtherResources(resourceGroupLink)) {
+      return createSummaryViewFromResourceGroupLink(resourceGroupLink, resource);
+    } else {
+      return ResourceGroupSummaryView.empty(resource.getType());
+    }
   }
 
   List<ResourceItemSummaryView> getResourceGroupMembersSummaryWithoutCurrentResource(Resource resource) {
-    var resourceItemListOpt = resourceGroupService.getResourceGroupLinkByResource(resource);
-    if (resourceItemListOpt.isEmpty()) {
-      return List.of();
-    }
-    var listOfLinks = resourceGroupService.getResourceGroupLinksByResourceGroupId(
-            resourceItemListOpt.get().getResourceGroupId())
+    var resourceGroupLink = resourceGroupService.getResourceGroupLinkByResource(resource);
+    var listOfLinks = resourceGroupService.getResourceGroupLinksByResourceGroup(resourceGroupLink.getResourceGroup())
         .stream()
-        .filter(resourceGroupLink -> !resourceGroupLink.getResource().getId().equals(resource.getId()))
+        .filter(groupLink -> !groupLink.getResource().getId().equals(resource.getId()))
         .toList();
     return getListOfResourcesInGroupByResourceGroupLinks(listOfLinks, resource);
   }
 
   private ResourceGroupSummaryView createSummaryViewFromResourceGroupLink(ResourceGroupLink resourceGroupLink,
                                                                           Resource resource) {
-    var listOfLinks = resourceGroupService.getResourceGroupLinksByResourceGroupId(
-        resourceGroupLink.getResourceGroupId());
+    var listOfLinks = resourceGroupService.getResourceGroupLinksByResourceGroup(
+        resourceGroupLink.getResourceGroup());
 
     return new ResourceGroupSummaryView(
         getListOfResourcesInGroupByResourceGroupLinks(listOfLinks, resource),
@@ -68,9 +70,10 @@ public class ResourceGroupSummaryService {
   private List<ResourceItemSummaryView> getListOfResourcesInGroupByResourceGroupLinks(
       List<ResourceGroupLink> resourceLinks, Resource resource) {
     return resourceLinks.stream()
-        .sorted(Comparator.comparing((ResourceGroupLink resourceLink) ->
-                resourceLink.getResource().getCreatedTimestamp())
-            .reversed())
+        .sorted(
+            Comparator.<ResourceGroupLink, Integer>comparing(
+                resourceLink -> BooleanUtils.toInteger(resourceLink.getResource().getActive())).reversed()
+                .thenComparing(resourceLink -> getResourceName(resourceLink.getResource())))
         .map(resourceGroupLink -> getResourceItemFromResourceGroupLink(resourceGroupLink, resource))
         .toList();
   }

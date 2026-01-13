@@ -3,6 +3,14 @@ DO $$
 
         prospect_group_rec RECORD;
         group_id UUID;
+        group_audit_rev INTEGER;
+        group_link_audit_rev INTEGER;
+        resource_group_link_id UUID;
+        ungrouped_prospect_rec RECORD;
+        new_group_id UUID;
+        new_group_audit_rev INTEGER;
+        new_group_link_id UUID;
+        new_group_link_audit_rev INTEGER;
 
 BEGIN
 
@@ -35,7 +43,23 @@ BEGIN
             AND r.type = 'PROSPECT';
 
             IF group_id IS NULL THEN
+
                 group_id := gen_random_uuid();
+
+                INSERT INTO remi.resource_groups (id)
+                VALUES (group_id);
+
+                INSERT INTO remi.audit_revisions(
+                    updated_at,
+                    updated_by_user_id
+                ) VALUES (
+                    now(),
+                  1
+                ) RETURNING rev INTO group_audit_rev;
+
+                INSERT INTO remi.resource_groups_aud (rev, revtype, id)
+                VALUES (group_audit_rev, 0, group_id);
+
             END IF;
 
             -- Create group links
@@ -49,6 +73,97 @@ BEGIN
                 group_id,
                 prospect_group_rec.remi_resource_id,
                 prospect_group_rec.legacy_resource_id
+            ) RETURNING id INTO resource_group_link_id;
+
+            INSERT INTO remi.audit_revisions(
+                updated_at,
+                updated_by_user_id
+            ) VALUES (
+                 now(),
+                 1
+             ) RETURNING rev INTO group_link_audit_rev;
+
+            INSERT INTO remi.resource_group_links_aud (
+               rev,
+               revtype,
+               id,
+               resource_id,
+               legacy_resource_id,
+               resource_group_id
+            ) VALUES (
+                group_link_audit_rev,
+                0,
+                resource_group_link_id,
+                prospect_group_rec.remi_resource_id,
+                prospect_group_rec.legacy_resource_id,
+                group_id
+            );
+
+        END LOOP;
+
+        FOR ungrouped_prospect_rec IN (
+            SELECT prg.legacy_resource_id, prg.remi_resource_id
+            FROM remi.padi_resource_groupings prg
+            JOIN remi.resources r ON r.id = prg.remi_resource_id
+            WHERE r.type = 'PROSPECT'
+            AND r.id NOT IN (
+                SELECT rgl.resource_id
+                FROM remi.resource_group_links rgl
+            )
+            GROUP BY prg.legacy_resource_id, prg.remi_resource_id
+        )
+        LOOP
+
+            INSERT INTO remi.resource_groups (id)
+            VALUES (gen_random_uuid())
+            RETURNING id INTO new_group_id;
+
+            INSERT INTO remi.audit_revisions(
+                updated_at,
+                updated_by_user_id
+            ) VALUES (
+                now(),
+                1
+            ) RETURNING rev INTO new_group_audit_rev;
+
+            INSERT INTO remi.resource_groups_aud (rev, revtype, id)
+            VALUES (new_group_audit_rev, 0, new_group_id);
+
+            -- Create group links
+            INSERT INTO remi.resource_group_links (
+                id,
+                resource_group_id,
+                resource_id,
+                legacy_resource_id
+            ) VALUES (
+                gen_random_uuid(),
+                new_group_id,
+                ungrouped_prospect_rec.remi_resource_id,
+                ungrouped_prospect_rec.legacy_resource_id
+            ) RETURNING id INTO new_group_link_id;
+
+            INSERT INTO remi.audit_revisions(
+                updated_at,
+                updated_by_user_id
+            ) VALUES (
+                now(),
+                1
+            ) RETURNING rev INTO new_group_link_audit_rev;
+
+            INSERT INTO remi.resource_group_links_aud (
+                rev,
+                revtype,
+                id,
+                resource_id,
+                legacy_resource_id,
+                resource_group_id
+            ) VALUES (
+            new_group_link_audit_rev,
+            0,
+            new_group_link_id,
+            ungrouped_prospect_rec.remi_resource_id,
+            ungrouped_prospect_rec.legacy_resource_id,
+            new_group_id
             );
 
         END LOOP;

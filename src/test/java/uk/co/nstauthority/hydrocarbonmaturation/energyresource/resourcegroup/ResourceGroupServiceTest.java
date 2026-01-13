@@ -47,20 +47,21 @@ class ResourceGroupServiceTest {
     var resource = mock(Resource.class);
     var resourceGroupLink = mock(ResourceGroupLink.class);
     when(resourceGroupLinksRepository.findByResource(resource))
-        .thenReturn(Optional.of(resourceGroupLink));
+        .thenReturn(resourceGroupLink);
 
-    assertThat(resourceGroupService.getResourceGroupLinkByResource(resource))
-        .contains(resourceGroupLink);
+    assertThat(resourceGroupService.getResourceGroupLinkByResource(resource)).isEqualTo(resourceGroupLink);
   }
 
   @Test
-  void getResourceGroupLinksByResourceGroupId_assertReturn() {
+  void getResourceGroupLinksByResourceGroup_assertReturn() {
     var resourceGroupId = UUID.randomUUID();
+    var resourceGroup = new ResourceGroup();
+    resourceGroup.setId(resourceGroupId);
     var resourceGroupLink = mock(ResourceGroupLink.class);
-    when(resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId))
+    when(resourceGroupLinksRepository.findByResourceGroup(resourceGroup))
         .thenReturn(List.of(resourceGroupLink));
 
-    assertThat(resourceGroupService.getResourceGroupLinksByResourceGroupId(resourceGroupId))
+    assertThat(resourceGroupService.getResourceGroupLinksByResourceGroup(resourceGroup))
         .containsExactly(resourceGroupLink);
   }
 
@@ -83,11 +84,13 @@ class ResourceGroupServiceTest {
       when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
           .thenReturn(Optional.of(relatedResourceTaskList));
 
+      var resourceGroup = new ResourceGroup();
+
       ResourceGroupLink resourceGroupLinkForRelatedProspect = ResourceGroupService.buildResourceGroupLink(
-          UUID.randomUUID(),
+          resourceGroup,
           relatedSubmissionDetail.getSubmission().getResource());
       when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
-          .thenReturn(Optional.of(resourceGroupLinkForRelatedProspect));
+          .thenReturn(resourceGroupLinkForRelatedProspect);
       var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
       resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
@@ -95,43 +98,13 @@ class ResourceGroupServiceTest {
 
       assertThat(argumentCaptor.getValue())
           .extracting(
-              ResourceGroupLink::getResourceGroupId,
+              ResourceGroupLink::getResourceGroup,
               ResourceGroupLink::getResource
           )
           .containsExactly(
-              resourceGroupLinkForRelatedProspect.getResourceGroupId(),
+              resourceGroupLinkForRelatedProspect.getResourceGroup(),
               submissionDetail.getSubmission().getResource()
           );
-    }
-
-    @Test
-    void newRelatedResource() {
-      var relatedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var relatedResourceTaskList = buildRelatedProspect(relatedSubmissionDetail);
-
-      when(relatedResourcesPersistenceService.getRelatedResourceIfRelatedToAnotherResource(submissionDetail))
-          .thenReturn(Optional.of(relatedResourceTaskList));
-
-      when(resourceGroupLinksRepository.findByResource(relatedSubmissionDetail.getSubmission().getResource()))
-          .thenReturn(Optional.empty());
-      @SuppressWarnings("unchecked")
-      ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-      resourceGroupService.createResourceGroupLink(submissionDetail, USER);
-
-      verify(resourceGroupLinksRepository).saveAll(argumentCaptor.capture());
-
-      assertThat(argumentCaptor.getValue())
-          .hasSize(2)
-          .extracting(
-              ResourceGroupLink::getResource
-          )
-          .containsExactly(
-              submissionDetail.getSubmission().getResource(),
-              relatedSubmissionDetail.getSubmission().getResource()
-          );
-
-      assertThat(argumentCaptor.getValue().get(0).getResourceGroupId())
-          .isEqualTo(argumentCaptor.getValue().get(1).getResourceGroupId());
     }
 
     @Nested
@@ -153,45 +126,13 @@ class ResourceGroupServiceTest {
   }
 
   @Test
-  void removeResourceFromGroup_whenOnlyTwoInGroupToStart() {
+  void removeResourceFromGroup() {
     var resource1 = new Resource();
     var resourceGroupLinkFromResource1 = new ResourceGroupLink();
-    var resource2 = new Resource();
-    var resourceGroupLinkFromResource2 = new ResourceGroupLink();
-    var resourceGroupId = UUID.randomUUID();
+    var resourceGroup = new ResourceGroup();
     resourceGroupLinkFromResource1.setResource(resource1);
-    resourceGroupLinkFromResource1.setResourceGroupId(resourceGroupId);
-    resourceGroupLinkFromResource2.setResource(resource2);
-    resourceGroupLinkFromResource2.setResourceGroupId(resourceGroupId);
-    var resourceGroupLinkList = List.of(resourceGroupLinkFromResource1, resourceGroupLinkFromResource2);
-    when(resourceGroupLinksRepository.findByResource(resource1)).thenReturn(Optional.of(resourceGroupLinkFromResource1));
-    when(resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId))
-        .thenReturn(resourceGroupLinkList);
-    resourceGroupService.removeResourceFromGroup(resource1);
-    verify(resourceGroupLinksRepository).deleteAll(resourceGroupLinkList);
-  }
-
-  @Test
-  void removeResourceFromGroup_whenMoreThanTwoInGroupToStart() {
-    var resource1 = new Resource();
-    var resourceGroupLinkFromResource1 = new ResourceGroupLink();
-    var resource2 = new Resource();
-    var resourceGroupLinkFromResource2 = new ResourceGroupLink();
-    var resource3 = new Resource();
-    var resourceGroupLinkFromResource3 = new ResourceGroupLink();
-    var resourceGroupId = UUID.randomUUID();
-    resourceGroupLinkFromResource1.setResource(resource1);
-    resourceGroupLinkFromResource1.setResourceGroupId(resourceGroupId);
-    resourceGroupLinkFromResource2.setResource(resource2);
-    resourceGroupLinkFromResource2.setResourceGroupId(resourceGroupId);
-    resourceGroupLinkFromResource3.setResource(resource3);
-    resourceGroupLinkFromResource3.setResourceGroupId(resourceGroupId);
-    var resourceGroupLinkList = List.of(
-        resourceGroupLinkFromResource1, resourceGroupLinkFromResource2, resourceGroupLinkFromResource3
-    );
-    when(resourceGroupLinksRepository.findByResource(resource1)).thenReturn(Optional.of(resourceGroupLinkFromResource1));
-    when(resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId))
-        .thenReturn(resourceGroupLinkList);
+    resourceGroupLinkFromResource1.setResourceGroup(resourceGroup);
+    when(resourceGroupLinksRepository.findByResource(resource1)).thenReturn(resourceGroupLinkFromResource1);
     resourceGroupService.removeResourceFromGroup(resource1);
     verify(resourceGroupLinksRepository).delete(resourceGroupLinkFromResource1);
   }
