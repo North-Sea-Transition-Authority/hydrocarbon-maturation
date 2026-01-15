@@ -101,10 +101,11 @@ BEGIN
                     WHEN resource_rec.opportunity_type NOT IN ('Discovery', 'Drill-ready Prospect', 'Dry Prospect (for post-well analysis)', 'Lead', 'Prospect')
                     THEN resource_rec.opportunity_type
                 END,
-                CASE resource_rec.hc_case
-                    WHEN 'Oil' THEN 'OIL_ONLY'
-                    WHEN 'Gas' THEN 'GAS_ONLY'
-                    WHEN 'Mixed oil and gas' THEN 'MIXED_OIL_AND_GAS'
+                CASE LOWER(resource_rec.hc_case)
+                    WHEN 'oil' THEN 'OIL_ONLY'
+                    WHEN 'gas' THEN 'GAS_ONLY'
+                    WHEN 'condensate' THEN 'GAS_ONLY'
+                    WHEN 'mixed oil and gas' THEN 'MIXED_OIL_AND_GAS'
                 END,
                 resource_rec.well_id,
                 resource_rec.well_registration_no
@@ -147,11 +148,12 @@ BEGIN
                      WHEN resource_rec.opportunity_type NOT IN ('Discovery', 'Drill-ready Prospect', 'Dry Prospect (for post-well analysis)', 'Lead', 'Prospect')
                          THEN resource_rec.opportunity_type
                      END,
-                 CASE resource_rec.hc_case
-                     WHEN 'Oil' THEN 'OIL_ONLY'
-                     WHEN 'Gas' THEN 'GAS_ONLY'
-                     WHEN 'Mixed oil and gas' THEN 'MIXED_OIL_AND_GAS'
-                     END,
+                CASE LOWER(resource_rec.hc_case)
+                    WHEN 'oil' THEN 'OIL_ONLY'
+                    WHEN 'gas' THEN 'GAS_ONLY'
+                    WHEN 'condensate' THEN 'GAS_ONLY'
+                    WHEN 'mixed oil and gas' THEN 'MIXED_OIL_AND_GAS'
+                END,
                  resource_rec.well_id,
                  resource_rec.well_registration_no
          );

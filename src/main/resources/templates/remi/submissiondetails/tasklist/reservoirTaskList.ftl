@@ -15,8 +15,8 @@ singleErrorMessage=singleErrorMessage>
                 <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(reservoirs.reservoirDeleteUrl()) itemText="Delete" itemScreenReaderText="${reservoirs.reservoirName()}"/>
             </@fdsSummaryList.summaryListCardActionList>
         </#assign>
+        <div class="remi-single-task-list">
         <@fdsSummaryList.summaryListCard headingText="${reservoirs.reservoirName()}" cardActionsContent=actions summaryListId="reservoir${reservoirs?index}">
-            <div class="remi-single-task-list">
                 <@fdsTaskList.singleTaskList>
                     <#list reservoirs.taskListItems() as item>
                         <@fdsTaskList.taskListItem
@@ -27,8 +27,8 @@ singleErrorMessage=singleErrorMessage>
                         useNotCompletedLabels=true />
                     </#list>
                 </@fdsTaskList.singleTaskList>
-            </div>
         </@fdsSummaryList.summaryListCard>
+        </div>
     </#list>
 
     <@fdsForm.htmlForm>
