@@ -207,7 +207,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("relinquishmentSubmission", false),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
             entry("licenceEndpoint",
-                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+                SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))),
             entry("alreadyAddedLicences", licenceViewList),
             entry("isOffshore", true),
             entry("submissionType", submissionDetail.getSubmissionType()),
@@ -272,7 +272,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("relinquishmentSubmission", false),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
             entry("licenceEndpoint",
-                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+                SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))),
             entry("alreadyAddedLicences", licenceViewList),
             entry("isOffshore", false),
             entry("submissionType", submissionDetail.getSubmissionType()),
@@ -288,27 +288,6 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
             TaskListController.PAGE_NAME)
     );
-  }
-
-  @Test
-  void getGeneralDetailsModelAndView_whenCorrection_assertLicenceEndpoint() throws Exception {
-    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    submissionDetail.setCorrection(true);
-    var form = new GeneralDetailsForm();
-    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
-    var modelMap = Objects.requireNonNull(
-            mockMvc.perform(
-                    get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
-                        .with(user(USER)))
-                .andReturn()
-                .getModelAndView())
-        .getModelMap();
-
-    assertThat(modelMap)
-        .contains(
-            entry("licenceEndpoint",
-                SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
-        );
   }
 
   @ParameterizedTest

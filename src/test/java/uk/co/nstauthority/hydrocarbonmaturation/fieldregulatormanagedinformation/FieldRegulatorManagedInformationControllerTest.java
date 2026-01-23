@@ -319,7 +319,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
             entry("parentDeterminedField", expectedParentDeterminedField),
             entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries),
             entry("licenceEndpoint",
-                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+                SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))),
             entry("alreadyAddedLicences", licences)
             ).containsKey("breadcrumbsMap");
   }
@@ -407,7 +407,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
             entry("parentDeterminedField", expectedParentDeterminedField),
             entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries),
             entry("licenceEndpoint",
-                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+                SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))),
             entry("alreadyAddedLicences", licences)
         ).containsKeys("breadcrumbsMap", "cancelUrl");
   }

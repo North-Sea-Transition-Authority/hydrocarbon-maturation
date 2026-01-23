@@ -112,9 +112,7 @@ public class GeneralDetailsController {
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))
         .addObject("form", form)
         .addObject("licenceEndpoint",
-            Boolean.TRUE.equals(submissionDetail.isCorrection())
-                ? SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))
-                : SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))
+            SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))
         )
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
             form))

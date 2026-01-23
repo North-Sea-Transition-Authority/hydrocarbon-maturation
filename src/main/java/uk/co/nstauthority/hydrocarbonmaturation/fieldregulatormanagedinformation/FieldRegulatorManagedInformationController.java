@@ -204,7 +204,7 @@ public class FieldRegulatorManagedInformationController {
             SearchSelectorService.route(on(ResourceRestController.class)
                 .searchDiscoveriesForFields(null)))
         .addObject("licenceEndpoint",
-            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+            SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
         .addObject("alreadyAddedLicences", fieldLicenceService.getFieldLicenceViews(form));
   }
 
