@@ -397,6 +397,46 @@ BEGIN
              );
 
         ELSIF COALESCE(
+            output_rec.oilequiv_recoverable_calc_p99,
+            output_rec.oilequiv_recoverable_calc_p90,
+            output_rec.oilequiv_recoverable_calc_mode,
+            output_rec.oilequiv_recoverable_calc_p50,
+            output_rec.oilequiv_recoverable_calc_mean,
+            output_rec.oilequiv_recoverable_calc_p10,
+            output_rec.oilequiv_recoverable_calc_p01
+        ) IS NOT NULL THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 output_rec.sd_id,
+                 custom_dist_type,
+                 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY',
+                 abs(output_rec.oilequiv_recoverable_calc_p99),
+                 abs(output_rec.oilequiv_recoverable_calc_p90),
+                 abs(output_rec.oilequiv_recoverable_calc_mode),
+                 abs(output_rec.oilequiv_recoverable_calc_p50),
+                 abs(output_rec.oilequiv_recoverable_calc_mean),
+                 abs(output_rec.oilequiv_recoverable_calc_p10),
+                 abs(output_rec.oilequiv_recoverable_calc_p01),
+                 output_rec.oilequiv_recoverable_calc_comment,
+                 output_rec.rsd_id
+             );
+
+        ELSIF COALESCE(
                 output_rec.oil_recoverable_p99,
                 output_rec.oil_recoverable_p90,
                 output_rec.oil_recoverable_mode,

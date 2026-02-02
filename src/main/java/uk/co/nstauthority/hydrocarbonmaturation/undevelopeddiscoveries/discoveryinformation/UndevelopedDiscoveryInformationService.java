@@ -171,15 +171,18 @@ public class UndevelopedDiscoveryInformationService {
   }
 
   private void calculateAndAddOilEquivalentRecoverableResources(UndevelopedDiscoveryInformation information) {
-    var oilEquivalentOneC = calculateOilEquivalentRecoverableResources(information.getOilRecoverableOneC(),
+    var oilEquivalentOneC = calculateOilEquivalentRecoverableResources(
+        information.getOilRecoverableOneC(),
         information.getGasRecoverableOneC());
     information.setOilEquivalentRecoverableOneC(oilEquivalentOneC);
 
-    var oilEquivalentTwoC = calculateOilEquivalentRecoverableResources(information.getOilRecoverableTwoC(),
+    var oilEquivalentTwoC = calculateOilEquivalentRecoverableResources(
+        information.getOilRecoverableTwoC(),
         information.getGasRecoverableTwoC());
     information.setOilEquivalentRecoverableTwoC(oilEquivalentTwoC);
 
-    var oilEquivalentThreeC = calculateOilEquivalentRecoverableResources(information.getOilRecoverableThreeC(),
+    var oilEquivalentThreeC = calculateOilEquivalentRecoverableResources(
+        information.getOilRecoverableThreeC(),
         information.getGasRecoverableThreeC());
     information.setOilEquivalentRecoverableThreeC(oilEquivalentThreeC);
   }
