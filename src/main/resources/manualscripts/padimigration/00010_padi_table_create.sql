@@ -753,15 +753,9 @@ CREATE TABLE remi.padi_licence_mapping (
 
 CREATE TABLE remi.padi_multi_reservoir_discoveries (
     resource_id         TEXT,
-    choice              TEXT,
-    name_of_prospect    TEXT,
     resource_name       TEXT,
-    opportunity_type    TEXT,
-    split_type          TEXT,
+    name_of_prospect    TEXT,
     resource_stage_name TEXT,
-    play_fairway        TEXT,
-    reservoir_horizon   TEXT,
-    reference           TEXT,
     resdat_id           INTEGER
 );
 
