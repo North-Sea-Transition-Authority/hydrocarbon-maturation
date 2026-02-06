@@ -3,8 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-public enum UndevelopedDiscoveryOverviewHeadings {
+public enum UndevelopedDiscoveryOverviewHeadings implements Displayable {
   DISCOVERY(0, "Discovery"),
   YEAR_ADDED(1, "Year added"),
   LICENSED(2, "Licensed"),
@@ -34,6 +35,7 @@ public enum UndevelopedDiscoveryOverviewHeadings {
     return columnIndex;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

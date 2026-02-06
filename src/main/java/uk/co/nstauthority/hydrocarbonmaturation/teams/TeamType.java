@@ -6,10 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.ScopedTeamManagementController;
 
-public enum TeamType {
+public enum TeamType implements Displayable {
 
   REGULATOR(
       "NSTA",
@@ -71,6 +72,7 @@ public enum TeamType {
     this.createNewInstanceRoute = createNewInstanceRoute;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

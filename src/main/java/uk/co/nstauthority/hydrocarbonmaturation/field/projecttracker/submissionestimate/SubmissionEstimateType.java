@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
-enum SubmissionEstimateType {
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+
+enum SubmissionEstimateType implements Displayable {
   CSR("Estimated CSR first draft submission date"),
   FDP("Estimated FDP first draft submission date"),
   FDPA("Estimated FDPA first draft submission date"),
@@ -16,6 +18,7 @@ enum SubmissionEstimateType {
     this.displayName = displayName;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

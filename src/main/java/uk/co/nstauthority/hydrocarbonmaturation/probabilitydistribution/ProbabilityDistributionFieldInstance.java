@@ -10,8 +10,9 @@ import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.P
 import static uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType.TRIANGULAR;
 
 import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-public enum ProbabilityDistributionFieldInstance {
+public enum ProbabilityDistributionFieldInstance implements Displayable {
 
   // Trap properties
   DEPTH_TO_CREST_PROSPECT(
@@ -850,6 +851,7 @@ public enum ProbabilityDistributionFieldInstance {
     return units.getUnitDisplay();
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.actualprojectdates;
 
-enum ActualProjectDateType {
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+
+enum ActualProjectDateType implements Displayable {
   CSR_FIRST_DRAFT("Actual first draft CSR received date", "actual first draft CSR received date"),
   FDP_FIRST_DRAFT("Actual FDP first draft received date", "actual FDP first draft received date"),
   COP_FIRST_SUBMISSION("Actual first CoP submission received date", "actual first CoP submission received date"),
@@ -19,6 +21,7 @@ enum ActualProjectDateType {
     this.lowercaseFormatDisplayName = lowercaseFormatDisplayName;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
