@@ -189,6 +189,46 @@ BEGIN
 
         -- oil equivalent recoverable resources
         IF COALESCE(
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p99,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p90,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_mode,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p50,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_mean,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p10,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p01
+       ) IS NOT NULL THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+            gen_random_uuid(),
+            oil_and_gas_output_rec.sd_id,
+            custom_dist_type,
+            'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p99),
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p90),
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mode),
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p50),
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mean),
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p10),
+            abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p01),
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_comment,
+            oil_and_gas_output_rec.rsd_id
+            );
+
+        ELSIF COALESCE(
             oil_and_gas_output_rec.oilequiv_recoverable_p99,
             oil_and_gas_output_rec.oilequiv_recoverable_p90,
             oil_and_gas_output_rec.oilequiv_recoverable_mode,
@@ -227,46 +267,6 @@ BEGIN
                 oil_and_gas_output_rec.oilequiv_recoverable_comment,
                 oil_and_gas_output_rec.rsd_id
             );
-
-        ELSIF COALESCE(
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p99,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p90,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_mode,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p50,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_mean,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p10,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p01
-        ) IS NOT NULL THEN
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                comments,
-                reservoir_submission_detail_id
-            ) VALUES (
-                 gen_random_uuid(),
-                 oil_and_gas_output_rec.sd_id,
-                 custom_dist_type,
-                 'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p99),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p90),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mode),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p50),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mean),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p10),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p01),
-                 oil_and_gas_output_rec.oilequiv_recoverable_calc_comment,
-                 oil_and_gas_output_rec.rsd_id
-             );
 
         ELSIF COALESCE(
                 oil_and_gas_output_rec.oil_recoverable_p99,
@@ -469,6 +469,46 @@ BEGIN
 
         -- oil equivalent recoverable resources
         IF COALESCE(
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p99,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p90,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_mode,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p50,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_mean,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p10,
+            oil_and_gas_output_rec.oilequiv_recoverable_calc_p01
+       ) IS NOT NULL THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 oil_and_gas_output_rec.sd_id,
+                 custom_dist_type,
+                 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p99),
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p90),
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mode),
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p50),
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mean),
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p10),
+                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p01),
+                 oil_and_gas_output_rec.oilequiv_recoverable_calc_comment,
+                 oil_and_gas_output_rec.rsd_id
+             );
+
+        ELSIF COALESCE(
             oil_and_gas_output_rec.oilequiv_recoverable_p99,
             oil_and_gas_output_rec.oilequiv_recoverable_p90,
             oil_and_gas_output_rec.oilequiv_recoverable_mode,
@@ -507,46 +547,6 @@ BEGIN
                 oil_and_gas_output_rec.oilequiv_recoverable_comment,
                 oil_and_gas_output_rec.rsd_id
             );
-
-        ELSIF COALESCE(
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p99,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p90,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_mode,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p50,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_mean,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p10,
-                oil_and_gas_output_rec.oilequiv_recoverable_calc_p01
-              ) IS NOT NULL THEN
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                comments,
-                reservoir_submission_detail_id
-            ) VALUES (
-                 gen_random_uuid(),
-                 oil_and_gas_output_rec.sd_id,
-                 custom_dist_type,
-                 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p99),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p90),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mode),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p50),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_mean),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p10),
-                 abs(oil_and_gas_output_rec.oilequiv_recoverable_calc_p01),
-                 oil_and_gas_output_rec.oilequiv_recoverable_calc_comment,
-                 oil_and_gas_output_rec.rsd_id
-             );
 
         ELSIF COALESCE(
             oil_and_gas_output_rec.gas_recoverable_p99,
@@ -895,6 +895,46 @@ BEGIN
 
         -- oil equivalent recoverable resources
         IF COALESCE(
+            mixed_output_rec.oilequiv_recoverable_calc_p99,
+            mixed_output_rec.oilequiv_recoverable_calc_p90,
+            mixed_output_rec.oilequiv_recoverable_calc_mode,
+            mixed_output_rec.oilequiv_recoverable_calc_p50,
+            mixed_output_rec.oilequiv_recoverable_calc_mean,
+            mixed_output_rec.oilequiv_recoverable_calc_p10,
+            mixed_output_rec.oilequiv_recoverable_calc_p01
+       ) IS NOT NULL THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 mixed_output_rec.sd_id,
+                 custom_dist_type,
+                 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_p99),
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_p90),
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_mode),
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_p50),
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_mean),
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_p10),
+                 abs(mixed_output_rec.oilequiv_recoverable_calc_p01),
+                 mixed_output_rec.oilequiv_recoverable_calc_comment,
+                 mixed_output_rec.rsd_id
+             );
+
+        ELSIF COALESCE(
             mixed_output_rec.oilequiv_recoverable_p99,
             mixed_output_rec.oilequiv_recoverable_p90,
             mixed_output_rec.oilequiv_recoverable_mode,
@@ -933,46 +973,6 @@ BEGIN
                 mixed_output_rec.oilequiv_recoverable_comment,
                 mixed_output_rec.rsd_id
             );
-
-        ELSIF COALESCE(
-                mixed_output_rec.oilequiv_recoverable_calc_p99,
-                mixed_output_rec.oilequiv_recoverable_calc_p90,
-                mixed_output_rec.oilequiv_recoverable_calc_mode,
-                mixed_output_rec.oilequiv_recoverable_calc_p50,
-                mixed_output_rec.oilequiv_recoverable_calc_mean,
-                mixed_output_rec.oilequiv_recoverable_calc_p10,
-                mixed_output_rec.oilequiv_recoverable_calc_p01
-              ) IS NOT NULL THEN
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                comments,
-                reservoir_submission_detail_id
-            ) VALUES (
-                 gen_random_uuid(),
-                 mixed_output_rec.sd_id,
-                 custom_dist_type,
-                 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_p99),
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_p90),
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_mode),
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_p50),
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_mean),
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_p10),
-                 abs(mixed_output_rec.oilequiv_recoverable_calc_p01),
-                 mixed_output_rec.oilequiv_recoverable_calc_comment,
-                 mixed_output_rec.rsd_id
-             );
 
         ELSIF COALESCE(
             oil_and_gas_output_rec.oil_recoverable_p99,
