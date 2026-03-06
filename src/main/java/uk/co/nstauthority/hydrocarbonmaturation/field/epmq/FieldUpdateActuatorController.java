@@ -1,9 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.epmq;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
-import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 
 @Component
-@WebEndpoint(id = "field-updated-message")
+@Endpoint(id = "field-updated-message")
 public class FieldUpdateActuatorController {
 
   private final FieldSnsService fieldSnsService;

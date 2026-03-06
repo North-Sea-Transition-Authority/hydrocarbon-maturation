@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -29,15 +29,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 class FieldStatusActuatorControllerTest {
 
   private static final String FIELD_STATUS_MESSAGE_URL_FORMAT =
-      "/actuator/field-status-message/%s";
+      "/actuator/field-status-message/%d";
 
-  @MockBean
+  @MockitoBean
   private FieldStatusSnsService fieldStatusSnsService;
 
-  @MockBean
+  @MockitoBean
   private FieldPersistenceService fieldPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private FieldStatusService fieldStatusService;
 
   @Autowired

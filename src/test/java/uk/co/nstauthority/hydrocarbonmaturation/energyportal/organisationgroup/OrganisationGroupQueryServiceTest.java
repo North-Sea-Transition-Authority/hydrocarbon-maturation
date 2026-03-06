@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ class OrganisationGroupQueryServiceTest {
 
   private OrganisationGroupQueryService organisationGroupQueryService;
 
-
   private List<OrganisationGroup> groupList;
 
   @BeforeEach
@@ -39,8 +37,8 @@ class OrganisationGroupQueryServiceTest {
     );
 
     groupList = List.of(
-        new OrganisationGroup(1, "Company 1", null, null, null, Collections.emptyList()),
-        new OrganisationGroup(2, "Company 2", null, null, null, Collections.emptyList())
+        OrganisationGroup.newBuilder().organisationGroupId(1).name("Company 1").build(),
+        OrganisationGroup.newBuilder().organisationGroupId(2).name("Company 2").build()
     );
   }
 
@@ -87,13 +85,10 @@ class OrganisationGroupQueryServiceTest {
 
   @Test
   void getOrganisationGroupsByIds_whenOne_verifyApiCallsAndReturn() {
-    var organisationGroup = new OrganisationGroup(
-        1,
-        "Royal Dutch Shell",
-        "Shell",
-        "shell.com",
-        "ACTIVE",
-        Collections.emptyList());
+    var organisationGroup = OrganisationGroup.newBuilder()
+        .organisationGroupId(1)
+        .name("Royal Dutch Shell")
+        .build();
 
     when(organisationApi.getAllOrganisationGroupsByIds(
         eq(List.of(organisationGroup.getOrganisationGroupId())),
@@ -117,21 +112,8 @@ class OrganisationGroupQueryServiceTest {
 
   @Test
   void getOrganisationGroupsByIds_whenTwo_verifyApiCallsAndReturn() {
-    var organisationGroup = new OrganisationGroup(
-        1,
-        "Royal Dutch Shell",
-        "Shell",
-        "shell.com",
-        "ACTIVE",
-        Collections.emptyList());
-
-    var organisationGroup2 = new OrganisationGroup(
-        2,
-        "Royal Dutch Shell",
-        "Shell",
-        "shell.com",
-        "ACTIVE",
-        Collections.emptyList());
+    var organisationGroup = OrganisationGroup.newBuilder().organisationGroupId(1).name("Royal Dutch Shell").build();
+    var organisationGroup2 = OrganisationGroup.newBuilder().organisationGroupId(2).name("Royal Dutch Shell 2").build();
 
     when(organisationApi.getAllOrganisationGroupsByIds(
         eq(List.of(organisationGroup.getOrganisationGroupId(), organisationGroup2.getOrganisationGroupId())),

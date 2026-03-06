@@ -78,3 +78,6 @@ CVE-2025-55752
 CVE-2025-55754
 CVE-2025-61795
 CVE-2025-49124
+
+# com.fasterxml.jackson.core:jackson-core
+GHSA-72hv-8253-57qq
