@@ -5,16 +5,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
 public enum GroupName implements Displayable {
+  BACTON("Bacton", 5),
   BRENT("Brent", 10),
   BRUCE("Bruce", 20),
   CHALK("Chalk", 30),
   CLAIR("Clair", 40),
   COAL_MEASURES("Coal Measures", 50),
+  CONYBEARE("Conybeare", 55),
   CROMER_KNOLL("Cromer Knoll", 60),
   DUNLIN("Dunlin", 70),
   DUNROBIN_BAY("Dunrobin Bay", 80),
   FARNE("Farne", 90),
   FLADEN("Fladen", 100),
+  HAISBOROUGH("Haisborough", 105),
   HERON("Heron", 110),
   HORDALAND("Hordaland", 120),
   HUMBER("Humber", 130),
@@ -27,6 +30,7 @@ public enum GroupName implements Displayable {
   MORAY("Moray", 200),
   NORDALAND("Nordaland", 210),
   PAPA("Papa", 220),
+  PENARTH("Penarth", 225),
   ROGALAND("Rogaland", 230),
   ROTLIEGEND("Rotliegend", 240),
   SHERWOOD_SANDSTONE("Sherwood Sandstone", 250),

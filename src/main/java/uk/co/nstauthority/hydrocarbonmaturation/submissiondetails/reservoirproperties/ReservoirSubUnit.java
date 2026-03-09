@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 public enum ReservoirSubUnit implements Displayable {
 
   ALBA("Alba", 10),
+  ALLER_HALITE("Aller Halite", 15),
   ANDREW("Andrew", 20),
   BALDER("Balder", 30),
   BALDER_SANDSTONE("Balder Sandstone", 40),
@@ -14,6 +15,7 @@ public enum ReservoirSubUnit implements Displayable {
   BALMORAL("Balmoral", 60),
   BEAULY("Beauly", 70),
   BLACK_SAIL("Black Sail", 80),
+  BROCKELSCHIEFER("Brockelschiefer", 85),
   BRUCE_A("Bruce A", 90),
   BRUCE_B("Bruce B", 100),
   BRUCE_C("Bruce C", 110),
@@ -29,8 +31,10 @@ public enum ReservoirSubUnit implements Displayable {
   GENNEKER("Genneker", 210),
   GLAMIS("Glamis", 220),
   GRID("Grid", 230),
+  HAUPT_DOLOMITE("Haupt Dolomite", 235),
   HEIMDAL("Heimdal", 240),
   HERMOD("Hermod", 250),
+  HEWETT_SANDSTONE("Hewett Sandstone", 255),
   HILDASAY("Hildasay", 260),
   JOANNE("Joanne", 270),
   JONATHAN("Jonathan", 280),
@@ -38,7 +42,10 @@ public enum ReservoirSubUnit implements Displayable {
   JOSHUA("Joshua", 300),
   JUDY("Judy", 310),
   JULIUS("Julius", 320),
+  KUEPER_ANHYDRITE("Kueper Anhydrite", 325),
+  KUEPER_HALITE("Kueper Halite", 326),
   LAMBA_SANDSTONE("Lamba Sandstone", 330),
+  LEINE_HALITE("Leine Halite", 335),
   LEWIS("Lewis", 340),
   LEWIS_I("Lewis I", 350),
   LEWIS_II("Lewis II", 360),
@@ -54,14 +61,17 @@ public enum ReservoirSubUnit implements Displayable {
   M3("M3", 460),
   MAGNUS_SANDSTONE("Magnus Sandstone", 470),
   MAUREEN("Maureen", 480),
+  MUSCHELKALK_HALITE("Muschelkalk Halite", 485),
   ODIN("Odin", 490),
   RATTRAY("Rattray", 500),
   RAUDE("Raude", 510),
+  ROT_HALITE("Rot Halite", 515),
   SKADAN("Skadan", 520),
   SKROO("Skroo", 530),
   SKY_SAIL("Sky Sail", 540),
   SOLAN_SANDSTONE("Solan Sandstone", 550),
   SPINNAKER("Spinnaker", 560),
+  STASFURT_HALITE("Stasfurt Halite", 565),
   T10("T10", 570),
   T22("T22", 580),
   T25("T25", 590),
@@ -90,7 +100,8 @@ public enum ReservoirSubUnit implements Displayable {
   UPPER_MAIN("Upper Main", 820),
   UPPER_NESS("Upper Ness", 830),
   UPPER_TAY("Upper Tay", 840),
-  VALE("Vale", 850);
+  VALE("Vale", 850),
+  WERRA_ANHYDRITE("Werra Anhydrite", 860);
 
   private final String displayName;
   private final int displayOrder;
