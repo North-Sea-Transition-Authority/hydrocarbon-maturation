@@ -673,10 +673,10 @@ BEGIN
 
         END IF;
 
-        IF volumetric_parameters.hydrocarbon_case IN ('gas','condensate','oil') THEN
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
-            padi_distribution_type := NULL;
-            padi_other_distribution_type := NULL;
+        IF volumetric_parameters.hydrocarbon_case IN ('gas','condensate','oil') THEN
 
             -- Hydrocarbon saturation
             IF COALESCE(
@@ -751,10 +751,10 @@ BEGIN
 
         END IF;
 
-        IF volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
-            padi_distribution_type := NULL;
-            padi_other_distribution_type := NULL;
+        IF volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN
 
             -- Hydrocarbon saturation
             IF COALESCE(
@@ -940,11 +940,10 @@ BEGIN
 
             END IF;
 
-
-            padi_distribution_type := NULL;
-            padi_other_distribution_type := NULL;
-
         END IF;
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         IF volumetric_parameters.submission_type != 'POST_DRILL_DRY_HOLE' AND volumetric_parameters.hydrocarbon_case IN ('oil', 'gas', 'condensate') THEN
 
@@ -1377,10 +1376,10 @@ BEGIN
 
             END IF;
 
-            padi_distribution_type := NULL;
-            padi_other_distribution_type := NULL;
-
         END IF;
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
 
         IF volumetric_parameters.submission_type != 'POST_DRILL_DRY_HOLE' AND volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN
 
