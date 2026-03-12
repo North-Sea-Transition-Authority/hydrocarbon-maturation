@@ -300,9 +300,10 @@ DO $$
                      'CUSTOM',
                      NULL,
                      CASE
-                         WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('oil', 'mixed oil and gas') THEN 'DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY'
+                         WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN 'DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY'
+                         WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'oil' THEN 'DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY'
                          WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate') THEN 'DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY'
-                         END,
+                     END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p90) END,
@@ -1321,7 +1322,7 @@ DO $$
                          reservoir_volumetric_parameters.sd_id,
                          padi_distribution_type,
                          padi_other_distribution_type,
-                         'MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY',
+                         'OIL_HYDROCARBON_SATURATION_DISCOVERY',
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p90) END,
@@ -1361,7 +1362,7 @@ DO $$
                          reservoir_volumetric_parameters.sd_id,
                          padi_distribution_type,
                          padi_other_distribution_type,
-                         'MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY',
+                         'GAS_HYDROCARBON_SATURATION_DISCOVERY',
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.hsc_p90) END,
@@ -1432,7 +1433,7 @@ DO $$
                          reservoir_volumetric_parameters.sd_id,
                          padi_distribution_type,
                          padi_other_distribution_type,
-                         'MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY',
+                         'OIL_FORMATION_VOLUME_FACTOR_DISCOVERY',
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p90) END,
@@ -1472,7 +1473,7 @@ DO $$
                          reservoir_volumetric_parameters.sd_id,
                          padi_distribution_type,
                          padi_other_distribution_type,
-                         'MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY',
+                         'GAS_FORMATION_VOLUME_FACTOR_DISCOVERY',
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p99) END,
                          CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.fvf_p90) END,

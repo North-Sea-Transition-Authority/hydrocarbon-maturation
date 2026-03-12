@@ -17,10 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +38,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -239,78 +236,6 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
             entry("gasRecoveryFactorTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR)),
-            entry("gasExpansionFactorTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR)),
-            entry("gasExpansionFactorError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasFormationVolumeFactorError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasHydrocarbonSaturationError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedGasOilRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
-            entry("condensateGasRatioLifeOfFieldError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilRecoveryFactorError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoveryFactorError", ProbabilityDistributionTypeError.emptyError())
-        );
-  }
-
-  @Test
-  void getMixedCaseVolumetricsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
-    var discoverySubmissionDetailId = UUID.randomUUID();
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
-        discoverySubmissionDetailId);
-    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
-    var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
-    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
-
-    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
-    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
-    when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
-
-    var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseVolumetricParametersController.class)
-                .getMixedCaseVolumetrics(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
-                .with(user(USER)))
-        .andReturn()
-        .getModelAndView()).getModelMap();
-
-    @SuppressWarnings(value = "unchecked")
-    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
-    assertThat(breadcrumbsMap.entrySet())
-        .containsExactly(
-            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME)
-        );
-
-    assertThat(modelMap)
-        .contains(
-            entry("form", form),
-            entry("oilFormationVolumeFactorTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY)),
-            entry("oilHydrocarbonSaturationTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY)),
-            entry("gasFormationVolumeFactorTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY)),
-            entry("gasHydrocarbonSaturationTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY)),
-            entry("associatedGasOilRatioLifeOfFieldTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD)),
-            entry("condensateGasRatioLifeOfFieldTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD)),
-            entry("oilRecoveryFactorTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY)),
-            entry("gasRecoveryFactorTemplate",
-                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                    ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR)),
             entry("gasExpansionFactorTemplate",
                 probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                     ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR)),

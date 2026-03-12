@@ -56,35 +56,4 @@ class MixedCaseVolumetricParametersSummaryServiceTest {
     assertThat(mixedCaseVolumetricsSummaryView)
         .isEqualTo(tableView);
   }
-
-  @Test
-  void getMixedCaseVolumetricsSummaryView_whenDiscovery() {
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
-
-    var tableView = ProbabilityDistributionTableView.empty();
-
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
-            List.of(
-                ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
-                ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
-                ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY,
-                ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
-                ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY,
-                ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY,
-                ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY,
-                ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-                ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR
-            ),
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(tableView);
-
-    var mixedCaseVolumetricsSummaryView = mixedCaseVolumetricParametersSummaryService.getMixedCaseVolumetricsSummaryView(
-        discoveryReservoirSubmissionDetail);
-
-    assertThat(mixedCaseVolumetricsSummaryView)
-        .isEqualTo(tableView);
-  }
 }

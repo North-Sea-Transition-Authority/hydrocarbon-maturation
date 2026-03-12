@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolu
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -31,57 +30,30 @@ class MixedCaseVolumetricParametersFormService {
         reservoirSubmissionDetail,
         ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR
     ));
-    if (resourceType == ResourceType.PROSPECT) {
-      form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT
-      ));
+    form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT
+    ));
 
-      form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT
-      ));
+    form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT
+    ));
 
-      form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT
-      ));
+    form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT
+    ));
 
-      form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT
-      ));
+    form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT
+    ));
 
-      form.setOilHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT
-      ));
-    } else if (resourceType == ResourceType.DISCOVERY) {
-      form.setOilFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY
-      ));
-
-      form.setGasFormationVolumeFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY
-      ));
-
-      form.setOilRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_DISCOVERY
-      ));
-
-      form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_DISCOVERY
-      ));
-
-      form.setOilHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          reservoirSubmissionDetail,
-          ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_DISCOVERY
-      ));
-    }
+    form.setOilHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT
+    ));
 
     form.setGasRecoveryFactor(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,

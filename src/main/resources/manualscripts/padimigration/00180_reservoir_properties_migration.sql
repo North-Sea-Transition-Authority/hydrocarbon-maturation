@@ -36,26 +36,6 @@ BEGIN
 
         END IF;
 
-        IF discovery_reservoir_rec.depth_gas_oil_contact IS NOT NULL THEN
-
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                most_likely_value,
-                reservoir_submission_detail_id
-            ) VALUES (
-                 gen_random_uuid(),
-                 discovery_reservoir_rec.sd_id,
-                 'CUSTOM',
-                 'DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY',
-                 abs(discovery_reservoir_rec.depth_gas_oil_contact),
-                 discovery_reservoir_rec.rsd_id
-             );
-
-        END IF;
-
     END LOOP;
 
     FOR dry_well_reservoir_rec IN (
