@@ -2,11 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolu
 
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -34,7 +32,7 @@ class MixedCaseVolumetricParametersDuplicationService implements ReservoirSectio
     var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
     var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
 
-    if (!newSubmissionDetail.isDiscoverySubmission() && !newSubmissionDetail.isProspectSubmission()) {
+    if (!newSubmissionDetail.isProspectSubmission()) {
       return;
     }
 
@@ -43,16 +41,13 @@ class MixedCaseVolumetricParametersDuplicationService implements ReservoirSectio
           ProbabilityDistributionFieldInstance.MIXED_GAS_EXPANSION_FACTOR,
           ProbabilityDistributionFieldInstance.MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
           ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD,
-          ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR));
-      var resourceType = oldSubmissionDetail.getSubmission().getResource().getType();
-      if (resourceType == ResourceType.PROSPECT) {
-        applicableInstances.addAll(List.of(
-            ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
-            ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
-            ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
-            ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT));
-      }
+          ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR,
+          ProbabilityDistributionFieldInstance.MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+          ProbabilityDistributionFieldInstance.MIXED_OIL_HYDROCARBON_SATURATION_PROSPECT,
+          ProbabilityDistributionFieldInstance.MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT,
+          ProbabilityDistributionFieldInstance.MIXED_GAS_HYDROCARBON_SATURATION_PROSPECT,
+          ProbabilityDistributionFieldInstance.MIXED_OIL_RECOVERY_FACTOR_PROSPECT
+      ));
 
       probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail,
               applicableInstances)

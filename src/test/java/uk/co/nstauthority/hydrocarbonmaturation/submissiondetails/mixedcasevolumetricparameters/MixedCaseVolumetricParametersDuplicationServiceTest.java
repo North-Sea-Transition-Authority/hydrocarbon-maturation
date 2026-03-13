@@ -46,7 +46,7 @@ class MixedCaseVolumetricParametersDuplicationServiceTest {
   private MixedCaseVolumetricParametersDuplicationService mixedCaseVolumetricParametersDuplicationService;
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -73,7 +73,7 @@ class MixedCaseVolumetricParametersDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -92,7 +92,7 @@ class MixedCaseVolumetricParametersDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_DoesNotDuplicateToNonApplicableSubmissionType(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -139,9 +139,9 @@ class MixedCaseVolumetricParametersDuplicationServiceTest {
             )));
   }
 
-  private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {
+  private static Stream<Arguments> allProspectSubmissionTypes() {
     return Arrays.stream(SubmissionType.values())
-        .filter(submissionType -> SubmissionDetailUtil.isDiscoverySubmission(submissionType) || SubmissionDetailUtil.isProspectSubmission(submissionType))
+        .filter(SubmissionDetailUtil::isProspectSubmission)
         .map(Arguments::of);
   }
 }
