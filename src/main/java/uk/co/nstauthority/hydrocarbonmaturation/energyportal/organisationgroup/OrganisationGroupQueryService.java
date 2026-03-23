@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.energyportal.starter.configuration.WellKnownOrganisationGroupsConfigurationProperties;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupProjectionRoot;
@@ -18,7 +20,10 @@ public class OrganisationGroupQueryService {
           .name();
   public static final OrganisationGroupProjectionRoot ORGANISATION_GROUP_PROJECTION_ROOT = new OrganisationGroupProjectionRoot()
       .organisationGroupId()
-      .name();
+      .name()
+      .emailDomains()
+        .domain()
+      .root();
   public static final OrganisationGroupsProjectionRoot ORGANISATION_GROUPS_UNITS_PROJECTION_ROOT =
       new OrganisationGroupsProjectionRoot()
           .organisationGroupId()
@@ -30,10 +35,15 @@ public class OrganisationGroupQueryService {
           .isDuplicate()
           .root();
   private final OrganisationApi organisationApi;
+  private final WellKnownOrganisationGroupsConfigurationProperties wellKnownOrganisationGroups;
 
   @Autowired
-  public OrganisationGroupQueryService(OrganisationApi organisationApi) {
+  public OrganisationGroupQueryService(OrganisationApi organisationApi,
+                                       WellKnownOrganisationGroupsConfigurationProperties wellKnownOrganisationGroups
+                                       ) {
+
     this.organisationApi = organisationApi;
+    this.wellKnownOrganisationGroups = wellKnownOrganisationGroups;
   }
 
   public List<OrganisationGroupDto> getOrganisationGroupsByName(String name) {
@@ -64,5 +74,18 @@ public class OrganisationGroupQueryService {
     dto.setOrganisationGroupId(organisationGroup.getOrganisationGroupId());
     dto.setOrganisationGroupName(organisationGroup.getName());
     return dto;
+  }
+
+  public Optional<OrganisationGroupDto> getOrganisationGroupById(Integer id) {
+    return organisationApi.findOrganisationGroup(
+            id,
+            ORGANISATION_GROUP_PROJECTION_ROOT,
+            new RequestPurpose("getOrganisationGroupById")
+        )
+        .map(OrganisationGroupDto::from);
+  }
+
+  public Optional<OrganisationGroupDto> getRegulatorOrganisationGroup() {
+    return getOrganisationGroupById(wellKnownOrganisationGroups.nsta().idAsInteger());
   }
 }

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportal.starter.configuration.WellKnownOrganisationGroupsConfigurationProperties;
 import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
@@ -30,10 +31,17 @@ class OrganisationGroupQueryServiceTest {
 
   private List<OrganisationGroup> groupList;
 
+  @Mock
+  private WellKnownOrganisationGroupsConfigurationProperties wellKnownGroups;
+
+  @Mock
+  private WellKnownOrganisationGroupsConfigurationProperties.WellKnownOrgGroup nsta;
+
   @BeforeEach
   void setup() {
     organisationGroupQueryService = new OrganisationGroupQueryService(
-        organisationApi
+        organisationApi,
+        wellKnownGroups
     );
 
     groupList = List.of(
@@ -134,5 +142,21 @@ class OrganisationGroupQueryServiceTest {
 
     assertThat(returnedOrganisations)
         .isEqualTo(List.of(organisationGroup, organisationGroup2));
+  }
+
+  @Test
+  void getRegulatorOrganisationGroup() {
+    var expectedId = Math.toIntExact(10001L);
+
+    when(wellKnownGroups.nsta()).thenReturn(nsta);
+    when(nsta.idAsInteger()).thenReturn(expectedId);
+
+    organisationGroupQueryService.getRegulatorOrganisationGroup();
+
+    verify(organisationApi).findOrganisationGroup(
+        eq(expectedId),
+        any(),
+        any(RequestPurpose.class)
+    );
   }
 }
