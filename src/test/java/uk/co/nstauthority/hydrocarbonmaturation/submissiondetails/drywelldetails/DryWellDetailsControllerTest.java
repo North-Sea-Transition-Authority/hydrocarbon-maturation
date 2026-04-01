@@ -25,8 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -48,13 +48,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = DryWellDetailsController.class)
 class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private DryWellDetailsFormService dryWellDetailsFormService;
 
-  @MockBean
+  @MockitoBean
   private DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private FormationSearchService formationSearchService;
 
   private UUID submissionDetailId;

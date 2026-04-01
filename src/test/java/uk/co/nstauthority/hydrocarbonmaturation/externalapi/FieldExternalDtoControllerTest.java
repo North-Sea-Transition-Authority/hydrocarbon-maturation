@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.RealSecurityAbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
@@ -23,7 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ContextConfiguration(classes = FieldExternalDtoController.class)
 class FieldExternalDtoControllerTest extends RealSecurityAbstractControllerTest {
-  @MockBean
+  @MockitoBean
   private FieldExternalDtoService fieldExternalDtoService;
   private static final String PRE_SHARED_KEY = "testKey1";
   private static final ObjectMapper MAPPER = new ObjectMapper();

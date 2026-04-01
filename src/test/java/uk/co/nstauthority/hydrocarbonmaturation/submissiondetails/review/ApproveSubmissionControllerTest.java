@@ -28,9 +28,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -51,16 +51,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = ApproveSubmissionController.class)
 class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionApprovalService submissionApprovalService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
 
-  @MockBean
+  @MockitoBean
   private FieldSubmissionStatusService fieldSubmissionStatusService;
 
   @BeforeEach

@@ -25,8 +25,8 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -41,13 +41,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reser
 @ContextConfiguration(classes = DrillStemTestController.class)
 class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private DrillStemTestFormService drillStemTestFormService;
 
-  @MockBean
+  @MockitoBean
   private DrillStemTestInitialPersistenceService drillStemTestPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
 
   private DrillStemTestInitialForm form;

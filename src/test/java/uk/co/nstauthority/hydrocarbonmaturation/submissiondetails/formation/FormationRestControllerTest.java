@@ -5,9 +5,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -21,10 +21,10 @@ public class FormationRestControllerTest extends AbstractControllerTest {
 
   private static final String SEARCH_TERM = "searchTerm";
 
-  @MockBean
+  @MockitoBean
   private FormationSearchService formationSearchService;
 
-  @MockBean
+  @MockitoBean
   private SearchSelectorService searchSelectorService;
 
   @SecurityTest

@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -36,10 +36,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discovery
 @ContextConfiguration(classes = UndevelopedDiscoverySummaryController.class)
 class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDiscoveryControllerTest {
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoverySummaryService undevelopedDiscoverySummaryService;
 
-  @MockBean
+  @MockitoBean
   private ViewResourceRecordService viewResourceRecordService;
 
   @Mock

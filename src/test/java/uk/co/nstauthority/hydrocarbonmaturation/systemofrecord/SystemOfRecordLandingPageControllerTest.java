@@ -9,7 +9,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 class SystemOfRecordLandingPageControllerTest extends AbstractControllerTest {
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private FieldConfiguration fieldConfiguration;
 
   @SecurityTest

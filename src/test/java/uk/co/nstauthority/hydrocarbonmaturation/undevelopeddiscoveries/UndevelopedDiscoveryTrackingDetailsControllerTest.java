@@ -19,7 +19,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.Errors;
@@ -31,7 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @ContextConfiguration(classes = UndevelopedDiscoveryTrackingDetailsController.class)
 class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelopedDiscoveryControllerTest {
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveryTrackingDetailsFormValidator formValidator;
 
   @Test

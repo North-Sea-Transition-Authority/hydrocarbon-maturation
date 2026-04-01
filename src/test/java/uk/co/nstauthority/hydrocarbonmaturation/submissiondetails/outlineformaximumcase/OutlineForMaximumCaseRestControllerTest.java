@@ -8,9 +8,9 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -24,10 +24,10 @@ class OutlineForMaximumCaseRestControllerTest extends AbstractSubmissionControll
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
 
-  @MockBean
+  @MockitoBean
   SubmissionDetailAccessService submissionDetailAccessService;
 
   @BeforeEach

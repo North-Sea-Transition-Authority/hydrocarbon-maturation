@@ -14,9 +14,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.RealSecurityAbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -26,7 +26,7 @@ class FieldDevelopmentPlanExternalControllerTest extends RealSecurityAbstractCon
 
   private static final String PRE_SHARED_KEY = "testKey1";
 
-  @MockBean
+  @MockitoBean
   FieldDevelopmentPlanExternalService fieldDevelopmentPlanExternalService;
 
   @Test

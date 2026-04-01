@@ -12,7 +12,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -25,10 +25,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ContextConfiguration(classes = StartProspectController.class)
 class StartProspectControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   GeneralDetailsFormService generalDetailsFormService;
 
-  @MockBean
+  @MockitoBean
   SubmissionCreateService submissionCreateService;
 
   @SecurityTest

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -48,19 +48,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = SourceAndSealController.class)
 class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   SourceAndSealFormService sourceAndSealFormService;
 
-  @MockBean
+  @MockitoBean
   SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private FormationSearchService formationSearchService;
 
-  @MockBean
+  @MockitoBean
   private AgeSeriesSearchService ageSeriesSearchService;
 
-  @MockBean
+  @MockitoBean
   private SourceAndSealFormValidator sourceAndSealFormValidator;
 
   private SourceAndSealForm form;

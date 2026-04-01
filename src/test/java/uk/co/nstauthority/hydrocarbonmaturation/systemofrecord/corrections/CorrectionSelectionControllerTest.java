@@ -25,8 +25,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
@@ -49,19 +49,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ContextConfiguration(classes = CorrectionSelectionController.class)
 class CorrectionSelectionControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
 
-  @MockBean
+  @MockitoBean
   private CorrectionService correctionService;
 
-  @MockBean
+  @MockitoBean
   private CorrectionFormValidator correctionFormValidator;
 
-  @MockBean
+  @MockitoBean
   private SubmissionHistorySelectorUtil submissionHistorySelectorUtil;
 
-  @MockBean
+  @MockitoBean
   private SubmissionHistoryQueryService submissionHistoryQueryService;
 
   private Resource resource;

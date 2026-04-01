@@ -14,8 +14,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -67,19 +67,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
     ResourceAccessService.class})
 public abstract class AbstractSubmissionControllerTest extends AbstractControllerTest{
 
-  @MockBean
+  @MockitoBean
   protected ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
-  @MockBean
+  @MockitoBean
   protected OrganisationUnitQueryService organisationUnitQueryService;
 
-  @MockBean
+  @MockitoBean
   protected IndustryTeamService industryTeamService;
 
-  @MockBean
+  @MockitoBean
   protected FieldPersistenceService fieldPersistenceService;
 
-  @MockBean
+  @MockitoBean
   protected FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired
@@ -94,10 +94,10 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   @Autowired
   protected ResourceAccessInterceptorRule resourceAccessInterceptorRule;
 
-  @MockBean
+  @MockitoBean
   protected ResourceAccessService resourceAccessService;
 
-  @MockBean
+  @MockitoBean
   protected ResourceAccessInterceptorFactory resourceAccessInterceptorFactory;
 
   @Autowired

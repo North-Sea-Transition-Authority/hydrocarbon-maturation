@@ -7,7 +7,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.UUID;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
@@ -22,10 +22,10 @@ class ResourceGroupRestControllerTest extends AbstractControllerTest {
 
   private static final String SEARCH_TERM = "searchTerm";
 
-  @MockBean
+  @MockitoBean
   private SearchSelectorService searchSelectorService;
 
-  @MockBean
+  @MockitoBean
   private ResourceGroupQueryService resourceGroupQueryService;
 
 

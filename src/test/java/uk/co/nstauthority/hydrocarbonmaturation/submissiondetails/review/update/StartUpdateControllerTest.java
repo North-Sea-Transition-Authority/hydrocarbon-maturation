@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -33,16 +33,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @ContextConfiguration(classes = StartUpdateController.class)
 class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionUpdateService submissionUpdateService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private DiscoveryAssociationService discoveryAssociationService;
 
   private SubmissionUpdate submissionUpdate;

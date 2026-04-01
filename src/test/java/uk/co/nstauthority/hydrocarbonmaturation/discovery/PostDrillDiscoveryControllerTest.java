@@ -15,8 +15,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -38,10 +38,10 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private StartDiscoveryFormValidator startDiscoveryFormValidator;
 
-  @MockBean
+  @MockitoBean
   private SubmissionCreateService submissionCreateService;
 
   private UUID submissionDetailId;

@@ -19,7 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
@@ -64,10 +64,10 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Autowired
   private EntityManager entityManager;
 
-  @MockBean
+  @MockitoBean
   private OrganisationGroupQueryService organisationGroupQueryService;
 
-  @MockBean
+  @MockitoBean
   private LicenceQueryService licenceQueryService;
 
   @Test

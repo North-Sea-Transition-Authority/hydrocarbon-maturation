@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
     FieldPersistenceService.class})
 public abstract class AbstractProjectTrackerControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   protected FieldPersistenceService fieldPersistenceService;
 
   protected static final User USER = UserTestUtil.Builder().build();

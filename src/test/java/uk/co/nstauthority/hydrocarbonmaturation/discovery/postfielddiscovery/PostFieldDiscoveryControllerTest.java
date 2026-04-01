@@ -19,8 +19,8 @@ import java.util.UUID;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
@@ -41,13 +41,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ContextConfiguration(classes = PostFieldDiscoveryController.class)
 class PostFieldDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   PostFieldDiscoveryService postFieldDiscoveryService;
 
-  @MockBean
+  @MockitoBean
   ResourceService resourceService;
 
-  @MockBean
+  @MockitoBean
   NewResourceDetailsFormValidator newResourceDetailsFormValidator;
 
   Resource resource;

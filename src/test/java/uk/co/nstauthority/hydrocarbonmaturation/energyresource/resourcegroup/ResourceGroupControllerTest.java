@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -57,19 +57,19 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
   private static final UUID RESOURCE_ID = UUID.randomUUID();
   private static final String RESOURCE_NAME = "Name of resource (22/5)";
 
-  @MockBean
+  @MockitoBean
   private RelatedResourcesFormService relatedResourcesFormService;
 
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
 
-  @MockBean
+  @MockitoBean
   private ManageResourceGroupsService manageResourceGroupsService;
 
   private RelatedResourcesForm form;

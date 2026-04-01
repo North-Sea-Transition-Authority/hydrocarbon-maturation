@@ -11,8 +11,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.RealSecurityAbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
@@ -28,7 +28,7 @@ class LogoutRestControllerTest extends RealSecurityAbstractControllerTest {
   @Autowired
   private EnergyPortalConfiguration energyPortalConfiguration;
 
-  @MockBean
+  @MockitoBean
   private LogoutService logoutService;
 
   @SecurityTest

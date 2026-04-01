@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -50,19 +50,19 @@ public abstract class AbstractResourceArchiveControllerTest extends AbstractCont
 
   protected Resource resource;
 
-  @MockBean
+  @MockitoBean
   protected ResourceService resourceService;
 
-  @MockBean
+  @MockitoBean
   protected ResourceArchiveService resourceArchiveService;
 
-  @MockBean
+  @MockitoBean
   protected ViewResourceRecordService viewResourceRecordService;
 
-  @MockBean
+  @MockitoBean
   protected ResponsibleTeamService responsibleTeamService;
 
-  @MockBean
+  @MockitoBean
   protected SubmissionResourceService submissionResourceService;
 
   @BeforeEach

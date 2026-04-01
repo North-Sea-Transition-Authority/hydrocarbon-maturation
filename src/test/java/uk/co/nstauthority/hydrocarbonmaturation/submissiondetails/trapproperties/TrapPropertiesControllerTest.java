@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -65,19 +65,19 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private TrapPropertiesFormService trapPropertiesFormService;
 
-  @MockBean
+  @MockitoBean
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSupportingDocumentService supportingDocumentService;
 
-  @MockBean
+  @MockitoBean
   private QuadrantAndBlockService quadrantAndBlockService;
 
-  @MockBean
+  @MockitoBean
   private TrapPropertiesFormValidator trapPropertiesFormValidator;
 
   @Autowired

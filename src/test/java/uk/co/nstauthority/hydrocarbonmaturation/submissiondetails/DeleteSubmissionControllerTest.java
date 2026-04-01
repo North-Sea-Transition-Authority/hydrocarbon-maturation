@@ -17,8 +17,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -46,13 +46,13 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   public static final String RESOURCE_NAME = "resource name";
   public static final String TYPE_NAME = "type name";
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
   @BeforeEach

@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -41,9 +41,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = DeleteProjectController.class)
 class DeleteProjectControllerTest extends AbstractControllerTest {
-  @MockBean
+  @MockitoBean
   private ProjectTrackerControllerService projectTrackerControllerService;
-  @MockBean
+  @MockitoBean
   private ProjectDetailsSummaryService projectDetailsSummaryService;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();

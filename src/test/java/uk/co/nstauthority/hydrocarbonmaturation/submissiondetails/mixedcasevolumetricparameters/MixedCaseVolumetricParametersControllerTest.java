@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -50,13 +50,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = MixedCaseVolumetricParametersController.class)
 class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService;
 
-  @MockBean
+  @MockitoBean
   private MixedCaseVolumetricParametersPersistenceService mixedCaseVolumetricParametersPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator;
 
   @Autowired

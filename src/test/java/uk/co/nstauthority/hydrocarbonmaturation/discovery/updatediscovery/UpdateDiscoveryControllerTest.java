@@ -18,7 +18,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ContextConfiguration(classes = UpdateDiscoveryController.class)
 class UpdateDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private UpdateDiscoveryService updateDiscoveryService;
 
   private UUID submissionDetailId;

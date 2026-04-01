@@ -11,7 +11,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.math.BigDecimal;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 @ContextConfiguration(classes = UndevelopedDiscoveriesOverviewController.class)
 class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveriesOverviewService overviewService;
 
   @Test

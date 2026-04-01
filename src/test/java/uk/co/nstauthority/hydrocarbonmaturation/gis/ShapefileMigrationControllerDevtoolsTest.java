@@ -11,7 +11,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
@@ -24,7 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @ActiveProfiles("devtools")
 class ShapefileMigrationControllerDevtoolsTest extends RealSecurityAbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   ShapefileMigrationService shapefileMigrationService;
 
   @SecurityTest

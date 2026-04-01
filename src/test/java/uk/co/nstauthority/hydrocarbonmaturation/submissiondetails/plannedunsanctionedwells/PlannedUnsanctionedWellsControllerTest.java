@@ -24,8 +24,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -39,9 +39,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ContextConfiguration(classes = PlannedUnsanctionedWellsController.class)
 class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControllerTest {
-  @MockBean
+  @MockitoBean
   private PlannedUnsanctionedWellsService plannedUnsanctionedWellsService;
-  @MockBean
+  @MockitoBean
   private PlannedUnsanctionedWellsFormValidator plannedUnsanctionedWellsFormValidator;
 
   private PlannedUnsanctionedWellsForm form;

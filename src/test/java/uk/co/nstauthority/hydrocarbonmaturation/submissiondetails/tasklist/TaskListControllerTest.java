@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -35,16 +35,16 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
   private static final String SUBMISSION_UPDATE_REASON = "submission update reason here";
-  @MockBean
+  @MockitoBean
   private TaskListService taskListService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionUpdateService submissionUpdateService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private DiscoveryAssociationService discoveryAssociationService;
 
   private UUID submissionDetailId;

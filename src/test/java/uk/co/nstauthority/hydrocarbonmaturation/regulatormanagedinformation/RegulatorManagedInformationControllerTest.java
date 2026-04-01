@@ -29,8 +29,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
@@ -60,19 +60,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = RegulatorManagedInformationController.class)
 class RegulatorManagedInformationControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private RegulatorManagedInformationFormService regulatorManagedInformationFormService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
 
-  @MockBean
+  @MockitoBean
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
 
-  @MockBean
+  @MockitoBean
   private ResponsibleTeamService responsibleTeamService;
 
   @Autowired

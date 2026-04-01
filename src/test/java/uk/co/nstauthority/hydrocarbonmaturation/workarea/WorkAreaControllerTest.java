@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -34,7 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleTestUtil;
 @ContextConfiguration(classes = WorkAreaController.class)
 class WorkAreaControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private WorkAreaItemService workAreaItemService;
 
   private static final User USER = UserTestUtil.Builder().build();

@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -38,10 +38,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @ContextConfiguration(classes = UnlinkedFileController.class)
 class UnlinkedFileControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private FileService fileService;
 
-  @MockBean
+  @MockitoBean
   private FileUploadCustomValidatorFactory fileUploadCustomValidatorFactory;
   private final FileDocumentType DOCUMENT_TYPE = FileDocumentType.ADDITIONAL_DOCUMENT;
 

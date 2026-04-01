@@ -20,8 +20,8 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -46,10 +46,10 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
   public static final String VIEW_NAME = "remi/submissiondetails/reservoir/deleteReservoir";
   public static final String RESERVOIR_NAME = "reservoir name";
 
-  @MockBean
+  @MockitoBean
   private ReservoirSummaryService reservoirSummaryService;
 
-  @MockBean
+  @MockitoBean
   private DeleteReservoirService deleteReservoirService;
 
   private ReservoirSubmissionDetail reservoirSubmissionDetail;

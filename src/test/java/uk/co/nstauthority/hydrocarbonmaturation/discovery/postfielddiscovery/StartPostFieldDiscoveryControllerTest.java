@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ContextConfiguration(classes = StartPostFieldDiscoveryController.class)
 class StartPostFieldDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   FieldStatusService fieldStatusService;
 
   Resource resource;

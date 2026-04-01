@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -55,16 +55,16 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
   private static final String RESOURCE_NAME = "test";
   private static final String SUBMISSION_TYPE_NAME = "submission type name";
 
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
 
-  @MockBean
+  @MockitoBean
   private CorrectionService correctionService;
 
-  @MockBean
+  @MockitoBean
   private CorrectionCreateService correctionCreateService;
 
   private GeneralDetailSummaryView generalDetailSummaryView;

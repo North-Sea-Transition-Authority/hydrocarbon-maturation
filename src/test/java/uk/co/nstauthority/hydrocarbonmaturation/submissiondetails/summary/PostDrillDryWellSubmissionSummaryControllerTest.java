@@ -23,8 +23,8 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -53,16 +53,16 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
   public static final String VIEW_NAME = "remi/submissiondetails/summary/dryWellSubmissionSummary";
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionReadyService submissionReadyService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionApprovalService submissionApprovalService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryFormValidator submissionSummaryFormValidator;
 
   private static UUID submissionDetailId;

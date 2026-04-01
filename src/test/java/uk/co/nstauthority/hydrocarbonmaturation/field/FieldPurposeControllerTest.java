@@ -15,8 +15,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -38,13 +38,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ContextConfiguration(classes = FieldPurposeController.class)
 class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   SubmissionTypeSelectService submissionTypeSelectService;
 
-  @MockBean
+  @MockitoBean
   SubmissionCreateService submissionCreateService;
 
-  @MockBean
+  @MockitoBean
   FieldConfiguration fieldConfiguration;
 
   @SecurityTest

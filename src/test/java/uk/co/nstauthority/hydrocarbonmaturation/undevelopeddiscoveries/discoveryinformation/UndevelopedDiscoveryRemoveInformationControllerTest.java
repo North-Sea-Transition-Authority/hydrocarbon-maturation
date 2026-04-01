@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -42,13 +42,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.Undevelop
 @ContextConfiguration(classes = UndevelopedDiscoveryRemoveInformationController.class)
 class UndevelopedDiscoveryRemoveInformationControllerTest extends AbstractUndevelopedDiscoveryControllerTest {
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveryInformationSummaryService summaryService;
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveryInformationService informationService;
 
-  @MockBean
+  @MockitoBean
   private ViewResourceRecordService resourceRecordService;
 
   private final UUID INFORMATION_ID = UUID.randomUUID();

@@ -19,8 +19,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -34,7 +34,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
 
   private final static User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private RemiFeedbackService remiFeedbackService;
 
   @SecurityTest

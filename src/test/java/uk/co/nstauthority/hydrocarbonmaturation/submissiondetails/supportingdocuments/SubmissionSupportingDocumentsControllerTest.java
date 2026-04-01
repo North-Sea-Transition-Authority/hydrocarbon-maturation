@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,10 +35,10 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
   private static final UUID FILE_ID = UUID.randomUUID();
   private static final Class<SubmissionSupportingDocumentsController> CONTROLLER = SubmissionSupportingDocumentsController.class;
 
-  @MockBean
+  @MockitoBean
   private FileService fileService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSupportingDocumentService supportingDocumentService;
 
   @Test

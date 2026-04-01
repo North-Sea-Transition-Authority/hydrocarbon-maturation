@@ -7,8 +7,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.List;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -18,10 +18,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @ContextConfiguration(classes = OrganisationGroupRestController.class)
 class OrganisationGroupRestControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private OrganisationGroupQueryService organisationGroupQueryService;
 
-  @MockBean
+  @MockitoBean
   private SearchSelectorService searchSelectorService;
 
   @SecurityTest

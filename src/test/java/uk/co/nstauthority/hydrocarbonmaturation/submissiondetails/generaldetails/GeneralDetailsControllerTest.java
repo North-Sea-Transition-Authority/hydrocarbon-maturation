@@ -32,8 +32,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -61,19 +61,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = GeneralDetailsController.class)
 class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private GeneralDetailsFormService generalDetailsFormService;
 
-  @MockBean
+  @MockitoBean
   private GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private GeneralDetailsFormValidator generalDetailsFormValidator;
 
-  @MockBean
+  @MockitoBean
   private OnshoreOffshoreService onshoreOffshoreService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSupportingDocumentService supportingDocumentService;
 
   private UUID submissionDetailId;

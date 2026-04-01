@@ -27,8 +27,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -69,17 +69,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ExtendWith(MockitoExtension.class)
 @ContextConfiguration(classes = FieldRegulatorManagedInformationController.class)
 class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionControllerTest {
-  @MockBean
+  @MockitoBean
   private ResponsibleTeamService responsibleTeamService;
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
-  @MockBean
+  @MockitoBean
   private NewFieldService newFieldService;
-  @MockBean
+  @MockitoBean
   private SubmissionResourceService submissionResourceService;
-  @MockBean
+  @MockitoBean
   private FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
-  @MockBean
+  @MockitoBean
   private FieldLicenceService fieldLicenceService;
 
   private FieldForm form;

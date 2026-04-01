@@ -5,8 +5,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -26,12 +26,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discovery
 })
 public abstract class AbstractUndevelopedDiscoveryControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   protected UndevelopedDiscoveryService undevelopedDiscoveryService;
-  @MockBean
+  @MockitoBean
   protected UndevelopedDiscoveryInformationControllerUtil undevelopedDiscoveryInformationControllerUtil;
 
-  @MockBean
+  @MockitoBean
   protected ResourceService resourceService;
 
   protected static final User USER = UserTestUtil.Builder().build();

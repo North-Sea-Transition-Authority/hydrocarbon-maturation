@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -24,9 +24,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @ContextConfiguration(classes = PlannedSanctionedWellsController.class)
 class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerTest {
-  @MockBean
+  @MockitoBean
   private PlannedSanctionedWellsService plannedSanctionedWellsService;
-  @MockBean
+  @MockitoBean
   private PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator;
 
   private PlannedSanctionedWellsForm form;

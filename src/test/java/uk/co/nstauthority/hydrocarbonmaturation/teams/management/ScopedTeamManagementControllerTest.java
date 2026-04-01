@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.fivium.energyportal.serviceproviders.epmq.ScopeType;
 import uk.co.fivium.energyportal.serviceproviders.epmq.messages.ServiceProviderTeamDto;
@@ -40,13 +40,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.management.form.NewOrganis
 @ContextConfiguration(classes = ScopedTeamManagementController.class)
 public class ScopedTeamManagementControllerTest extends AbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private OrganisationApi organisationApi;
 
-  @MockBean
+  @MockitoBean
   private NewOrganisationTeamFormValidator newOrganisationTeamFormValidator;
 
-  @MockBean
+  @MockitoBean
   private EnergyPortalServiceProviderTeamService energyPortalServiceProviderTeamService;
 
   private static User invokingUser;

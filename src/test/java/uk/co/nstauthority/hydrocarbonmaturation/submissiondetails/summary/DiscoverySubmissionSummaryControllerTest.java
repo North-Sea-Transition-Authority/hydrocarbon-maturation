@@ -27,8 +27,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -71,22 +71,22 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
   public static final String VIEW_NAME = "remi/submissiondetails/summary/discoverySubmissionSummary";
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionReadyService submissionReadyService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionApprovalService submissionApprovalService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryFormValidator submissionSummaryFormValidator;
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveryService undevelopedDiscoveryService;
 
-  @MockBean
+  @MockitoBean
   private DiscoveryAssociationService discoveryAssociationService;
 
   private static UUID submissionDetailId;

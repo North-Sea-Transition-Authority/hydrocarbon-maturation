@@ -22,8 +22,8 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -38,10 +38,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = DrillStemTestDeleteController.class)
 class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
   private DrillStemTest drillStemTest;
   private UUID drillStemTestResultId;

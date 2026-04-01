@@ -11,7 +11,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,13 +32,13 @@ class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionContro
   private static final UUID FILE_ID = UUID.randomUUID();
   private static final Class<ResourceSupportingDocumentsController> CONTROLLER = ResourceSupportingDocumentsController.class;
 
-  @MockBean
+  @MockitoBean
   private FileService fileService;
 
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
 
-  @MockBean
+  @MockitoBean
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
   private Resource resource;
 

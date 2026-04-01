@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -45,13 +45,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = ReservoirTaskListController.class)
 class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private ReservoirTaskListService reservoirTaskListService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirAdditionsFormService reservoirAdditionsFormService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirAdditionsFormValidator reservoirAdditionsFormValidator;
 
   @SecurityTest

@@ -22,7 +22,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -43,13 +43,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.Undevelop
 @ContextConfiguration(classes = UndevelopedDiscoveryInformationController.class)
 class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedDiscoveryControllerTest {
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveryInformationFormValidator formValidator;
 
-  @MockBean
+  @MockitoBean
   private ViewResourceRecordService resourceRecordService;
 
-  @MockBean
+  @MockitoBean
   private UndevelopedDiscoveryInformationService undevelopedDiscoveryInformationService;
 
   private UndevelopedDiscoveryInformation undevelopedDiscoveryInformation;

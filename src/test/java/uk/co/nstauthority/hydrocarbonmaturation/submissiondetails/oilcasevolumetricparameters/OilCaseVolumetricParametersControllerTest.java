@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -49,13 +49,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = OilCaseVolumetricParametersController.class)
 class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private OilCaseVolumetricParametersFormService oilCaseVolumetricParametersFormService;
 
-  @MockBean
+  @MockitoBean
   private OilCaseVolumetricParametersFormValidator oilCaseVolumetricParametersFormValidator;
 
-  @MockBean
+  @MockitoBean
   private OilCaseVolumetricParametersPersistenceService oilCaseVolumetricParametersPersistenceService;
 
   @Autowired

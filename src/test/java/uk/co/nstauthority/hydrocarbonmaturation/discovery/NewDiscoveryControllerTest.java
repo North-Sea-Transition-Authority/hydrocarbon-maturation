@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -40,10 +40,10 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private NewResourceDetailsFormValidator newResourceDetailsFormValidator;
 
-  @MockBean
+  @MockitoBean
   private SubmissionCreateService submissionCreateService;
 
   private UUID submissionDetailId;

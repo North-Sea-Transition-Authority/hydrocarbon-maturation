@@ -32,8 +32,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -70,31 +70,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = ReservoirPropertiesController.class)
 class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private ReservoirPropertiesFormService reservoirPropertiesFormService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
 
-  @MockBean
+  @MockitoBean
   private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
-  @MockBean
+  @MockitoBean
   private FormationSearchService formationSearchService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirSubUnitSearchService reservoirSubUnitSearchService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirAgeSearchService reservoirAgeSearchService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirPropertiesFormValidator reservoirPropertiesFormValidator;
 
-  @MockBean
+  @MockitoBean
   private GeneralReservoirInformationService generalReservoirInformationService;
 
   private ReservoirPropertiesForm form;

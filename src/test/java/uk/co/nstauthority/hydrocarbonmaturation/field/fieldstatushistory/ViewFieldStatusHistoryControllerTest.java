@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -37,9 +37,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = ViewFieldStatusHistoryController.class)
 class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerTest {
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
-  @MockBean
+  @MockitoBean
   private ViewFieldStatusHistoryService viewFieldStatusHistoryService;
 
   private Resource resource;

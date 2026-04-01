@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
@@ -74,27 +74,27 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   private static final User USER = UserTestUtil.Builder().build();
   private static final String SUBMISSION_UPDATE_REASON = "reason for update";
 
-  @MockBean
+  @MockitoBean
   private ReviewSubmissionService reviewSubmissionService;
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
-  @MockBean
+  @MockitoBean
   private SubmissionHistoryQueryService submissionHistoryQueryService;
-  @MockBean
+  @MockitoBean
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
-  @MockBean
+  @MockitoBean
   private DiscoveryAssociationService discoveryAssociationService;
-  @MockBean
+  @MockitoBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
-  @MockBean
+  @MockitoBean
   private ResponsibleTeamService responsibleTeamService;
-  @MockBean
+  @MockitoBean
   FieldPersistenceService fieldPersistenceService;
-  @MockBean
+  @MockitoBean
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
-  @MockBean
+  @MockitoBean
   private FieldMapViewService fieldMapViewService;
 
   private Resource resource;

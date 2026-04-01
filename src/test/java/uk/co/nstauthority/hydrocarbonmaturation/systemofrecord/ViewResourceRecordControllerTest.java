@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
@@ -76,33 +76,33 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private SubmissionHistoryQueryService submissionHistoryQueryService;
-  @MockBean
+  @MockitoBean
   private ViewResourceRecordService viewResourceRecordService;
-  @MockBean
+  @MockitoBean
   private SubmissionSummaryModelService submissionSummaryModelService;
-  @MockBean
+  @MockitoBean
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
-  @MockBean
+  @MockitoBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
-  @MockBean
+  @MockitoBean
   private ResponsibleTeamService responsibleTeamService;
-  @MockBean
+  @MockitoBean
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
-  @MockBean
+  @MockitoBean
   private CorrectionService correctionService;
-  @MockBean
+  @MockitoBean
   private FieldPersistenceService fieldPersistenceService;
-  @MockBean
+  @MockitoBean
   private FieldMapViewService fieldMapViewService;
-  @MockBean
+  @MockitoBean
   private FieldStatusService fieldStatusService;
-  @MockBean
+  @MockitoBean
   private FieldDisplayService fieldDisplayService;
-  @MockBean
+  @MockitoBean
   private RegulatorReportingInformationSummaryService regulatorReportingInformationSummaryService;
 
   private Resource resource;

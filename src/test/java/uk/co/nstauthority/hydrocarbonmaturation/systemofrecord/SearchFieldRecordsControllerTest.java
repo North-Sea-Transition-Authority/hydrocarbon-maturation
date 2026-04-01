@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -39,11 +39,11 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private SearchResourceRecordsService searchResourceRecordsService;
-  @MockBean
+  @MockitoBean
   private ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
-  @MockBean
+  @MockitoBean
   private FieldConfiguration fieldConfiguration;
 
   @SecurityTest

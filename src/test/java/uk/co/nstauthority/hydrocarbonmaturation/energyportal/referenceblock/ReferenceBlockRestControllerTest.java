@@ -10,10 +10,10 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -33,9 +33,9 @@ class ReferenceBlockRestControllerTest extends AbstractControllerTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @MockBean
+  @MockitoBean
   private SearchSelectorService searchSelectorService;
-  @MockBean
+  @MockitoBean
   private ReferenceBlockQueryService referenceBlockQueryService;
 
   @SecurityTest

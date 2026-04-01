@@ -25,8 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -45,13 +45,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = GasFluidPropertyController.class)
 class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private GasFluidPropertyFormService gasFluidPropertyFormService;
 
-  @MockBean
+  @MockitoBean
   private GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
 
-  @MockBean
+  @MockitoBean
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
   private BindingResult bindingResult;

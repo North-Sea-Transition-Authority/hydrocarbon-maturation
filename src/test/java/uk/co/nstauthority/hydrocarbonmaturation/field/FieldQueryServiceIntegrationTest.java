@@ -10,7 +10,7 @@ import java.util.Set;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
@@ -42,16 +42,16 @@ class FieldQueryServiceIntegrationTest {
   @Autowired
   private EntityManager entityManager;
 
-  @MockBean
+  @MockitoBean
   private InternalTeamService internalTeamService;
 
-  @MockBean
+  @MockitoBean
   private ResponsibleTeamService responsibleTeamService;
 
-  @MockBean
+  @MockitoBean
   private IndustryTeamService industryTeamService;
 
-  @MockBean
+  @MockitoBean
   private FieldOperatorAndLicenceQueryService fieldOperatorAndLicenceQueryService;
 
   @Autowired

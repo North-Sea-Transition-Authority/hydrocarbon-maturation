@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -52,11 +52,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ProjectStageController.class)
 class ProjectStageControllerTest extends AbstractControllerTest {
-  @MockBean
+  @MockitoBean
   private ProjectStageService projectStageService;
-  @MockBean
+  @MockitoBean
   private ProjectStageHistoryService projectStageHistoryService;
-  @MockBean
+  @MockitoBean
   private ProjectStageFormValidator projectStageFormValidator;
 
   private final User USER = UserTestUtil.Builder().build();

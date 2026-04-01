@@ -13,7 +13,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -29,10 +29,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = StartSubmissionController.class)
 class StartSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   ResourceTypeSelectService resourceTypeSelectService;
 
-  @MockBean
+  @MockitoBean
   SubmissionCreateService submissionCreateService;
 
   @SecurityTest

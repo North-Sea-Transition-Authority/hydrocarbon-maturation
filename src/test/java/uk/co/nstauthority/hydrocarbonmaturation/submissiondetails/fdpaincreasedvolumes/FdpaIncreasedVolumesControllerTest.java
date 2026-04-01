@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -42,13 +42,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @ContextConfiguration(classes = FdpaIncreasedVolumesController.class)
 class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTest {
 
-  @MockBean
+  @MockitoBean
   private FdpaIncreasedVolumesService increasedVolumesService;
 
-  @MockBean
+  @MockitoBean
   private FdpaIncreasedVolumesFormValidator formValidator;
 
-  @MockBean
+  @MockitoBean
   private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   @Autowired

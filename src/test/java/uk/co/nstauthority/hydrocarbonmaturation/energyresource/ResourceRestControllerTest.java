@@ -10,7 +10,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
@@ -30,19 +30,19 @@ class ResourceRestControllerTest extends AbstractControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private SearchSelectorService searchSelectorService;
 
-  @MockBean
+  @MockitoBean
   private SubmissionQueryService submissionQueryService;
 
-  @MockBean
+  @MockitoBean
   private FieldQueryService fieldQueryService;
 
-  @MockBean
+  @MockitoBean
   private ReservoirQueryService reservoirQueryService;
 
-  @MockBean
+  @MockitoBean
   private SearchResourceRecordsQueryService searchResourceRecordsQueryService;
 
   @BeforeEach

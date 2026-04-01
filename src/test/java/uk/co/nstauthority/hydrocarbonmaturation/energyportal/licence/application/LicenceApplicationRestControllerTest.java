@@ -6,9 +6,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -22,10 +22,10 @@ class LicenceApplicationRestControllerTest extends AbstractControllerTest {
 
   private static final String SEARCH_TERM = "searchTerm";
 
-  @MockBean
+  @MockitoBean
   LicenceApplicationQueryService licenceApplicationQueryService;
 
-  @MockBean
+  @MockitoBean
   SearchSelectorService searchSelectorService;
 
   @BeforeEach

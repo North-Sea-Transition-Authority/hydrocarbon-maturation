@@ -24,8 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -45,10 +45,10 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
 
   private static final User USER = UserTestUtil.Builder().build();
 
-  @MockBean
+  @MockitoBean
   private ChanceOfSuccessFormService chanceOfSuccessFormService;
 
-  @MockBean
+  @MockitoBean
   private ChanceOfSuccessPersistenceService chanceOfSuccessPersistenceService;
 
   private static UUID submissionDetailId;
