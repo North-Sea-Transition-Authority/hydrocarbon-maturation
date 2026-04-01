@@ -10,6 +10,7 @@ CVE-2024-38820
 # spring-security-web
 CVE-2024-38821
 CVE-2025-41234
+CVE-2026-22732
 
 # io.netty:netty-common
 CVE-2024-47535
@@ -24,9 +25,11 @@ CVE-2025-58056
 
 # io.netty:netty-codec-http
 CVE-2025-67735
+CVE-2026-33870
 
 # io.netty:netty-codec-http2
 CVE-2025-55163
+CVE-2026-33871
 
 # org.apache.tomcat.embed:tomcat-embed-core
 CVE-2024-52317
@@ -48,6 +51,8 @@ CVE-2026-1225
 
 # spring-webmvc
 CVE-2024-38819
+CVE-2026-22737
+CVE-2026-22735
 
 # net.minidev:json-smart
 CVE-2024-57699

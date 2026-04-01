@@ -134,7 +134,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
         )
         .addRow(
             "Gas initially in place",
-            undevelopedDiscoveryInformation.getOilInPlaceP50(), null, null, null, "bcf"
+            undevelopedDiscoveryInformation.getGasInPlaceP50(), null, null, null, "bcf"
         )
         .addRow(
             "Gas recoverable resources",

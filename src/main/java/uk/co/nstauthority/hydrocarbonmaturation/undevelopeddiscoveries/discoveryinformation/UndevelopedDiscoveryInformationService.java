@@ -6,9 +6,10 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,17 +34,16 @@ public class UndevelopedDiscoveryInformationService {
 
   @Transactional
   public void saveUndevelopedDiscoveryInformation(UndevelopedDiscoveryInformationForm form,
-                                                  UndevelopedDiscovery undevelopedDiscovery) {
-    var newDate = getDateFromForm(form);
-    var undevelopedDiscoveryInformation = getOrderedDiscoveryInformation(undevelopedDiscovery)
-        .stream()
-        .filter(information -> information.getInformationDate().equals(newDate))
-        .findFirst()
-        .orElseGet(UndevelopedDiscoveryInformation::new);
+                                                  UndevelopedDiscovery undevelopedDiscovery,
+                                                  UUID informationId) {
+
+    var undevelopedDiscoveryInformation = informationId != null
+        ? getUndevelopedDiscoveryInformationOrThrow(informationId)
+        : new UndevelopedDiscoveryInformation();
 
     undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
-    undevelopedDiscoveryInformation.setInformationDate(newDate);
+    undevelopedDiscoveryInformation.setInformationDate(getDateFromForm(form));
 
     var volumetrics = form.getVolumetricsForm();
     addVolumetrics(volumetrics, undevelopedDiscoveryInformation);
@@ -71,23 +71,42 @@ public class UndevelopedDiscoveryInformationService {
 
   public List<UndevelopedDiscoveryInformation> getOrderedDiscoveryInformation(
       UndevelopedDiscovery undevelopedDiscovery) {
-    return informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery)
+    return informationRepository.findAllByUndevelopedDiscoveryAndStatus(
+        undevelopedDiscovery, UndevelopedDiscoveryInformationStatus.EXTANT)
         .stream()
-        .filter(this::isExtant)
         .sorted(Comparator.comparing(UndevelopedDiscoveryInformation::getInformationDate).reversed())
         .toList();
   }
 
-  public Optional<UndevelopedDiscoveryInformation> getLatestInformation(UndevelopedDiscovery undevelopedDiscovery) {
-    return getOrderedDiscoveryInformation(undevelopedDiscovery)
-        .stream()
-        .findFirst();
+  public List<UndevelopedDiscoveryInformation> getLatestDiscoveryInformation(List<UndevelopedDiscovery> undevelopedDiscoveries) {
+    Map<UUID, List<UndevelopedDiscoveryInformation>> infoMap = informationRepository.findAllByUndevelopedDiscoveryInAndStatus(
+        undevelopedDiscoveries, UndevelopedDiscoveryInformationStatus.EXTANT
+    ).stream()
+        .collect(
+            Collectors.groupingBy(
+                undevelopedDiscoveryInformation -> undevelopedDiscoveryInformation.getUndevelopedDiscovery().getId(),
+                Collectors.toList())
+        );
+
+    return undevelopedDiscoveries.stream()
+        .map(UndevelopedDiscovery::getId)
+        .map(d -> infoMap.getOrDefault(d, List.of()))
+        .map(this::getLatestInformationFromList)
+        .flatMap(Optional::stream)
+        .toList();
   }
 
-  public UndevelopedDiscoveryInformation getUndevelopedDiscoveryInformationOrThrow(UUID uuid) {
-    return informationRepository.findById(uuid)
-        .orElseThrow(() -> new RemiEntityNotFoundException(
-            "No undeveloped discovery information found for id %s".formatted(uuid)));
+  private Optional<UndevelopedDiscoveryInformation> getLatestInformationFromList(
+      List<UndevelopedDiscoveryInformation> undevelopedDiscoveryInformationList
+  ) {
+    return undevelopedDiscoveryInformationList
+        .stream()
+        .max(Comparator.comparing(UndevelopedDiscoveryInformation::getInformationDate));
+  }
+
+  public UndevelopedDiscoveryInformation getUndevelopedDiscoveryInformationOrThrow(UUID id) {
+    return informationRepository.findById(id).orElseThrow(() -> new RemiEntityNotFoundException(
+            "No undeveloped discovery information found for id %s".formatted(id)));
   }
 
   public UndevelopedDiscoveryInformationForm entityToForm(
@@ -136,10 +155,6 @@ public class UndevelopedDiscoveryInformationService {
     );
   }
 
-  private boolean isExtant(UndevelopedDiscoveryInformation information) {
-    return information.getStatus().equals(UndevelopedDiscoveryInformationStatus.EXTANT);
-  }
-
   private void addVolumetrics(UndevelopedDiscoveryVolumetricsForm form,
                               UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
     undevelopedDiscoveryInformation.setGasInPlaceP50(form.getGasInPlace().createBigDecimalOrNull());
@@ -172,18 +187,18 @@ public class UndevelopedDiscoveryInformationService {
 
   private void calculateAndAddOilEquivalentRecoverableResources(UndevelopedDiscoveryInformation information) {
     var oilEquivalentOneC = calculateOilEquivalentRecoverableResources(
-        information.getOilRecoverableOneC(),
-        information.getGasRecoverableOneC());
+        information.getOilRecoverableOneC() != null ? information.getOilRecoverableOneC() : BigDecimal.ZERO,
+        information.getGasRecoverableOneC() != null ? information.getGasRecoverableOneC() : BigDecimal.ZERO);
     information.setOilEquivalentRecoverableOneC(oilEquivalentOneC);
 
     var oilEquivalentTwoC = calculateOilEquivalentRecoverableResources(
-        information.getOilRecoverableTwoC(),
-        information.getGasRecoverableTwoC());
+        information.getOilRecoverableTwoC() != null ? information.getOilRecoverableTwoC() : BigDecimal.ZERO,
+        information.getGasRecoverableTwoC() != null ? information.getGasRecoverableTwoC() : BigDecimal.ZERO);
     information.setOilEquivalentRecoverableTwoC(oilEquivalentTwoC);
 
     var oilEquivalentThreeC = calculateOilEquivalentRecoverableResources(
-        information.getOilRecoverableThreeC(),
-        information.getGasRecoverableThreeC());
+        information.getOilRecoverableThreeC() != null ? information.getOilRecoverableThreeC() : BigDecimal.ZERO,
+        information.getGasRecoverableThreeC() != null ? information.getGasRecoverableThreeC() : BigDecimal.ZERO);
     information.setOilEquivalentRecoverableThreeC(oilEquivalentThreeC);
   }
 
@@ -193,10 +208,6 @@ public class UndevelopedDiscoveryInformationService {
    * @return calculated mmboe
    */
   private BigDecimal calculateOilEquivalentRecoverableResources(BigDecimal oilRecoverable, BigDecimal gasRecoverable) {
-    if (Objects.isNull(oilRecoverable) || Objects.isNull(gasRecoverable)) {
-      return null;
-    }
-
     var gasDividedByConstant = BigDecimalUtil.isValueZero(gasRecoverable)
         ? gasRecoverable
         : gasRecoverable.divide(GAS_TO_OIL_EQUIVALENT_CONVERSION_FACTOR, MathContext.DECIMAL64);
@@ -211,15 +222,12 @@ public class UndevelopedDiscoveryInformationService {
    * @return BigDecimal percentage gas
    */
   private BigDecimal calculatePercentageGas(UndevelopedDiscoveryInformation information) {
-    if (Objects.isNull(information.getOilRecoverableTwoC()) || Objects.isNull(information.getOilEquivalentRecoverableTwoC())) {
-      return null;
-    }
-    var oilRecoverable = information.getOilRecoverableTwoC();
+    var oilRecoverable = information.getOilRecoverableTwoC() != null ? information.getOilRecoverableTwoC() : BigDecimal.ZERO;
     var oilEquivalentRecoverable = information.getOilEquivalentRecoverableTwoC();
 
     if (BigDecimalUtil.isValueZero(oilEquivalentRecoverable)) {
       // there is no oil or gas
-      return null;
+      return BigDecimal.ZERO;
     } else if (BigDecimalUtil.isValueZero(oilRecoverable)) {
       // no oil, must all be gas
       return BigDecimal.valueOf(100);

@@ -133,7 +133,7 @@ class SubmissionQueryService {
 
   /**
    * Returns List of all discovery resource views that match the search term based on the following rules
-   * 1. The discovery is not active
+   * 1. The discovery is active
    * 2. There are no open (not withdrawn) submissions of draft or submitted status against the discovery
    * 3. There are no accepted relinquishment submissions against the discovery
    * 4. The discovery is not linked to a field that has a status of 300 or higher in its history
@@ -216,7 +216,7 @@ class SubmissionQueryService {
 
   /**
    * Returns List of all discovery resource views that match the search term based on the following rules
-   * 1. The discovery is not active
+   * 1. The discovery is active
    * 2. There are no accepted relinquishment submissions against the discovery
    * 3. The discovery is not in a resource group
    *
@@ -232,6 +232,8 @@ class SubmissionQueryService {
         )
         .from(RESOURCE_DETAILS
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
+            .join(LATEST_SUBMISSION_DETAIL_VIEW)
+            .on(LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID))
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))

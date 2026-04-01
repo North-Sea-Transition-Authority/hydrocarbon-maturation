@@ -107,6 +107,7 @@ class ResourceDetailsFormValidatorTest {
     var form = new ResourceDetailsForm();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(123);
     var newSubmissionDetail = SubmissionDetailTestUtils.createUpdateToSubmission(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -129,6 +130,7 @@ class ResourceDetailsFormValidatorTest {
     var form = new ResourceDetailsForm();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(123);
     var newSubmissionDetail = SubmissionDetailTestUtils.createUpdateToSubmission(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -161,6 +163,7 @@ class ResourceDetailsFormValidatorTest {
     var form = new ResourceDetailsForm();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(123);
     var newSubmissionDetail = SubmissionDetailTestUtils.createUpdateToSubmission(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -182,6 +185,7 @@ class ResourceDetailsFormValidatorTest {
     var form = new ResourceDetailsForm();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setOrganisationId(123);
     var newSubmissionDetail = SubmissionDetailTestUtils.createUpdateToSubmission(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");

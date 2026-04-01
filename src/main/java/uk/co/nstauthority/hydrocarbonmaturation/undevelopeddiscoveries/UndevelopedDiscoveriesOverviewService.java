@@ -4,32 +4,22 @@ import com.google.common.collect.Streams;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
-import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistoryService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableRow;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableSortDirection;
@@ -38,62 +28,105 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TableHeadingStyle;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.Tag;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TagColour;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BigDecimalUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalFormatUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 public class UndevelopedDiscoveriesOverviewService {
 
   private final UndevelopedDiscoveryService undevelopedDiscoveryService;
   private final UndevelopedDiscoveryInformationService informationService;
-  private final ViewResourceRecordService resourceRecordService;
-  private final RegulatorManagedInformationSummaryService regulatorSummaryService;
   private final LicenceQueryService licenceQueryService;
   private final ResourceGroupService resourceGroupService;
-  private final ResourceLinkService resourceLinkService;
-  private final FieldStatusHistoryService fieldStatusHistoryService;
-  private final FieldPersistenceService fieldPersistenceService;
-  private final SubmissionDetailService submissionDetailService;
+  private final UndevelopedDiscoveriesQueryService undevelopedDiscoveriesQueryService;
 
   @Autowired
   public UndevelopedDiscoveriesOverviewService(UndevelopedDiscoveryService undevelopedDiscoveryService,
                                                UndevelopedDiscoveryInformationService informationService,
-                                               ViewResourceRecordService resourceRecordService,
-                                               RegulatorManagedInformationSummaryService regulatorSummaryService,
                                                LicenceQueryService licenceQueryService,
                                                ResourceGroupService resourceGroupService,
-                                               ResourceLinkService resourceLinkService,
-                                               FieldStatusHistoryService fieldStatusHistoryService,
-                                               FieldPersistenceService fieldPersistenceService,
-                                               SubmissionDetailService submissionDetailService) {
+                                               UndevelopedDiscoveriesQueryService undevelopedDiscoveriesQueryService) {
     this.undevelopedDiscoveryService = undevelopedDiscoveryService;
     this.informationService = informationService;
-    this.resourceRecordService = resourceRecordService;
-    this.regulatorSummaryService = regulatorSummaryService;
     this.licenceQueryService = licenceQueryService;
     this.resourceGroupService = resourceGroupService;
-    this.resourceLinkService = resourceLinkService;
-    this.fieldStatusHistoryService = fieldStatusHistoryService;
-    this.fieldPersistenceService = fieldPersistenceService;
-    this.submissionDetailService = submissionDetailService;
+    this.undevelopedDiscoveriesQueryService = undevelopedDiscoveriesQueryService;
   }
 
   public UndevelopedDiscoveryOverviewData getOverviewData() {
-    List<UndevelopedDiscoveryInformation> allTrackedInformation = undevelopedDiscoveryService
-        .getAllTrackedUndevelopedDiscoveries()
+    List<UndevelopedDiscovery> allTrackedInformation = undevelopedDiscoveryService
+        .getAllTrackedUndevelopedDiscoveries();
+
+    var latestInformation = getLatestDiscoveryInformation(allTrackedInformation);
+
+    var duplicateResourceIds = getDuplicateResourceIds(latestInformation);
+
+    var resources = latestInformation
         .stream()
-        .map(this::getDiscoveryInformation)
+        .map(information -> information.getUndevelopedDiscovery().getResource())
         .toList();
 
-    var duplicateResourceIds = getDuplicateResourceIds(allTrackedInformation);
+    var resourceRecords = undevelopedDiscoveriesQueryService.getLatestResourceRecords(
+        resources.stream().map(Resource::getId).toList()
+    );
 
-    var rows = allTrackedInformation
+    var allLicenceIds = resourceRecords.stream()
+        .flatMap(resource -> resource.licenceIds() != null ? resource.licenceIds().stream() : Stream.empty())
+        .toList();
+
+    var allExtantLicenceIds = licenceQueryService.getExtantLicencesByIds(NumberUtil.toListOfStrings(allLicenceIds))
         .stream()
-        .map(information -> generateRowValues(information, duplicateResourceIds))
+        .map(LicenceDto::licenceId)
+        .toList();
+
+    List<UUID> licencedResourceIds =
+        resourceRecords.stream()
+            .filter(
+                resource -> resource.licenceIds() != null
+                    && resource.licenceIds().stream().anyMatch(allExtantLicenceIds::contains)
+            )
+            .map(UndevelopedDiscoveryResourceDto::resourceId)
+            .toList();
+
+    Map<UUID, String> geographicalAreaMap = resourceRecords
+        .stream()
+        .collect(Collectors.toMap(
+            UndevelopedDiscoveryResourceDto::resourceId,
+            resource -> resource.geographicalArea() != null ? resource.geographicalArea().getDisplayName() : ""
+        ));
+
+    Map<UUID, String> resourceNameMap = resourceRecords
+        .stream()
+        .collect(Collectors.toMap(
+            UndevelopedDiscoveryResourceDto::resourceId,
+            UndevelopedDiscoveryResourceDto::resourceName)
+        );
+
+    Map<UUID, SubmissionType> submissionTypeMap = resourceRecords
+        .stream()
+        .collect(Collectors.toMap(
+            UndevelopedDiscoveryResourceDto::resourceId,
+            UndevelopedDiscoveryResourceDto::submissionType)
+        );
+
+    var resourceIds = resourceRecords.stream().map(UndevelopedDiscoveryResourceDto::resourceId).toList();
+    Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap = undevelopedDiscoveriesQueryService.getLinkedFields(resourceIds)
+        .stream()
+        .collect(Collectors.groupingBy(UndevelopedDiscoveryFieldDto::discoveryResourceId));
+
+    var rows = latestInformation
+        .stream()
+        .map(information -> generateRowValues(
+            information,
+            duplicateResourceIds,
+            resourceNameMap,
+            geographicalAreaMap,
+            submissionTypeMap,
+            licencedResourceIds,
+            fieldDtoMap))
         .toList();
 
     return new UndevelopedDiscoveryOverviewData(
@@ -156,21 +189,25 @@ public class UndevelopedDiscoveriesOverviewService {
   }
 
   private UndevelopedDiscoveryRowValues generateRowValues(UndevelopedDiscoveryInformation information,
-                                                          List<UUID> duplicateResourceIds) {
+                                                          List<UUID> duplicateResourceIds,
+                                                          Map<UUID, String> resourceNameMap,
+                                                          Map<UUID, String> geographicalAreaMap,
+                                                          Map<UUID, SubmissionType> submissionTypeMap,
+                                                          List<UUID> licencedResourceIds,
+                                                          Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap) {
     var resource = information.getUndevelopedDiscovery().getResource();
 
-    var resourceRecord = resourceRecordService.getResourceRecordOrThrow(resource.getId());
-    var regulatorView = regulatorSummaryService.getRegulatorManagedInformationSummaryFromResource(resource);
-    var isLicensed = resourceIsLicensed(resourceRecord, resource);
+    var isLicensed = licencedResourceIds.contains(resource.getId())
+        && !submissionTypeMap.get(resource.getId()).equals(SubmissionType.RELINQUISHMENT_DISCOVERY);
 
     var percentageGasFormatted = information.getPercentageGas() == null
         ? ""
         : "%s%%".formatted(DecimalFormatUtil.bigDecimalToTwoDecimalPlace(information.getPercentageGas()));
 
     var discoveryValue = new SummaryTableValue(
-        resourceRecord.resourceName(),
+        resourceNameMap.get(resource.getId()),
         RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
-        getTags(resource, duplicateResourceIds)
+        getTags(resource, duplicateResourceIds, fieldDtoMap)
     );
 
     var year = information.getInformationDate() == null
@@ -181,7 +218,7 @@ public class UndevelopedDiscoveriesOverviewService {
         discoveryValue,
         year,
         isLicensed,
-        regulatorView.geographicalArea(),
+        geographicalAreaMap.get(resource.getId()),
         information.getOilEquivalentRecoverableOneC(),
         information.getOilEquivalentRecoverableTwoC(),
         information.getOilEquivalentRecoverableThreeC(),
@@ -205,46 +242,10 @@ public class UndevelopedDiscoveriesOverviewService {
         .build();
   }
 
-  private Boolean resourceIsLicensed(ResourceRecordSummaryView resourceRecord, Resource resource) {
-    var extantLicenses = resourceRecord.licenceIds() == null
-        ? List.of()
-        : getExtantLicenceViews(resourceRecord.licenceIds());
-
-    var latestApprovedDetail = submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource);
-    var hasBeenRelinquished = latestApprovedDetail
-        .map(this::submissionTypeIsRelinquished)
-        .orElse(Boolean.FALSE);
-
-    return !extantLicenses.isEmpty() && !hasBeenRelinquished;
-  }
-
-  private List<LicenceDto> getExtantLicenceViews(List<Integer> licenseIds) {
-    return licenseIds
-        .stream()
-        .map(licenceQueryService::getLicenceById)
-        .flatMap(Optional::stream)
-        .filter(licenseView -> licenseView.licenceStatus().equals(LicenceStatus.EXTANT))
-        .toList();
-  }
-
-  private List<FieldStatus> getFieldStatuses(Resource resource) {
-    var resourceLinks = resourceLinkService.getResourceLinksByDiscovery(resource);
-
-    var fields = resourceLinks
-        .stream()
-        .map(ResourceLink::getFieldResource)
-        .map(fieldPersistenceService::getFieldByResource)
-        .flatMap(Optional::stream);
-
-    return fields
-        .map(fieldStatusHistoryService::getMostRecentFieldStatusHistory)
-        .flatMap(Optional::stream)
-        .map(FieldStatusHistory::getFieldStatus)
-        .sorted(Comparator.comparing(FieldStatus::getDisplayOrder))
-        .toList();
-  }
-
-  private List<Tag> getTags(Resource resource, List<UUID> duplicateResourceIds) {
+  private List<Tag> getTags(Resource resource,
+                            List<UUID> duplicateResourceIds,
+                            Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap
+  ) {
     var tags = new ArrayList<Tag>();
 
     if (BooleanUtils.isFalse(resource.getActive())) {
@@ -256,13 +257,17 @@ public class UndevelopedDiscoveriesOverviewService {
       tags.add(new Tag("Duplicate", TagColour.RED));
     }
 
-    var fieldStatusCsv = getFieldStatuses(resource)
-        .stream()
-        .map(FieldStatus::getDisplayName)
-        .collect(Collectors.joining(", "));
+    var fieldDto = fieldDtoMap.get(resource.getId());
 
-    if (!fieldStatusCsv.isEmpty()) {
-      tags.add(new Tag(fieldStatusCsv, TagColour.YELLOW));
+    if (fieldDto != null) {
+      var fieldStatusCsv = fieldDto
+          .stream()
+          .map(field -> field.fieldStatus() != null ? field.fieldStatus().getDisplayName() : null)
+          .collect(Collectors.joining(", "));
+
+      if (!fieldStatusCsv.isEmpty()) {
+        tags.add(new Tag(fieldStatusCsv, TagColour.YELLOW));
+      }
     }
 
     return tags;
@@ -291,19 +296,8 @@ public class UndevelopedDiscoveriesOverviewService {
         .toList();
   }
 
-  private Boolean submissionTypeIsRelinquished(SubmissionDetail submissionDetail) {
-    return submissionDetail.getSubmissionType().equals(SubmissionType.RELINQUISHMENT_DISCOVERY);
-  }
-
-  private UndevelopedDiscoveryInformation getDiscoveryInformation(UndevelopedDiscovery undevelopedDiscovery) {
-    return informationService.getLatestInformation(undevelopedDiscovery)
-        .orElseGet(() -> getEmptyInformation(undevelopedDiscovery));
-  }
-
-  private UndevelopedDiscoveryInformation getEmptyInformation(UndevelopedDiscovery undevelopedDiscovery) {
-    var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
-    undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
-    return undevelopedDiscoveryInformation;
+  private List<UndevelopedDiscoveryInformation> getLatestDiscoveryInformation(List<UndevelopedDiscovery> undevelopedDiscoveries) {
+    return informationService.getLatestDiscoveryInformation(undevelopedDiscoveries);
   }
 
   private int compareRows(SummaryTableRow rowOne,

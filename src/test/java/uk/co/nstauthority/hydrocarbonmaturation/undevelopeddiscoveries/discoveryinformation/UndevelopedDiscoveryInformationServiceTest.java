@@ -18,8 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,9 +27,6 @@ class UndevelopedDiscoveryInformationServiceTest {
 
   @Mock
   private UndevelopedDiscoveryInformationRepository informationRepository;
-
-  @Mock
-  private UndevelopedDiscovery undevelopedDiscovery;
 
   @InjectMocks
   private UndevelopedDiscoveryInformationService informationService;
@@ -48,8 +45,9 @@ class UndevelopedDiscoveryInformationServiceTest {
 
     informationForm.setProvideDiscoveryComplexity(Boolean.FALSE);
     informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
 
-    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
 
     verify(informationRepository, times(1))
         .save(undevelopedDiscoveryInformationCaptor.capture());
@@ -115,7 +113,8 @@ class UndevelopedDiscoveryInformationServiceTest {
     var complexityForm = UndevelopedDiscoveryTestUtils.getComplexityForm();
     informationForm.setComplexityForm(complexityForm);
 
-    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery);
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
 
     verify(informationRepository, times(1))
         .save(undevelopedDiscoveryInformationCaptor.capture());
@@ -181,7 +180,8 @@ class UndevelopedDiscoveryInformationServiceTest {
     informationForm.setProvideDiscoveryComplexity(Boolean.FALSE);
     informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
 
-    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery);
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
 
     verify(informationRepository, times(1))
         .save(undevelopedDiscoveryInformationCaptor.capture());
@@ -226,12 +226,119 @@ class UndevelopedDiscoveryInformationServiceTest {
             null,
             null,
             "reason",
-            null,
-            null,
-            null,
-            null,
+            BigDecimal.ZERO,
+            new BigDecimal("0.00"),
+            new BigDecimal("0.00"),
+            new BigDecimal("0.00"),
             null
         );
+  }
+
+  @Test
+  void saveUndevelopedDiscoveryInformation_withNonNullInformationId_updatesExistingEntity() {
+    var informationId = UUID.randomUUID();
+    var existingInformation = new UndevelopedDiscoveryInformation();
+
+    when(informationRepository.findById(informationId))
+        .thenReturn(Optional.of(existingInformation));
+
+    var informationForm = new UndevelopedDiscoveryInformationForm();
+    informationForm.setDiscoveryInformationDateDay("11");
+    informationForm.setDiscoveryInformationDateMonth("1");
+    informationForm.setDiscoveryInformationDateYear("2002");
+    informationForm.setVolumetricsForm(UndevelopedDiscoveryTestUtils.getVolumetricsForm(1, 2, 3, 4, "reason"));
+    informationForm.setProvideDiscoveryComplexity(Boolean.FALSE);
+    informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
+
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, informationId);
+
+    verify(informationRepository).save(undevelopedDiscoveryInformationCaptor.capture());
+    assertThat(undevelopedDiscoveryInformationCaptor.getValue()).isSameAs(existingInformation);
+  }
+
+  @Test
+  void saveUndevelopedDiscoveryInformation_withNullProvideComplexity_complexityFieldsNotSaved() {
+    var informationForm = new UndevelopedDiscoveryInformationForm();
+    informationForm.setDiscoveryInformationDateDay("11");
+    informationForm.setDiscoveryInformationDateMonth("1");
+    informationForm.setDiscoveryInformationDateYear("2002");
+    informationForm.setVolumetricsForm(UndevelopedDiscoveryTestUtils.getVolumetricsForm(1, 2, 3, 4, "reason"));
+    informationForm.setProvideDiscoveryComplexity(null);
+    informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
+
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
+
+    verify(informationRepository).save(undevelopedDiscoveryInformationCaptor.capture());
+    assertThat(undevelopedDiscoveryInformationCaptor.getValue())
+        .extracting(
+            UndevelopedDiscoveryInformation::getProvidedDiscoveryComplexity,
+            UndevelopedDiscoveryInformation::getArealDensityRange,
+            UndevelopedDiscoveryInformation::getVerticalHeterogeneityRange,
+            UndevelopedDiscoveryInformation::getViscosityRange,
+            UndevelopedDiscoveryInformation::getStructuralComplexityRange,
+            UndevelopedDiscoveryInformation::getCalculatedComplexity)
+        .containsExactly(null, null, null, null, null, null);
+  }
+
+  @Test
+  void saveUndevelopedDiscoveryInformation_withZeroOilAndNonZeroGasRecoverable_percentageGasIsOneHundred() {
+    var informationForm = new UndevelopedDiscoveryInformationForm();
+    informationForm.setDiscoveryInformationDateDay("11");
+    informationForm.setDiscoveryInformationDateMonth("1");
+    informationForm.setDiscoveryInformationDateYear("2002");
+
+    var volumetricsForm = UndevelopedDiscoveryTestUtils.getVolumetricsForm(null, null, null, 1, "reason");
+    var zeroInput = DecimalInput.createDecimalInput(BigDecimal.ZERO);
+    var nonZeroInput = DecimalInput.createDecimalInput(BigDecimal.TEN);
+    volumetricsForm.getOilRecoverable().setOneC(zeroInput);
+    volumetricsForm.getOilRecoverable().setTwoC(zeroInput);
+    volumetricsForm.getOilRecoverable().setThreeC(zeroInput);
+    volumetricsForm.getGasRecoverable().setOneC(nonZeroInput);
+    volumetricsForm.getGasRecoverable().setTwoC(nonZeroInput);
+    volumetricsForm.getGasRecoverable().setThreeC(nonZeroInput);
+    informationForm.setVolumetricsForm(volumetricsForm);
+
+    informationForm.setProvideDiscoveryComplexity(Boolean.FALSE);
+    informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
+
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
+
+    verify(informationRepository).save(undevelopedDiscoveryInformationCaptor.capture());
+    assertThat(undevelopedDiscoveryInformationCaptor.getValue())
+        .extracting(UndevelopedDiscoveryInformation::getPercentageGas)
+        .isEqualTo(BigDecimal.valueOf(100));
+  }
+
+  @Test
+  void saveUndevelopedDiscoveryInformation_withZeroOilAndZeroGasRecoverable_percentageGasIsZero() {
+    var informationForm = new UndevelopedDiscoveryInformationForm();
+    informationForm.setDiscoveryInformationDateDay("11");
+    informationForm.setDiscoveryInformationDateMonth("1");
+    informationForm.setDiscoveryInformationDateYear("2002");
+
+    var volumetricsForm = UndevelopedDiscoveryTestUtils.getVolumetricsForm(null, null, null, 1, "reason");
+    var zeroInput = DecimalInput.createDecimalInput(BigDecimal.ZERO);
+    volumetricsForm.getOilRecoverable().setOneC(zeroInput);
+    volumetricsForm.getOilRecoverable().setTwoC(zeroInput);
+    volumetricsForm.getOilRecoverable().setThreeC(zeroInput);
+    volumetricsForm.getGasRecoverable().setOneC(zeroInput);
+    volumetricsForm.getGasRecoverable().setTwoC(zeroInput);
+    volumetricsForm.getGasRecoverable().setThreeC(zeroInput);
+    informationForm.setVolumetricsForm(volumetricsForm);
+
+    informationForm.setProvideDiscoveryComplexity(Boolean.FALSE);
+    informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
+
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
+
+    verify(informationRepository).save(undevelopedDiscoveryInformationCaptor.capture());
+    assertThat(undevelopedDiscoveryInformationCaptor.getValue())
+        .extracting(UndevelopedDiscoveryInformation::getPercentageGas)
+        .isEqualTo(BigDecimal.ZERO);
   }
 
   @Test
@@ -251,7 +358,8 @@ class UndevelopedDiscoveryInformationServiceTest {
     informationForm.setProvideDiscoveryComplexity(Boolean.FALSE);
     informationForm.setComplexityForm(UndevelopedDiscoveryTestUtils.getComplexityForm());
 
-    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery);
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    informationService.saveUndevelopedDiscoveryInformation(informationForm, undevelopedDiscovery, null);
 
     verify(informationRepository, times(1))
         .save(undevelopedDiscoveryInformationCaptor.capture());
@@ -296,18 +404,21 @@ class UndevelopedDiscoveryInformationServiceTest {
             null,
             null,
             "reason",
-            null,
-            null,
-            null,
-            null,
+            BigDecimal.valueOf(100),
+            new BigDecimal("0.17"),
+            new BigDecimal("0.17"),
+            new BigDecimal("0.17"),
             null
         );
   }
 
   @Test
   void getOrderedDiscoveryInformation_noValues() {
-    when(informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery))
-        .thenReturn(List.of());
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    when(informationRepository.findAllByUndevelopedDiscoveryAndStatus(
+        undevelopedDiscovery,
+        UndevelopedDiscoveryInformationStatus.EXTANT
+    )).thenReturn(List.of());
 
     assertThat(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
         .isEqualTo(List.of());
@@ -323,11 +434,11 @@ class UndevelopedDiscoveryInformationServiceTest {
     newestInformation.setInformationDate(LocalDate.of(2024, 4, 29));
     newestInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
-    var deletedInformation = new UndevelopedDiscoveryInformation();
-    deletedInformation.setStatus(UndevelopedDiscoveryInformationStatus.DELETED);
-
-    when(informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery))
-        .thenReturn(List.of(oldestInformation, newestInformation, deletedInformation));
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    when(informationRepository.findAllByUndevelopedDiscoveryAndStatus(
+        undevelopedDiscovery,
+        UndevelopedDiscoveryInformationStatus.EXTANT
+    )).thenReturn(List.of(oldestInformation, newestInformation));
 
     assertThat(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
         .isEqualTo(List.of(newestInformation, oldestInformation));
@@ -449,34 +560,39 @@ class UndevelopedDiscoveryInformationServiceTest {
 
   @Test
   void getLatestInformation() {
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
     var oldestInformation = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
         LocalDate.of(2002, 1, 11),
-        null
+        undevelopedDiscovery
     );
 
     var newestInformation = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
         LocalDate.of(2024, 1, 11),
-        null
+        undevelopedDiscovery
     );
 
     var middleInformation = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
         LocalDate.of(2010, 1, 11),
-        null
+        undevelopedDiscovery
     );
 
-    when(informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery))
-        .thenReturn(List.of(middleInformation, newestInformation, oldestInformation));
+    when(informationRepository.findAllByUndevelopedDiscoveryInAndStatus(
+        List.of(undevelopedDiscovery),
+        UndevelopedDiscoveryInformationStatus.EXTANT
+    )).thenReturn(List.of(middleInformation, newestInformation, oldestInformation));
 
-    assertThat(informationService.getLatestInformation(undevelopedDiscovery))
-        .isEqualTo(Optional.of(newestInformation));
+    assertThat(informationService.getLatestDiscoveryInformation(List.of(undevelopedDiscovery)))
+        .isEqualTo(List.of(newestInformation));
   }
 
   @Test
   void getLatestInformation_isEmpty() {
-    when(informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery))
-        .thenReturn(List.of());
+    var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(new Resource(), true);
+    when(informationRepository.findAllByUndevelopedDiscoveryInAndStatus(
+        List.of(undevelopedDiscovery),
+        UndevelopedDiscoveryInformationStatus.EXTANT)
+    ).thenReturn(List.of());
 
-    assertThat(informationService.getLatestInformation(undevelopedDiscovery))
-        .isEmpty();
+    assertThat(informationService.getLatestDiscoveryInformation(List.of(undevelopedDiscovery))).isEmpty();
   }
 }

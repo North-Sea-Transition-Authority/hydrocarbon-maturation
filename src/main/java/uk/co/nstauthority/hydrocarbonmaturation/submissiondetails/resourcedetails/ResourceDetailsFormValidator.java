@@ -81,7 +81,8 @@ public class ResourceDetailsFormValidator {
     var latestApprovedResourceDetail = getLatestApprovedResourceDetail(submissionDetail);
     if (latestApprovedResourceDetail != null
         && latestApprovedResourceDetail.getOrganisationId() != null
-        && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
+        && BooleanUtils.isNotTrue(submissionDetail.isCorrection())
+        && !latestApprovedResourceDetail.getSubmissionDetail().getId().equals(submissionDetail.getId())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
           "responsibleOrganisationId.required",
           "You cannot remove the responsible organisation from a resource that has " +

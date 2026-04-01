@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,10 @@ public class ResourceLinkService {
 
   public List<ResourceLink> getResourceLinksByDiscovery(Resource discovery) {
     return resourceLinksRepository.findAllByDiscoveryResource(discovery);
+  }
+
+  public List<ResourceLink> getResourceLinksForDiscoveries(List<UUID> discoveryIds) {
+    return resourceLinksRepository.findAllByDiscoveryResource_IdIn(discoveryIds);
   }
 
   public List<ResourceLink> getResourceLinksByField(Resource field) {

@@ -156,7 +156,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         .andExpect(view().name("remi/undevelopeddiscoveries/undevelopedDiscoveryInformationForm"));
 
     verify(undevelopedDiscoveryInformationService, never())
-        .saveUndevelopedDiscoveryInformation(any(), any());
+        .saveUndevelopedDiscoveryInformation(any(), any(), any());
   }
 
   @Test
@@ -182,7 +182,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         .andExpect(redirectedUrl(summaryUrl));
 
     verify(undevelopedDiscoveryInformationService, times(1))
-        .saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery);
+        .saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery, null);
   }
 
   @SecurityTest
@@ -417,7 +417,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         .andExpect(view().name("remi/undevelopeddiscoveries/undevelopedDiscoveryInformationForm"));
 
     verify(undevelopedDiscoveryInformationService, never())
-        .saveUndevelopedDiscoveryInformation(any(), any());
+        .saveUndevelopedDiscoveryInformation(any(), any(), any());
   }
 
   @Test
@@ -451,7 +451,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         .andExpect(redirectedUrl(summaryUrl));
 
     verify(undevelopedDiscoveryInformationService, times(1))
-        .saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery);
+        .saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery, informationId);
   }
 
   @SecurityTest

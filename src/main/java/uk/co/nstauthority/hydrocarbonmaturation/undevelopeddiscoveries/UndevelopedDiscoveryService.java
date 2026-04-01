@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -49,8 +48,6 @@ public class UndevelopedDiscoveryService {
   }
 
   public List<UndevelopedDiscovery> getAllTrackedUndevelopedDiscoveries() {
-    return Streamable.of(undevelopedDiscoveryRepository.findAll())
-        .filter(undevelopedDiscovery -> Boolean.TRUE.equals(undevelopedDiscovery.getIsUndevelopedDiscovery()))
-        .toList();
+    return undevelopedDiscoveryRepository.findByIsUndevelopedDiscovery(true);
   }
 }

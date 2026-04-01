@@ -109,7 +109,7 @@ public class UndevelopedDiscoveryInformationController {
                                          UUID resourceId, UndevelopedDiscovery undevelopedDiscovery,
                                          UUID informationId) {
     if (formValidator.isValid(form, bindingResult, undevelopedDiscovery, informationId)) {
-      informationService.saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery);
+      informationService.saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery, informationId);
       return ReverseRouter.redirect(on(UndevelopedDiscoverySummaryController.class)
           .getUndevelopedDiscoverySummary(resourceId, null));
     } else {
