@@ -1,70 +1,14 @@
-# protobuf-java
-CVE-2024-7254
+# com.fasterxml.jackson.core:jackson-core
+GHSA-72hv-8253-57qq
 
-# common-io
+# commons-io:commons-io
 CVE-2024-47554
 
-# spring-context
-CVE-2024-38820
-
-# spring-security-web
-CVE-2024-38821
-CVE-2025-41234
-CVE-2026-22732
-
-# io.netty:netty-common
-CVE-2024-47535
-CVE-2025-25193
-
-# io.netty:netty-handler
-CVE-2025-24970
-
-# io.netty:netty-codec
-CVE-2025-58057
-CVE-2025-58056
-
 # io.netty:netty-codec-http
-CVE-2025-67735
 CVE-2026-33870
 
 # io.netty:netty-codec-http2
-CVE-2025-55163
 CVE-2026-33871
-
-# org.apache.tomcat.embed:tomcat-embed-core
-CVE-2024-52317
-CVE-2024-50379
-CVE-2024-56337
-CVE-2025-24813
-CVE-2025-48988
-CVE-2025-49125
-CVE-2025-48989
-
-# spring
-CVE-2024-38827
-
-# logback-core
-CVE-2024-12798
-CVE-2024-12801
-CVE-2025-11226
-CVE-2026-1225
-
-# spring-webmvc
-CVE-2024-38819
-CVE-2026-22737
-CVE-2026-22735
-
-# net.minidev:json-smart
-CVE-2024-57699
-
-# spring-security-crypto
-CVE-2025-22228
-
-# spring boot. Fixed in 3.4.5
-CVE-2025-22235
-
-# org.postgresql:postgresql
-CVE-2025-49146
 
 # org.apache.commons:commons-lang3
 CVE-2025-48924
@@ -72,17 +16,9 @@ CVE-2025-48924
 # org.bouncycastle:bcpkix-jdk18on
 CVE-2025-8916
 
+# org.springframework.security:spring-security-web
+CVE-2026-22732
+
 # org.springframework:spring-webmvc
-CVE-2025-41242
-
-# org.springframework:spring-core
-CVE-2025-41249
-
-# org.apache.tomcat.embed:tomcat-embed-core
-CVE-2025-55752
-CVE-2025-55754
-CVE-2025-61795
-CVE-2025-49124
-
-# com.fasterxml.jackson.core:jackson-core
-GHSA-72hv-8253-57qq
+CVE-2026-22737
+CVE-2026-22735
