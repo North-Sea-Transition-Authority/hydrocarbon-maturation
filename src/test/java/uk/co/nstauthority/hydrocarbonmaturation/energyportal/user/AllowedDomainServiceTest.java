@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
-class EnergyPortalAllowedDomainServiceTest {
+class AllowedDomainServiceTest {
 
   private static final String USER_EMAIL = "user@example.com";
 
@@ -34,7 +34,7 @@ class EnergyPortalAllowedDomainServiceTest {
   private OrganisationGroupQueryService organisationGroupQueryService;
 
   @InjectMocks
-  private EnergyPortalAllowedDomainService energyPortalAllowedDomainService;
+  private AllowedDomainService allowedDomainService;
 
   @ParameterizedTest
   @MethodSource("provideDomainIsAllowedCombinations")
@@ -53,7 +53,7 @@ class EnergyPortalAllowedDomainServiceTest {
         Optional.of(orgGroup)
     );
 
-    assertThat(energyPortalAllowedDomainService.isAllowedDomain(USER_EMAIL, industryTeam)).isEqualTo(isAllowed);
+    assertThat(allowedDomainService.isAllowedDomain(USER_EMAIL, industryTeam)).isEqualTo(isAllowed);
   }
 
   @ParameterizedTest
@@ -70,7 +70,7 @@ class EnergyPortalAllowedDomainServiceTest {
         Optional.of(orgGroup)
     );
 
-    assertThat(energyPortalAllowedDomainService.isAllowedDomain(USER_EMAIL, regTeam)).isEqualTo(isAllowed);
+    assertThat(allowedDomainService.isAllowedDomain(USER_EMAIL, regTeam)).isEqualTo(isAllowed);
   }
 
   @ParameterizedTest
@@ -87,7 +87,7 @@ class EnergyPortalAllowedDomainServiceTest {
         Optional.of(orgGroup)
     );
 
-    assertThat(energyPortalAllowedDomainService.isAllowedDomain(USER_EMAIL, consulteeTeam)).isEqualTo(isAllowed);
+    assertThat(allowedDomainService.isAllowedDomain(USER_EMAIL, consulteeTeam)).isEqualTo(isAllowed);
   }
 
   @ParameterizedTest
@@ -104,7 +104,7 @@ class EnergyPortalAllowedDomainServiceTest {
         Optional.of(orgGroup)
     );
 
-    assertThat(energyPortalAllowedDomainService.isAllowedDomain(USER_EMAIL, consulteeTeam)).isEqualTo(isAllowed);
+    assertThat(allowedDomainService.isAllowedDomain(USER_EMAIL, consulteeTeam)).isEqualTo(isAllowed);
   }
 
   @ParameterizedTest
@@ -121,7 +121,7 @@ class EnergyPortalAllowedDomainServiceTest {
         Optional.of(orgGroup)
     );
 
-    assertThat(energyPortalAllowedDomainService.isAllowedDomain(USER_EMAIL, consulteeTeam)).isEqualTo(isAllowed);
+    assertThat(allowedDomainService.isAllowedDomain(USER_EMAIL, consulteeTeam)).isEqualTo(isAllowed);
   }
 
   @ParameterizedTest
@@ -137,7 +137,7 @@ class EnergyPortalAllowedDomainServiceTest {
         .thenReturn(Optional.empty());
 
     assertDoesNotThrow(() ->
-        energyPortalAllowedDomainService.isAllowedDomain(USER_EMAIL, team)
+        allowedDomainService.isAllowedDomain(USER_EMAIL, team)
     );
   }
 
