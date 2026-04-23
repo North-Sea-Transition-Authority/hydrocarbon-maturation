@@ -166,28 +166,34 @@ public class UndevelopedDiscoveriesOverviewService {
         .filter(UndevelopedDiscoveryRowValues::groupLicensed)
         .count();
 
-    var mmboeOneC = sumMmboe(
-        rows,
-        row -> BigDecimalUtil.getValueOrZero(row.mmboeOneC())
-    );
+    var groupLicensedRows = rows.stream().filter(UndevelopedDiscoveryRowValues::groupLicensed).toList();
+    var groupUnlicensedRows = rows.stream().filter(row -> !row.groupLicensed()).toList();
 
-    var mmboeTwoC = sumMmboe(
-        rows,
-        row -> BigDecimalUtil.getValueOrZero(row.mmboeTwoC())
-    );
+    var totalMmboeOneC = sumMmboe(rows, row -> BigDecimalUtil.getValueOrZero(row.mmboeOneC()));
+    var totalMmboeTwoC = sumMmboe(rows, row -> BigDecimalUtil.getValueOrZero(row.mmboeTwoC()));
+    var totalMmboeThreeC = sumMmboe(rows, row -> BigDecimalUtil.getValueOrZero(row.mmboeThreeC()));
 
-    var mmboeThreeC = sumMmboe(
-        rows,
-        row -> BigDecimalUtil.getValueOrZero(row.mmboeThreeC())
-    );
+    var groupLicensedMmboeOneC = sumMmboe(groupLicensedRows, row -> BigDecimalUtil.getValueOrZero(row.mmboeOneC()));
+    var groupLicensedMmboeTwoC = sumMmboe(groupLicensedRows, row -> BigDecimalUtil.getValueOrZero(row.mmboeTwoC()));
+    var groupLicensedMmboeThreeC = sumMmboe(groupLicensedRows, row -> BigDecimalUtil.getValueOrZero(row.mmboeThreeC()));
+
+    var groupUnlicensedMmboeOneC = sumMmboe(groupUnlicensedRows, row -> BigDecimalUtil.getValueOrZero(row.mmboeOneC()));
+    var groupUnlicensedMmboeTwoC = sumMmboe(groupUnlicensedRows, row -> BigDecimalUtil.getValueOrZero(row.mmboeTwoC()));
+    var groupUnlicensedMmboeThreeC = sumMmboe(groupUnlicensedRows, row -> BigDecimalUtil.getValueOrZero(row.mmboeThreeC()));
 
     return new UndevelopedDiscoveryOverviewStats(
         undevelopedDiscoveries,
         licensedUndevelopedDiscoveries,
         groupLicensedUndevelopedDiscoveries,
-        mmboeOneC,
-        mmboeTwoC,
-        mmboeThreeC
+        totalMmboeOneC,
+        totalMmboeTwoC,
+        totalMmboeThreeC,
+        groupLicensedMmboeOneC,
+        groupLicensedMmboeTwoC,
+        groupLicensedMmboeThreeC,
+        groupUnlicensedMmboeOneC,
+        groupUnlicensedMmboeTwoC,
+        groupUnlicensedMmboeThreeC
     );
   }
 

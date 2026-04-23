@@ -192,9 +192,51 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     var result = overviewService.getOverviewData();
 
     assertThat(result.overviewStats().undevelopedDiscoveries()).isEqualTo(2);
-    assertThat(result.overviewStats().mmboeOneC()).isEqualTo("15.00");
-    assertThat(result.overviewStats().mmboeTwoC()).isEqualTo("35.00");
-    assertThat(result.overviewStats().mmboeThreeC()).isEqualTo("55.00");
+    assertThat(result.overviewStats().totalMmboeOneC()).isEqualTo("15.00");
+    assertThat(result.overviewStats().totalMmboeTwoC()).isEqualTo("35.00");
+    assertThat(result.overviewStats().totalMmboeThreeC()).isEqualTo("55.00");
+    assertThat(result.overviewStats().groupLicensedMmboeOneC()).isEqualTo("0.00");
+    assertThat(result.overviewStats().groupLicensedMmboeTwoC()).isEqualTo("0.00");
+    assertThat(result.overviewStats().groupLicensedMmboeThreeC()).isEqualTo("0.00");
+    assertThat(result.overviewStats().groupUnlicensedMmboeOneC()).isEqualTo("15.00");
+    assertThat(result.overviewStats().groupUnlicensedMmboeTwoC()).isEqualTo("35.00");
+    assertThat(result.overviewStats().groupUnlicensedMmboeThreeC()).isEqualTo("55.00");
+  }
+
+  @Test
+  void getOverviewData_withGroupLicencedAndUnlicencedDiscoveries_mmboeSumsAreSegregated() {
+    var licenceId = 600;
+
+    var licensedResource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+    var submission = SubmissionIntegrationTestUtils.createSubmission(licensedResource, entityManager);
+    var submissionDetail = SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission, SubmissionType.CREATE_DISCOVERY, entityManager);
+    SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Licensed Discovery", 1, entityManager);
+    var generalDetail = SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+    SubmissionIntegrationTestUtils.createLicence(licenceId, "P600", generalDetail, entityManager);
+    var discovery1 = persistUndevelopedDiscovery(licensedResource, Boolean.TRUE);
+    persistDiscoveryInformation(discovery1, LocalDate.of(2022, 1, 1),
+        new BigDecimal("10.00"), new BigDecimal("20.00"), new BigDecimal("30.00"));
+    createSoloResourceGroup(licensedResource);
+
+    var unlicensedResource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+    createMinimalSubmission(unlicensedResource, "Unlicensed Discovery");
+    var discovery2 = persistUndevelopedDiscovery(unlicensedResource, Boolean.TRUE);
+    persistDiscoveryInformation(discovery2, LocalDate.of(2022, 1, 1),
+        new BigDecimal("5.00"), new BigDecimal("15.00"), new BigDecimal("25.00"));
+    createSoloResourceGroup(unlicensedResource);
+
+    when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
+        .thenReturn(List.of(new LicenceDto("P600", licenceId, LicenceStatus.EXTANT)));
+
+    var result = overviewService.getOverviewData();
+
+    assertThat(result.overviewStats().groupLicensedMmboeOneC()).isEqualTo("10.00");
+    assertThat(result.overviewStats().groupLicensedMmboeTwoC()).isEqualTo("20.00");
+    assertThat(result.overviewStats().groupLicensedMmboeThreeC()).isEqualTo("30.00");
+    assertThat(result.overviewStats().groupUnlicensedMmboeOneC()).isEqualTo("5.00");
+    assertThat(result.overviewStats().groupUnlicensedMmboeTwoC()).isEqualTo("15.00");
+    assertThat(result.overviewStats().groupUnlicensedMmboeThreeC()).isEqualTo("25.00");
   }
 
   @Test

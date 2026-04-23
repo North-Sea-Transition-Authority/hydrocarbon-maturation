@@ -30,7 +30,11 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
 
     var summaryTable = SummaryTableView.newWithHeading("single column")
         .addRow("single value");
-    var overviewStats = new UndevelopedDiscoveryOverviewStats(1, 1, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+    var overviewStats = new UndevelopedDiscoveryOverviewStats(
+        1, 1, 1,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
     var overviewData = new UndevelopedDiscoveryOverviewData(summaryTable, overviewStats);
 
     when(overviewService.getOverviewData())
