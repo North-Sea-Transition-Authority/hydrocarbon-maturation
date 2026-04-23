@@ -15,6 +15,10 @@ CVE-2025-48924
 
 # org.bouncycastle:bcpkix-jdk18on
 CVE-2025-8916
+CVE-2026-5588
+
+# org.bouncycastle:bcprov-jdk18on
+CVE-2026-0636
 
 # org.springframework.security:spring-security-web
 CVE-2026-22732
