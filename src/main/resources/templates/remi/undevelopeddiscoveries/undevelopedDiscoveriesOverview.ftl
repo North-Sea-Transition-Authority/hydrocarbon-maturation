@@ -10,7 +10,7 @@
   <@fdsDataItems.dataItem>
     <@fdsDataItems.dataValues value="undeveloped discoveries" key=keyStats.undevelopedDiscoveries()/>
     <@fdsDataItems.dataValues value="licensed undeveloped discoveries" key=keyStats.licensedUndevelopedDiscoveries()/>
-    <@fdsDataItems.dataValues value="" key=""/>
+    <@fdsDataItems.dataValues value="group licensed undeveloped discoveries" key=keyStats.groupLicensedUndevelopedDiscoveries()/>
   </@fdsDataItems.dataItem>
   <@fdsDataItems.dataItem>
     <@fdsDataItems.dataValues value="mmboe (1C)" key=keyStats.mmboeOneC()/>

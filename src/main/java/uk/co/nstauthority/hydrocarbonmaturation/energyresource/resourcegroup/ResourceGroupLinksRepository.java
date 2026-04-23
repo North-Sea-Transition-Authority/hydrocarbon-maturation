@@ -16,4 +16,7 @@ public interface ResourceGroupLinksRepository extends CrudRepository<ResourceGro
 
   @EntityGraph(attributePaths = {"resource", "resourceGroup"})
   List<ResourceGroupLink> findAllByResourceIn(List<Resource> resources);
+
+  @EntityGraph(attributePaths = {"resource", "resourceGroup"})
+  List<ResourceGroupLink> findAllByResourceGroupIn(List<ResourceGroup> resourceGroups);
 }

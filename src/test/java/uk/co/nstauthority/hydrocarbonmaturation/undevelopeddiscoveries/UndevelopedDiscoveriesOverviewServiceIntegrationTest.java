@@ -88,6 +88,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
 
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2022, 1, 1));
+    createSoloResourceGroup(resource);
 
     when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
         .thenReturn(List.of(new LicenceDto("P100", licenceId, LicenceStatus.EXTANT)));
@@ -113,6 +114,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
 
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2021, 6, 15));
+    createSoloResourceGroup(resource);
 
     when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
         .thenReturn(List.of());
@@ -177,6 +179,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     persistDiscoveryInformation(
         discovery1, LocalDate.of(2022, 1, 1),
         new BigDecimal("10.00"), new BigDecimal("20.00"), new BigDecimal("30.00"));
+    createSoloResourceGroup(resource1);
 
     var resource2 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
     createMinimalSubmission(resource2, "Zeta Discovery");
@@ -184,6 +187,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     persistDiscoveryInformation(
         discovery2, LocalDate.of(2021, 1, 1),
         new BigDecimal("5.00"), new BigDecimal("15.00"), new BigDecimal("25.00"));
+    createSoloResourceGroup(resource2);
 
     var result = overviewService.getOverviewData();
 
@@ -201,6 +205,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(discoveryResource, "Theta Discovery");
     var undevelopedDiscovery = persistUndevelopedDiscovery(discoveryResource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2023, 3, 1));
+    createSoloResourceGroup(discoveryResource);
 
     var fieldResource = ResourceIntegrationTestUtils.buildFieldResource(entityManager);
     var field = FieldIntegrationTestUtils.createField("Linked Field", fieldResource, entityManager);
@@ -223,6 +228,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
 
     assertThat(result.overviewStats().undevelopedDiscoveries()).isZero();
     assertThat(result.overviewStats().licensedUndevelopedDiscoveries()).isZero();
+    assertThat(result.overviewStats().groupLicensedUndevelopedDiscoveries()).isZero();
     assertThat(result.summaryTableView().tableRows()).hasSize(1); // header only
   }
 
@@ -234,6 +240,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(resource, "Archived Discovery");
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2021, 1, 1));
+    createSoloResourceGroup(resource);
 
     var result = overviewService.getOverviewData();
 
@@ -257,6 +264,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
 
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2020, 6, 1));
+    createSoloResourceGroup(resource);
 
     when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
         .thenReturn(List.of(new LicenceDto("P300", licenceId, LicenceStatus.EXTANT)));
@@ -275,6 +283,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(resource, "Undated Discovery");
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, null);
+    createSoloResourceGroup(resource);
 
     var result = overviewService.getOverviewData();
 
@@ -291,11 +300,13 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(resource1, "Dated Discovery");
     var discovery1 = persistUndevelopedDiscovery(resource1, Boolean.TRUE);
     persistDiscoveryInformation(discovery1, LocalDate.of(2021, 1, 1));
+    createSoloResourceGroup(resource1);
 
     var resource2 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
     createMinimalSubmission(resource2, "Undated Discovery");
     var discovery2 = persistUndevelopedDiscovery(resource2, Boolean.TRUE);
     persistDiscoveryInformation(discovery2, null);
+    createSoloResourceGroup(resource2);
 
     var result = overviewService.getOverviewData();
 
@@ -314,16 +325,19 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(resource1, "Beta Discovery");
     var discovery1 = persistUndevelopedDiscovery(resource1, Boolean.TRUE);
     persistDiscoveryInformation(discovery1, LocalDate.of(2020, 1, 1));
+    createSoloResourceGroup(resource1);
 
     var resource2 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
     createMinimalSubmission(resource2, "Alpha Discovery");
     var discovery2 = persistUndevelopedDiscovery(resource2, Boolean.TRUE);
     persistDiscoveryInformation(discovery2, LocalDate.of(2020, 1, 1));
+    createSoloResourceGroup(resource2);
 
     var resource3 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
     createMinimalSubmission(resource3, "Gamma Discovery");
     var discovery3 = persistUndevelopedDiscovery(resource3, Boolean.TRUE);
     persistDiscoveryInformation(discovery3, LocalDate.of(2022, 1, 1));
+    createSoloResourceGroup(resource3);
 
     var result = overviewService.getOverviewData();
 
@@ -342,6 +356,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(discoveryResource, "Multi-field Discovery");
     var undevelopedDiscovery = persistUndevelopedDiscovery(discoveryResource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2022, 1, 1));
+    createSoloResourceGroup(discoveryResource);
 
     var fieldResource1 = ResourceIntegrationTestUtils.buildFieldResource(entityManager);
     var field1 = FieldIntegrationTestUtils.createField("Field One", fieldResource1, entityManager);
@@ -397,6 +412,7 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
     createMinimalSubmission(resource, "Area Discovery");
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
     persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2021, 1, 1));
+    createSoloResourceGroup(resource);
     SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
         resource, ResponsibleTeamType.EXPLORATION, GeographicalArea.CENTRAL_NORTH_SEA, entityManager);
 
@@ -409,12 +425,85 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
   }
 
   @Test
+  void getOverviewData_withGroupMemberHavingLicence_unlicencedGroupMemberShowsGroupLicencedTrue() {
+    var licenceId = 400;
+
+    var licensedResource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+    var submission = SubmissionIntegrationTestUtils.createSubmission(licensedResource, entityManager);
+    var submissionDetail = SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission, SubmissionType.CREATE_DISCOVERY, entityManager);
+    SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Licensed Discovery", 1, entityManager);
+    var generalDetail = SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+    SubmissionIntegrationTestUtils.createLicence(licenceId, "P400", generalDetail, entityManager);
+    var discovery1 = persistUndevelopedDiscovery(licensedResource, Boolean.TRUE);
+    persistDiscoveryInformation(discovery1, LocalDate.of(2022, 1, 1));
+
+    var unlicensedResource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+    createMinimalSubmission(unlicensedResource, "Unlicensed Discovery");
+    var discovery2 = persistUndevelopedDiscovery(unlicensedResource, Boolean.TRUE);
+    persistDiscoveryInformation(discovery2, LocalDate.of(2022, 1, 1));
+
+    var resourceGroup = new ResourceGroup();
+    entityManager.persist(resourceGroup);
+    entityManager.flush();
+
+    var link1 = new ResourceGroupLink();
+    link1.setResource(licensedResource);
+    link1.setResourceGroup(resourceGroup);
+    entityManager.persist(link1);
+
+    var link2 = new ResourceGroupLink();
+    link2.setResource(unlicensedResource);
+    link2.setResourceGroup(resourceGroup);
+    entityManager.persist(link2);
+    entityManager.flush();
+
+    when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
+        .thenReturn(List.of(new LicenceDto("P400", licenceId, LicenceStatus.EXTANT)));
+
+    var result = overviewService.getOverviewData();
+
+    var groupLicensedColumnIndex = UndevelopedDiscoveryOverviewHeadings.GROUP_LICENSED.getColumnIndex();
+    var dataRows = result.summaryTableView().tableRows().subList(1, result.summaryTableView().tableRows().size());
+    dataRows.forEach(row ->
+        assertThat(row.rowValues().get(groupLicensedColumnIndex).value()).isEqualTo("Yes")
+    );
+    assertThat(result.overviewStats().groupLicensedUndevelopedDiscoveries()).isEqualTo(2);
+  }
+
+  @Test
+  void getOverviewData_withSoloResourceGroup_groupLicencedTrueWhenResourceIsLicensed() {
+    var licenceId = 500;
+
+    var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+    var submission = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
+    var submissionDetail = SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission, SubmissionType.CREATE_DISCOVERY, entityManager);
+    SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Solo Discovery", 1, entityManager);
+    var generalDetail = SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+    SubmissionIntegrationTestUtils.createLicence(licenceId, "P500", generalDetail, entityManager);
+    var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
+    persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2022, 1, 1));
+    createSoloResourceGroup(resource);
+
+    when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
+        .thenReturn(List.of(new LicenceDto("P500", licenceId, LicenceStatus.EXTANT)));
+
+    var result = overviewService.getOverviewData();
+
+    var groupLicensedColumnIndex = UndevelopedDiscoveryOverviewHeadings.GROUP_LICENSED.getColumnIndex();
+    var dataRow = result.summaryTableView().tableRows().get(1);
+    assertThat(dataRow.rowValues().get(groupLicensedColumnIndex).value()).isEqualTo("Yes");
+  }
+
+  @Test
   void getOverviewData_withPercentageGas_percentageGasColumnFormatted() {
     when(licenceQueryService.getExtantLicencesByIds(any())).thenReturn(List.of());
 
     var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
     createMinimalSubmission(resource, "Gas Discovery");
     var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
+    createSoloResourceGroup(resource);
 
     var information = new UndevelopedDiscoveryInformation();
     information.setUndevelopedDiscovery(undevelopedDiscovery);
@@ -465,5 +554,15 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
         submission, SubmissionType.CREATE_DISCOVERY, entityManager);
     SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, 1, entityManager);
     SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+  }
+
+  private void createSoloResourceGroup(Resource resource) {
+    var resourceGroup = new ResourceGroup();
+    entityManager.persist(resourceGroup);
+    var link = new ResourceGroupLink();
+    link.setResource(resource);
+    link.setResourceGroup(resourceGroup);
+    entityManager.persist(link);
+    entityManager.flush();
   }
 }

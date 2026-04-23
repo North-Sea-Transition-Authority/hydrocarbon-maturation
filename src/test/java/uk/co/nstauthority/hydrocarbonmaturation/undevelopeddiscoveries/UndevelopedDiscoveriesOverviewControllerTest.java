@@ -11,8 +11,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.math.BigDecimal;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -30,7 +30,7 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
 
     var summaryTable = SummaryTableView.newWithHeading("single column")
         .addRow("single value");
-    var overviewStats = new UndevelopedDiscoveryOverviewStats(1, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+    var overviewStats = new UndevelopedDiscoveryOverviewStats(1, 1, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
     var overviewData = new UndevelopedDiscoveryOverviewData(summaryTable, overviewStats);
 
     when(overviewService.getOverviewData())

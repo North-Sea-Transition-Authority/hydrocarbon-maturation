@@ -7,6 +7,7 @@ public record UndevelopedDiscoveryRowValues(
     SummaryTableValue discovery,
     Integer yearAdded,
     Boolean licensed,
+    Boolean groupLicensed,
     String geographicalArea,
     BigDecimal mmboeOneC,
     BigDecimal mmboeTwoC,

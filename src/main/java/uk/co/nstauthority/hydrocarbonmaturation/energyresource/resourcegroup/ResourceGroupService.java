@@ -65,6 +65,10 @@ public class ResourceGroupService {
     return resourceGroupLinksRepository.findAllByResourceIn(resources);
   }
 
+  public List<ResourceGroupLink> getAllResourceGroupLinksForGroups(List<ResourceGroup> resourceGroups) {
+    return resourceGroupLinksRepository.findAllByResourceGroupIn(resourceGroups);
+  }
+
   /**
    * Removes a resource from a group and removes the group entirely if there were only two resources in the group to start.
    *

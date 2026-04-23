@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroup;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -62,12 +63,14 @@ public class UndevelopedDiscoveriesOverviewService {
 
     var latestInformation = getLatestDiscoveryInformation(allTrackedInformation);
 
-    var duplicateResourceIds = getDuplicateResourceIds(latestInformation);
-
     var resources = latestInformation
         .stream()
         .map(information -> information.getUndevelopedDiscovery().getResource())
         .toList();
+
+    var trackedResourceGroupLinks = resourceGroupService.getAllResourceGroupLinksForResources(resources);
+
+    var duplicateResourceIds = getDuplicateResourceIds(trackedResourceGroupLinks);
 
     var resourceRecords = undevelopedDiscoveriesQueryService.getLatestResourceRecords(
         resources.stream().map(Resource::getId).toList()
@@ -91,6 +94,8 @@ public class UndevelopedDiscoveriesOverviewService {
             .map(UndevelopedDiscoveryResourceDto::resourceId)
             .toList();
 
+    Map<UUID, Boolean> groupLicensedMap = getGroupLicensedMap(resources, trackedResourceGroupLinks);
+
     Map<UUID, String> geographicalAreaMap = resourceRecords
         .stream()
         .collect(Collectors.toMap(
@@ -113,6 +118,7 @@ public class UndevelopedDiscoveriesOverviewService {
         );
 
     var resourceIds = resourceRecords.stream().map(UndevelopedDiscoveryResourceDto::resourceId).toList();
+
     Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap = undevelopedDiscoveriesQueryService.getLinkedFields(resourceIds)
         .stream()
         .collect(Collectors.groupingBy(UndevelopedDiscoveryFieldDto::discoveryResourceId));
@@ -126,6 +132,7 @@ public class UndevelopedDiscoveriesOverviewService {
             geographicalAreaMap,
             submissionTypeMap,
             licencedResourceIds,
+            groupLicensedMap,
             fieldDtoMap))
         .toList();
 
@@ -155,6 +162,10 @@ public class UndevelopedDiscoveriesOverviewService {
         .filter(UndevelopedDiscoveryRowValues::licensed)
         .count();
 
+    var groupLicensedUndevelopedDiscoveries = (int) rows.stream()
+        .filter(UndevelopedDiscoveryRowValues::groupLicensed)
+        .count();
+
     var mmboeOneC = sumMmboe(
         rows,
         row -> BigDecimalUtil.getValueOrZero(row.mmboeOneC())
@@ -173,6 +184,7 @@ public class UndevelopedDiscoveriesOverviewService {
     return new UndevelopedDiscoveryOverviewStats(
         undevelopedDiscoveries,
         licensedUndevelopedDiscoveries,
+        groupLicensedUndevelopedDiscoveries,
         mmboeOneC,
         mmboeTwoC,
         mmboeThreeC
@@ -194,6 +206,7 @@ public class UndevelopedDiscoveriesOverviewService {
                                                           Map<UUID, String> geographicalAreaMap,
                                                           Map<UUID, SubmissionType> submissionTypeMap,
                                                           List<UUID> licencedResourceIds,
+                                                          Map<UUID, Boolean> groupLicensedMap,
                                                           Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap) {
     var resource = information.getUndevelopedDiscovery().getResource();
 
@@ -218,6 +231,7 @@ public class UndevelopedDiscoveriesOverviewService {
         discoveryValue,
         year,
         isLicensed,
+        groupLicensedMap.get(resource.getId()),
         geographicalAreaMap.get(resource.getId()),
         information.getOilEquivalentRecoverableOneC(),
         information.getOilEquivalentRecoverableTwoC(),
@@ -233,6 +247,7 @@ public class UndevelopedDiscoveriesOverviewService {
             rowValues.discovery(),
             rowValues.yearAdded(),
             rowValues.licensed(),
+            rowValues.groupLicensed(),
             rowValues.geographicalArea(),
             rowValues.mmboeOneC(),
             rowValues.mmboeTwoC(),
@@ -273,27 +288,67 @@ public class UndevelopedDiscoveriesOverviewService {
     return tags;
   }
 
-  private List<UUID> getDuplicateResourceIds(List<UndevelopedDiscoveryInformation> trackedInformationList) {
-    // all resources of tracked information entries
-    var trackedResources = trackedInformationList
-        .stream()
-        .map(information -> information.getUndevelopedDiscovery().getResource())
-        .toList();
-
-    // all resource group links for tracked resources
-    var trackedResourceGroupLinks = resourceGroupService.getAllResourceGroupLinksForResources(trackedResources);
-
-    // hashmap to count the number of tracked items in each resource group
+  private List<UUID> getDuplicateResourceIds(List<ResourceGroupLink> trackedResourceGroupLinks) {
     var resourceGroupIdToCountMap = new HashMap<ResourceGroup, Integer>();
     trackedResourceGroupLinks.forEach(trackedResourceGroupLink ->
         resourceGroupIdToCountMap.merge(trackedResourceGroupLink.getResourceGroup(), 1, Integer::sum));
 
-    // return ID for each resource in a group with more than one tracked resource
     return trackedResourceGroupLinks
         .stream()
         .filter(resourceGroupLink -> !resourceGroupIdToCountMap.get(resourceGroupLink.getResourceGroup()).equals(1))
         .map(resourceGroupLink -> resourceGroupLink.getResource().getId())
         .toList();
+  }
+
+  private Map<UUID, Boolean> getGroupLicensedMap(List<Resource> resources,
+                                                 List<ResourceGroupLink> trackedResourceGroupLinks) {
+    var resourceIdToGroup = trackedResourceGroupLinks.stream()
+        .collect(Collectors.toMap(
+            link -> link.getResource().getId(),
+            ResourceGroupLink::getResourceGroup
+        ));
+
+    var groups = trackedResourceGroupLinks.stream()
+        .map(ResourceGroupLink::getResourceGroup)
+        .distinct()
+        .toList();
+
+    var allGroupLinks = resourceGroupService.getAllResourceGroupLinksForGroups(groups);
+
+    var groupToAllResourceIds = allGroupLinks.stream()
+        .collect(Collectors.groupingBy(
+            ResourceGroupLink::getResourceGroup,
+            Collectors.mapping(link -> link.getResource().getId(), Collectors.toList())
+        ));
+
+    var allGroupResourceIds = allGroupLinks.stream()
+        .map(link -> link.getResource().getId())
+        .distinct()
+        .toList();
+
+    var relevantRecords = undevelopedDiscoveriesQueryService.getLatestResourceRecords(allGroupResourceIds);
+
+    var allLicenceIds = relevantRecords.stream()
+        .flatMap(record -> record.licenceIds() != null ? record.licenceIds().stream() : Stream.empty())
+        .toList();
+
+    var extantLicenceIds = licenceQueryService.getExtantLicencesByIds(NumberUtil.toListOfStrings(allLicenceIds))
+        .stream()
+        .map(LicenceDto::licenceId)
+        .toList();
+
+    var licencedResourceIds = relevantRecords.stream()
+        .filter(record -> record.licenceIds() != null
+            && record.licenceIds().stream().anyMatch(extantLicenceIds::contains))
+        .map(UndevelopedDiscoveryResourceDto::resourceId)
+        .toList();
+
+    return resources.stream()
+        .collect(Collectors.toMap(
+            Resource::getId,
+            resource -> groupToAllResourceIds.get(resourceIdToGroup.get(resource.getId()))
+                .stream().anyMatch(licencedResourceIds::contains)
+        ));
   }
 
   private List<UndevelopedDiscoveryInformation> getLatestDiscoveryInformation(List<UndevelopedDiscovery> undevelopedDiscoveries) {

@@ -9,12 +9,13 @@ public enum UndevelopedDiscoveryOverviewHeadings implements Displayable {
   DISCOVERY(0, "Discovery"),
   YEAR_ADDED(1, "Year added"),
   LICENSED(2, "Licensed"),
-  GEOGRAPHICAL_AREA(3, "Geographical area"),
-  OIL_EQUIVALENT_1C_HEADING(4, "mmboe (1C)"),
-  OIL_EQUIVALENT_2C_HEADING(5, "mmboe (2C)"),
-  OIL_EQUIVALENT_3C_HEADING(6, "mmboe (3C)"),
-  PERCENTAGE_GAS(7, "Percentage gas"),
-  COMPLEXITY(8, "Complexity");
+  GROUP_LICENSED(3, "Group licensed"),
+  GEOGRAPHICAL_AREA(4, "Geographical area"),
+  OIL_EQUIVALENT_1C_HEADING(5, "mmboe (1C)"),
+  OIL_EQUIVALENT_2C_HEADING(6, "mmboe (2C)"),
+  OIL_EQUIVALENT_3C_HEADING(7, "mmboe (3C)"),
+  PERCENTAGE_GAS(8, "Percentage gas"),
+  COMPLEXITY(9, "Complexity");
 
   private final int columnIndex;
   private final String displayName;
