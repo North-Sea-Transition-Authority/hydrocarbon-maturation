@@ -399,6 +399,38 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
         );
   }
 
+  @Test
+  void getFieldWithDraftOnlySubmission_assertReturned() {
+    var field = FieldIntegrationTestUtils.createField("Field 1", entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(field.getResource(), entityManager);
+    SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission,
+        SubmissionType.CREATE_CSR,
+        SubmissionDetailStatus.DRAFT,
+        entityManager
+    );
+
+    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+        .extracting(ResourceRecordQueryResult::resourceId)
+        .containsExactly(field.getResource().getId());
+  }
+
+  @Test
+  void getFieldWithSubmittedOnlySubmission_assertReturned() {
+    var field = FieldIntegrationTestUtils.createField("Field 1", entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(field.getResource(), entityManager);
+    SubmissionIntegrationTestUtils.createSubmissionDetail(
+        submission,
+        SubmissionType.CREATE_CSR,
+        SubmissionDetailStatus.SUBMITTED,
+        entityManager
+    );
+
+    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+        .extracting(ResourceRecordQueryResult::resourceId)
+        .containsExactly(field.getResource().getId());
+  }
+
   private void setUpRegulatorTest() {
     var user = UserTestUtil.Builder()
         .withWuaId(1000L)

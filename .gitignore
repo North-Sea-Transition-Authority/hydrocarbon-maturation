@@ -45,4 +45,6 @@ out/
 ### Node ###
 logs
 node_modules
+
+### Claude ###
 /.claude/settings.local.json

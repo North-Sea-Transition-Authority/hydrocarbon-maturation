@@ -6,7 +6,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIE
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_STATUS_HISTORY;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
@@ -23,6 +22,7 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
@@ -32,9 +32,11 @@ public class UndevelopedDiscoveriesQueryService {
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
 
   private final DSLContext context;
+  private final SubmissionDetailService submissionDetailService;
 
-  public UndevelopedDiscoveriesQueryService(DSLContext context) {
+  public UndevelopedDiscoveriesQueryService(DSLContext context, SubmissionDetailService submissionDetailService) {
     this.context = context;
+    this.submissionDetailService = submissionDetailService;
   }
 
   public List<UndevelopedDiscoveryResourceDto> getLatestResourceRecords(List<UUID> resources) {
@@ -61,8 +63,6 @@ public class UndevelopedDiscoveriesQueryService {
                     .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
                     .orderBy(SD_2.VERSION_NUMBER.desc())
                     .limit(1)))
-            .join(LATEST_SUBMISSION_DETAIL_VIEW)
-            .on(LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_DETAILS)
             .on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS)
@@ -72,7 +72,8 @@ public class UndevelopedDiscoveriesQueryService {
             .leftJoin(REGULATOR_MANAGED_INFORMATION)
             .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID)))
         .where(RESOURCES.ID.in(resources)
-            .and(SUBMISSIONS.WITHDRAWN.isNull()))
+            .and(SUBMISSIONS.WITHDRAWN.isNull())
+            .and(SUBMISSION_DETAILS.ID.in(submissionDetailService.latestSubmissionDetailIdView())))
         .groupBy(List.of(
             RESOURCES.ID,
             RESOURCE_DETAILS.RESOURCE_NAME,
@@ -116,4 +117,5 @@ public class UndevelopedDiscoveriesQueryService {
         .where(Objects.requireNonNull(ranked.field("rn", Integer.class)).eq(1))
         .fetchInto(UndevelopedDiscoveryFieldDto.class);
   }
+
 }

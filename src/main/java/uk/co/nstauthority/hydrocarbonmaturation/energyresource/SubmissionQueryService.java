@@ -6,7 +6,6 @@ import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_STATUS_HISTORY;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_LINKS;
@@ -27,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
@@ -42,16 +42,19 @@ class SubmissionQueryService {
   private final DSLContext context;
   private final InternalTeamService internalTeamService;
   private final IndustryTeamService industryTeamService;
+  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   SubmissionQueryService(
       DSLContext context,
       InternalTeamService internalTeamService,
-      IndustryTeamService industryTeamService
+      IndustryTeamService industryTeamService,
+      SubmissionDetailService submissionDetailService
   ) {
     this.context = context;
     this.internalTeamService = internalTeamService;
     this.industryTeamService = industryTeamService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   /**
@@ -99,12 +102,8 @@ class SubmissionQueryService {
         .where(conditionList)
         .and(RESOURCES.ACTIVE.isTrue())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
-        .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
-                LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID)
-                      .from(LATEST_SUBMISSION_DETAIL_VIEW)
-                .where(LATEST_SUBMISSION_DETAIL_VIEW.TYPE.eq(ResourceType.PROSPECT.name()))
-            )
-        )
+        .and(RESOURCES.TYPE.eq(ResourceType.PROSPECT.name()))
+        .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(submissionDetailService.latestSubmissionDetailIdView()))
         .and(notExists(select(one())
                 .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
@@ -167,12 +166,8 @@ class SubmissionQueryService {
         .where(conditionList)
         .and(RESOURCES.ACTIVE.isTrue())
         .and(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
-        .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(select(
-                LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID)
-                .from(LATEST_SUBMISSION_DETAIL_VIEW)
-                .where(LATEST_SUBMISSION_DETAIL_VIEW.TYPE.eq(ResourceType.DISCOVERY.name()))
-            )
-        )
+        .and(RESOURCES.TYPE.eq(ResourceType.DISCOVERY.name()))
+        .and(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.in(submissionDetailService.latestSubmissionDetailIdView()))
         .and(notExists(select(one())
                 .from(SUBMISSIONS_2
                     .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))
@@ -232,8 +227,6 @@ class SubmissionQueryService {
         )
         .from(RESOURCE_DETAILS
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID))
-            .join(LATEST_SUBMISSION_DETAIL_VIEW)
-            .on(LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID))
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
@@ -242,6 +235,7 @@ class SubmissionQueryService {
         .where(RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(name))
         .and(RESOURCES.ACTIVE.isTrue())
         .and(RESOURCES.TYPE.eq(ResourceType.DISCOVERY.name()))
+        .and(SUBMISSION_DETAILS.ID.in(submissionDetailService.latestSubmissionDetailIdView()))
         .and(notExists(select(one())
             .from(SUBMISSIONS_2
                 .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID))

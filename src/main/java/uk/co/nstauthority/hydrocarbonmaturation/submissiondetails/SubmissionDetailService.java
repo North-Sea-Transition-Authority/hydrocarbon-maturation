@@ -1,14 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
+import org.jooq.Record1;
+import org.jooq.Select;
+import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -277,6 +284,31 @@ public class SubmissionDetailService {
 
     return extantSubmissionDetails.stream()
         .anyMatch(SubmissionDetail::isDraftOrSubmittedSubmission);
+  }
+
+  public Select<Record1<UUID>> latestSubmissionDetailIdView() {
+    var submissions = SUBMISSIONS.as("s_v");
+    var submissionDetails = SUBMISSION_DETAILS.as("sd_v");
+
+    var groupings = DSL.select(
+            submissionDetails.ID.as("latest_submission_detail_id"),
+            DSL.rowNumber()
+                .over(DSL.partitionBy(submissions.RESOURCE_ID)
+                    .orderBy(
+                        submissionDetails.ACCEPTED_TIMESTAMP.desc(),
+                        submissionDetails.CORRECTION_TIMESTAMP.desc().nullsLast(),
+                        submissionDetails.LEGACY_RES_DATA_ID.desc()
+                    ))
+                .as("ord")
+        )
+        .from(submissions.join(submissionDetails).on(submissionDetails.SUBMISSION_ID.eq(submissions.ID)))
+        .where(submissionDetails.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())
+            .and(submissions.WITHDRAWN.isNull()))
+        .asTable("groupings");
+
+    return DSL.select(Objects.requireNonNull(groupings.field("latest_submission_detail_id", UUID.class)))
+        .from(groupings)
+        .where(Objects.requireNonNull(groupings.field("ord", Integer.class)).eq(1));
   }
 
   /*

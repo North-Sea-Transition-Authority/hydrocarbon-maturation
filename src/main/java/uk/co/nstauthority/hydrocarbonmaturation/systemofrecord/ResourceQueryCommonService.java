@@ -10,8 +10,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIE
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_REPORTING_VIEW;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_REPORTING_INFORMATION;
@@ -39,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Fields;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.GeneralDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
@@ -54,9 +53,11 @@ class ResourceQueryCommonService {
       FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh3");
   private static final Fields FIELDS_FOR_FINDING_PARENT = FIELDS.as("parent_field");
   protected final DSLContext context;
+  private final SubmissionDetailService submissionDetailService;
 
-  protected ResourceQueryCommonService(DSLContext context) {
+  protected ResourceQueryCommonService(DSLContext context, SubmissionDetailService submissionDetailService) {
     this.context = context;
+    this.submissionDetailService = submissionDetailService;
   }
 
   protected List<ResourceRecordQueryResult> getFieldRecordQueryResults(
@@ -110,13 +111,12 @@ class ResourceQueryCommonService {
         .and(
             not(exists(
                 select(one())
-                    .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                    .where(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.RESOURCE_ID.eq(RESOURCES.ID))
+                    .from(SUBMISSIONS_2
+                        .join(SUBMISSION_DETAILS_2).on(SUBMISSION_DETAILS_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID)
+                            .and(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
+                    .where(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))
             )).or(
-                SUBMISSION_DETAILS.ID.in(
-                    select(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
-                        .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-                )
+                SUBMISSION_DETAILS.ID.in(submissionDetailService.latestSubmissionDetailIdView())
             )
         )
         .groupBy(
@@ -161,8 +161,6 @@ class ResourceQueryCommonService {
         .from(RESOURCES
             .join(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
-            .join(LATEST_SUBMISSION_DETAIL_VIEW)
-              .on(LATEST_SUBMISSION_DETAIL_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
                 .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
@@ -176,6 +174,7 @@ class ResourceQueryCommonService {
               .on(RESOURCE_GROUPS.ID.eq(REGULATOR_REPORTING_INFORMATION.RESOURCE_GROUP_ID))
             .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
+        .and(SUBMISSION_DETAILS.ID.in(submissionDetailService.latestSubmissionDetailIdView()))
         .groupBy(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
