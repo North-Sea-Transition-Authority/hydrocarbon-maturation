@@ -8,13 +8,11 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
@@ -95,29 +93,9 @@ public class ResourceGroupSummaryService {
   }
 
   private SubmissionDetail getLatestSubmissionDetailOrThrow(Resource resource) {
-    if (resource.getType() == ResourceType.DISCOVERY) {
-      return submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
-          resource,
-          List.of(
-              SubmissionType.CREATE_DISCOVERY,
-              SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
-              SubmissionType.UPDATE_DISCOVERY,
-              SubmissionType.RELINQUISHMENT_DISCOVERY)
-          )
-          .orElseThrow(() ->
+    return submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource)
+        .orElseThrow(() ->
               new RemiEntityNotFoundException("Could not find latest accepted submission for resource %s"
                   .formatted(resource.getId())));
-    } else {
-      return submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
-          resource,
-          List.of(
-              SubmissionType.PROSPECT_UPDATE,
-              SubmissionType.CREATE_PROSPECT,
-              SubmissionType.RELINQUISHMENT_PROSPECT)
-          )
-          .orElseThrow(() ->
-              new RemiEntityNotFoundException("Could not find latest accepted submission for resource %s"
-                  .formatted(resource.getId())));
-    }
   }
 }
