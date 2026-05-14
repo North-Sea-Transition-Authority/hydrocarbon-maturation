@@ -24,14 +24,6 @@ breadcrumbsMap=breadcrumbsMap>
   <#else>
     <#assign licenceHintText = ""/>
   </#if>
-  <#if relinquishmentSubmission>
-    <#assign guidanceTextLicence>
-      The licence will be removed from this ${resourceType} when the relinquishment submission is accepted.
-    </#assign>
-  <#else>
-    <#assign guidanceTextLicence>
-    </#assign>
-  </#if>
     <@fdsForm.htmlForm>
         <#assign optionalLicences = isRegulatorSubmission/>
       <#if !fieldSubmission>
@@ -45,7 +37,6 @@ breadcrumbsMap=breadcrumbsMap>
               pathForSelector="form.licenceSelect"
               alreadyAdded=alreadyAddedLicences
               title=""
-              selectorHintText=guidanceTextLicence
               itemName="Licences"
               noItemText="No licence added"
               invalidItemText="This licence is not extant"

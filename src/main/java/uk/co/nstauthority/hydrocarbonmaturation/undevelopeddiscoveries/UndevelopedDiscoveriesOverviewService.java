@@ -21,7 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableRow;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableSortDirection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue;
@@ -110,13 +109,6 @@ public class UndevelopedDiscoveriesOverviewService {
             UndevelopedDiscoveryResourceDto::resourceName)
         );
 
-    Map<UUID, SubmissionType> submissionTypeMap = resourceRecords
-        .stream()
-        .collect(Collectors.toMap(
-            UndevelopedDiscoveryResourceDto::resourceId,
-            UndevelopedDiscoveryResourceDto::submissionType)
-        );
-
     var resourceIds = resourceRecords.stream().map(UndevelopedDiscoveryResourceDto::resourceId).toList();
 
     Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap = undevelopedDiscoveriesQueryService.getLinkedFields(resourceIds)
@@ -130,7 +122,6 @@ public class UndevelopedDiscoveriesOverviewService {
             duplicateResourceIds,
             resourceNameMap,
             geographicalAreaMap,
-            submissionTypeMap,
             licencedResourceIds,
             groupLicensedMap,
             fieldDtoMap))
@@ -210,14 +201,12 @@ public class UndevelopedDiscoveriesOverviewService {
                                                           List<UUID> duplicateResourceIds,
                                                           Map<UUID, String> resourceNameMap,
                                                           Map<UUID, String> geographicalAreaMap,
-                                                          Map<UUID, SubmissionType> submissionTypeMap,
                                                           List<UUID> licencedResourceIds,
                                                           Map<UUID, Boolean> groupLicensedMap,
                                                           Map<UUID, List<UndevelopedDiscoveryFieldDto>> fieldDtoMap) {
     var resource = information.getUndevelopedDiscovery().getResource();
 
-    var isLicensed = licencedResourceIds.contains(resource.getId())
-        && !submissionTypeMap.get(resource.getId()).equals(SubmissionType.RELINQUISHMENT_DISCOVERY);
+    var isLicensed = licencedResourceIds.contains(resource.getId());
 
     var percentageGasFormatted = information.getPercentageGas() == null
         ? ""

@@ -3,14 +3,11 @@
 
 <#macro generalDetailCard generalDetailValues isOffshore>
   <@fdsSummaryList.summaryListCard headingText="General details" summaryListId="generaldetails">
-    <#if generalDetailValues.submissionType() != "RELINQUISHMENT_PROSPECT"
-      && generalDetailValues.submissionType() != "RELINQUISHMENT_DISCOVERY" >
-      <@fdsSummaryList.summaryListRowNoAction keyText="Licences">
+    <@fdsSummaryList.summaryListRowNoAction keyText="Licences">
         <#list generalDetailValues.licenceDisplayList() as licence>
           <div>${licence}</div>
         </#list>
       </@fdsSummaryList.summaryListRowNoAction>
-    </#if>
     <#if isOffshore>
       <@fdsSummaryList.summaryListRowNoAction keyText="Wholly located within UKCS">
         ${generalDetailValues.resourceLocatedInUkcs()}
