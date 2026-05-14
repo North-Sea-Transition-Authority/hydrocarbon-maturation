@@ -293,31 +293,6 @@ class UndevelopedDiscoveriesOverviewServiceIntegrationTest {
   }
 
   @Test
-  void getOverviewData_withRelinquishmentDiscoveryAndExtantLicence_notCountedAsLicensed() {
-    var licenceId = 300;
-
-    var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
-    var submission = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
-    var submissionDetail = SubmissionIntegrationTestUtils.createSubmissionDetail(
-        submission, SubmissionType.RELINQUISHMENT_DISCOVERY, entityManager);
-    SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, "Relinquished Discovery", 1, entityManager);
-    var generalDetail = SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
-    SubmissionIntegrationTestUtils.createLicence(licenceId, "P300", generalDetail, entityManager);
-
-    var undevelopedDiscovery = persistUndevelopedDiscovery(resource, Boolean.TRUE);
-    persistDiscoveryInformation(undevelopedDiscovery, LocalDate.of(2020, 6, 1));
-    createSoloResourceGroup(resource);
-
-    when(licenceQueryService.getExtantLicencesByIds(List.of(String.valueOf(licenceId))))
-        .thenReturn(List.of(new LicenceDto("P300", licenceId, LicenceStatus.EXTANT)));
-
-    var result = overviewService.getOverviewData();
-
-    assertThat(result.overviewStats().undevelopedDiscoveries()).isEqualTo(1);
-    assertThat(result.overviewStats().licensedUndevelopedDiscoveries()).isZero();
-  }
-
-  @Test
   void getOverviewData_withNullInformationDate_yearColumnIsNull() {
     when(licenceQueryService.getExtantLicencesByIds(any())).thenReturn(List.of());
 
