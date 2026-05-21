@@ -14,7 +14,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
@@ -61,9 +60,7 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (!isRelinquishment
-        && !generalDetailsForm.getLicences().isEmpty()
-        && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
+    if (!generalDetailsForm.getLicences().isEmpty() && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
       validateExtantLicences(generalDetailsForm, errors);
     }
 
@@ -127,13 +124,11 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
   }
 
   private void validateLicences(Errors errors, SubmissionDetail submissionDetail, GeneralDetailsForm generalDetailsForm) {
-    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences())
-        && !isRelinquishment
-        && SubmitterType.INDUSTRY.equals(submissionDetail.getSubmitterType())
-    ) {
+    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences()) && !isRelinquishment) {
       errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
           "You must select at least one licence");
-    } else if (BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
+    } else if (!CollectionUtils.isEmpty(generalDetailsForm.getLicences())
+        && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
       validateExtantLicences(generalDetailsForm, errors);
     }
   }
