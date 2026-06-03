@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportal.starter.accounts.EnergyPortalServiceAccessService;
 import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderUserRolesService;
@@ -26,10 +29,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamScopeReference;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.UserCancelledEvent;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.view.TeamMemberView;
 
 @Service
 public class TeamManagementService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TeamManagementService.class);
 
   private final TeamRepository teamRepository;
   private final TeamRoleRepository teamRoleRepository;
@@ -274,18 +280,26 @@ public class TeamManagementService {
     if (!willManageTeamRoleBePresentAfterMemberRemoval(team, wuaId)) {
       throw new TeamManagementException("Can't remove last team manager user %s from team %s".formatted(wuaId, team.getId()));
     }
-    teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
+    handleUserRemovalFromTeam(wuaId, team);
+  }
 
-    energyPortalServiceProviderUserRolesService.publishRemoveUserFromTeam(
-        wuaId,
-        team.getId().toString()
-    );
-
-    if (!teamRoleRepository.findAllByWuaId(wuaId).isEmpty()) {
-      return;
+  @Transactional
+  @EventListener(UserCancelledEvent.class)
+  void onUserCancelledEvent(UserCancelledEvent event) {
+    var wuaId = event.wuaId();
+    for (var team : getTeamsUserIsMemberOf(wuaId)) {
+      handleUserRemovalFromTeam(wuaId, team);
+      LOGGER.info("Removed user {} from team {}", wuaId, team.getId());
     }
+  }
 
-    energyPortalServiceAccessService.removeUser(wuaId);
+  private void handleUserRemovalFromTeam(Long wuaId, Team team) {
+    teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
+    energyPortalServiceProviderUserRolesService.publishRemoveUserFromTeam(wuaId, team.getId().toString());
+
+    if (teamRoleRepository.findAllByWuaId(wuaId).isEmpty()) {
+      energyPortalServiceAccessService.removeUser(wuaId);
+    }
   }
 
   public boolean willManageTeamRoleBePresentAfterMemberRoleUpdate(Team team, Long wuaId, List<Role> membersNewRoles) {

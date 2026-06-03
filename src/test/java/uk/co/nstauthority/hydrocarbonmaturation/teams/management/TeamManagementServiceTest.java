@@ -43,6 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamScopeReference;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.UserCancelledEvent;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.view.TeamMemberView;
 
 @ExtendWith(MockitoExtension.class)
@@ -519,6 +520,46 @@ public class TeamManagementServiceTest {
         any(),
         any(),
         any()
+    );
+  }
+
+  @Test
+  void onUserCancelledEvent() {
+    when(teamRoleRepository.findAllByWuaId(user2WuaId))
+        .thenReturn(List.of(regTeamUser2RoleOrgAdmin), List.of());
+
+    teamManagementService.onUserCancelledEvent(new UserCancelledEvent(user2WuaId));
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+    verify(energyPortalServiceProviderUserRolesService).publishRemoveUserFromTeam(
+        user2WuaId,
+        regTeam.getId().toString()
+    );
+    verify(energyPortalServiceAccessService).removeUser(user2WuaId);
+  }
+
+  @Test
+  void onUserCancelledEvent_userNotOnAnyTeams() {
+    when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(Collections.emptyList());
+
+    teamManagementService.onUserCancelledEvent(new UserCancelledEvent(user2WuaId));
+
+    verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
+    verify(energyPortalServiceProviderUserRolesService, never()).publishRemoveUserFromTeam(anyLong(), any());
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
+  }
+
+  @Test
+  void onUserCancelledEvent_lastTeamManager_guardBypassed() {
+    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+        .thenReturn(List.of(regTeamUser1RoleManage), List.of());
+
+    teamManagementService.onUserCancelledEvent(new UserCancelledEvent(user1WuaId));
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(energyPortalServiceProviderUserRolesService).publishRemoveUserFromTeam(
+        user1WuaId,
+        regTeam.getId().toString()
     );
   }
 
