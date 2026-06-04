@@ -4,6 +4,7 @@
 <#import '_header.ftl' as pageHeader>
 <#import '../cookies/_cookieBanner.ftl' as cookies>
 <#import '../../fds/components/header/energyPortalHeader.ftl' as fdsEnergyPortalHeader>
+<#import '../requestcompany/requestNewCompany.ftl' as requestNewCompany>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->

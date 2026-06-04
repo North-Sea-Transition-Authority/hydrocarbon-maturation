@@ -67,6 +67,14 @@
       preselectedItems=responsibleOrganisation!{}
       optionalLabel=true/>
 
+    <@fdsDetails.summaryDetails
+      summaryTitle="The responsible party prior to field operator I want to select is not shown in the list"
+    >
+      <p class="govuk-body">
+        If the responsible party prior to field operator you want to select is not shown in the list then you can <@requestNewCompany.requestCompanyLink/>
+      </p>
+    </@fdsDetails.summaryDetails>
+
     <@fdsRadio.radioGroup
     path="form.isOnLicence"
     labelText="Is this field on a licence prior to field operator?"

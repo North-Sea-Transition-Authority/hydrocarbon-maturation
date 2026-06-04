@@ -43,6 +43,14 @@
         preselectedItems=responsibleOrganisation!{}
         optionalLabel=isOptional/>
 
+      <@fdsDetails.summaryDetails
+        summaryTitle="The organisation I want to select is not shown in the list"
+      >
+        <p class="govuk-body">
+          If the organisation you want to select is not shown in the list then you can <@requestNewCompany.requestCompanyLink/>
+        </p>
+      </@fdsDetails.summaryDetails>
+
       <@fdsRadio.radio
         path="form.onshoreOffshore"
         radioItems=onshoreOffshore

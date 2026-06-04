@@ -27,7 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportal.starter.accounts.EnergyPortalServiceAccessService;
-import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderUserRolesService;
+import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalAccountsMessagePublishingService;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
@@ -65,7 +65,7 @@ public class TeamManagementServiceTest {
   private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   @Mock
-  private EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService;
+  private EnergyPortalAccountsMessagePublishingService energyPortalAccountsMessagePublishingService;
 
   @Mock
   private EnergyPortalUserService energyPortalUserService;
@@ -387,7 +387,7 @@ public class TeamManagementServiceTest {
 
     teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS));
 
-    verify(energyPortalServiceProviderUserRolesService).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
         user1WuaId,
         regTeam.getId().toString(),
         regTeam.getTeamType().name(),
@@ -421,7 +421,7 @@ public class TeamManagementServiceTest {
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getRole)
         .contains(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS);
 
-    verify(energyPortalServiceProviderUserRolesService).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
         user1WuaId,
         regTeam.getId().toString(),
         regTeam.getTeamType().name(),
@@ -440,7 +440,7 @@ public class TeamManagementServiceTest {
     assertThatExceptionOfType(TeamManagementException.class)
         .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.REGULATOR_MANAGE_ALL_ORGANISATIONS)));
 
-    verify(energyPortalServiceProviderUserRolesService, never()).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
         anyLong(),
         any(),
         any(),
@@ -455,7 +455,7 @@ public class TeamManagementServiceTest {
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
-    verify(energyPortalServiceProviderUserRolesService, never()).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
         anyLong(),
         any(),
         any(),
@@ -473,7 +473,7 @@ public class TeamManagementServiceTest {
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
-    verify(energyPortalServiceProviderUserRolesService, never()).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
         anyLong(),
         any(),
         any(),
@@ -494,7 +494,7 @@ public class TeamManagementServiceTest {
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
-    verify(energyPortalServiceProviderUserRolesService, never()).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
         anyLong(),
         any(),
         any(),
@@ -515,7 +515,7 @@ public class TeamManagementServiceTest {
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
-    verify(energyPortalServiceProviderUserRolesService, never()).publishUsersRolesForTeam(
+    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
         anyLong(),
         any(),
         any(),
@@ -531,7 +531,7 @@ public class TeamManagementServiceTest {
     teamManagementService.onUserCancelledEvent(new UserCancelledEvent(user2WuaId));
 
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
-    verify(energyPortalServiceProviderUserRolesService).publishRemoveUserFromTeam(
+    verify(energyPortalAccountsMessagePublishingService).publishRemoveUserFromTeam(
         user2WuaId,
         regTeam.getId().toString()
     );
@@ -545,7 +545,7 @@ public class TeamManagementServiceTest {
     teamManagementService.onUserCancelledEvent(new UserCancelledEvent(user2WuaId));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
-    verify(energyPortalServiceProviderUserRolesService, never()).publishRemoveUserFromTeam(anyLong(), any());
+    verify(energyPortalAccountsMessagePublishingService, never()).publishRemoveUserFromTeam(anyLong(), any());
     verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
@@ -557,7 +557,7 @@ public class TeamManagementServiceTest {
     teamManagementService.onUserCancelledEvent(new UserCancelledEvent(user1WuaId));
 
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
-    verify(energyPortalServiceProviderUserRolesService).publishRemoveUserFromTeam(
+    verify(energyPortalAccountsMessagePublishingService).publishRemoveUserFromTeam(
         user1WuaId,
         regTeam.getId().toString()
     );
@@ -574,7 +574,7 @@ public class TeamManagementServiceTest {
 
     teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
 
-    verify(energyPortalServiceProviderUserRolesService).publishRemoveUserFromTeam(
+    verify(energyPortalAccountsMessagePublishingService).publishRemoveUserFromTeam(
         user2WuaId,
         regTeam.getId().toString()
     );
@@ -590,7 +590,7 @@ public class TeamManagementServiceTest {
 
     teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
-    verify(energyPortalServiceProviderUserRolesService).publishRemoveUserFromTeam(
+    verify(energyPortalAccountsMessagePublishingService).publishRemoveUserFromTeam(
         user2WuaId,
         regTeam.getId().toString()
     );
@@ -606,7 +606,7 @@ public class TeamManagementServiceTest {
         .isThrownBy(() -> teamManagementService.removeUserFromTeam(user1WuaId, regTeam));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(user1WuaId, regTeam);
-    verifyNoInteractions(energyPortalServiceProviderUserRolesService);
+    verifyNoInteractions(energyPortalAccountsMessagePublishingService);
   }
 
   @Test

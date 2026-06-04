@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.co.fivium.energyportal.starter.accounts.EnergyPortalAccountsControllerAdvice;
+import uk.co.fivium.energyportal.starter.configuration.EnergyPortalAccountsConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
@@ -68,8 +71,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     RequestLogFilter.class,
     PostAuthenticationRequestMdcFilter.class,
     HibernateQueryCounter.class,
-    EpaRequestHandler.class
+    EpaRequestHandler.class,
+    EnergyPortalAccountsControllerAdvice.class,
 })
+@EnableConfigurationProperties(EnergyPortalAccountsConfigurationProperties.class)
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
 @IncludeTechnicalSupportConfigurationProperties
