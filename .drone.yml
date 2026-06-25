@@ -77,8 +77,8 @@ steps:
   - name: code-analysis
     image: repo1.dev.fivium.local:5000/sonarcloud-scan-java21:latest
     environment:
-      SONARCLOUD_TOKEN:
-        from_secret: sonarcloud_token
+      SONAR_TOKEN:
+        from_secret: sonar_token
       # This SONAR_USER_HOME is the cache path - not the actual user home
       SONAR_USER_HOME: /drone/src/sonar_cache
     commands:
@@ -328,8 +328,8 @@ steps:
   - name: code-analysis
     image: repo1.dev.fivium.local:5000/sonarcloud-scan-java21:latest
     environment:
-      SONARCLOUD_TOKEN:
-        from_secret: sonarcloud_token
+      SONAR_TOKEN:
+        from_secret: sonar_token
       GRADLE_USER_HOME: /drone/src/gradle_cache
       # This SONAR_USER_HOME is the cache path - not the actual user home
       SONAR_USER_HOME: /drone/src/sonar_cache
@@ -375,7 +375,7 @@ data: 9TecT3t5pdKLp6cL0CLFZbDAUssmDkkMVvx7oG402hiW3ZVvzHX3XneHhb4jQKDK6khouGO4cQ
 ---
 
 kind: secret
-name: sonarcloud_token
+name: sonar_token
 data: FxrMQjn0wUdGsyKXEOq1KjK8aBvVZiiDDm0SWNnBZMLK+u3RZLukHcZGwzMemZWMS76KCiS/pZ8zKJjq39tBAB3LjULxihGzEEbW76t76qL88t2cyQpDuuOJHQ8=
 
 ---

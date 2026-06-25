@@ -202,7 +202,6 @@ sonarqube {
 		property 'sonar.projectKey', 'Fivium_hydrocarbon-maturation'
 		property 'sonar.organization', 'fivium-gh'
 		property 'sonar.host.url', 'https://sonarcloud.io'
-		property 'sonar.login', System.getenv('SONARCLOUD_TOKEN')
 
 		if (System.getenv('DRONE_PULL_REQUEST') != null) {
 			property 'sonar.pullrequest.key', System.getenv('DRONE_PULL_REQUEST')
