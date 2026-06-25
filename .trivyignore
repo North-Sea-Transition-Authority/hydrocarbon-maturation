@@ -15,10 +15,19 @@ CVE-2026-41417
 CVE-2026-42580
 CVE-2026-42581
 CVE-2026-42585
+CVE-2026-50020
 
 # io.netty:netty-codec-http2
 CVE-2026-33871
 CVE-2026-42587
+CVE-2026-47244
+CVE-2026-48043
+CVE-2026-50560
+
+# io.netty:netty-handler
+CVE-2026-44249
+CVE-2026-45416
+CVE-2026-50010
 
 # org.apache.commons:commons-lang3
 CVE-2025-48924
@@ -66,3 +75,9 @@ CVE-2026-40973
 # org.springframework.security:spring-security-core
 CVE-2026-22751
 CVE-2026-22746
+
+# com.fasterxml.jackson.core:jackson-databind
+CVE-2026-54512
+CVE-2026-54513
+CVE-2026-54514
+CVE-2026-54515
