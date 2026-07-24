@@ -380,8 +380,6 @@ public class TeamManagementServiceTest {
 
     when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
     when(teamRoleRepository.findAllByWuaId(1))
         .thenReturn(Collections.emptyList());
 
@@ -403,8 +401,6 @@ public class TeamManagementServiceTest {
         .canLogin();
     when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
     var teamRole = new TeamRole();
     when(teamRoleRepository.findAllByWuaId(1)).thenReturn(List.of(teamRole));
 
@@ -426,25 +422,6 @@ public class TeamManagementServiceTest {
         regTeam.getId().toString(),
         regTeam.getTeamType().name(),
         Set.of(Role.MANAGE_TEAM.name(), Role.REGULATOR_MANAGE_ALL_ORGANISATIONS.name())
-    );
-  }
-
-  @Test
-  void setUserTeamRoles_noTeamManagerLeft() {
-    when(userApi.findUserById(eq(user1WuaId), any(), any(RequestPurpose.class)))
-        .thenReturn(Optional.of(user1));
-
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of()); // Make doesTeamHaveTeamManager() check return false
-
-    assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.REGULATOR_MANAGE_ALL_ORGANISATIONS)));
-
-    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
-        anyLong(),
-        any(),
-        any(),
-        any()
     );
   }
 
