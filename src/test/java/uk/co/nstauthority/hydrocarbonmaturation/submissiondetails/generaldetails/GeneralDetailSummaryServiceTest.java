@@ -166,6 +166,19 @@ class GeneralDetailSummaryServiceTest {
         );
   }
 
+  @Test
+  void getGeneralDetailSummaryFromSubmissionDetail_whenOtherInformationSourceIsNull_thenBlankInformationSource() {
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
+    generalDetail.setInformationSource(InformationSource.OTHER);
+    generalDetail.setOtherInformationSource(null);
+
+    var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(view.informationSource()).isEmpty();
+  }
+
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"})
   void getGeneralDetailSummaryFromSubmissionDetail_whenRelinquishment_whenPresent_fullSummary(

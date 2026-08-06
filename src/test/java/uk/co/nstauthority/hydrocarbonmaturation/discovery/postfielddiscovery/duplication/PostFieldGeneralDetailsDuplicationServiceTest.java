@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -164,6 +166,46 @@ class PostFieldGeneralDetailsDuplicationServiceTest {
         );
 
     verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(generalDetailCaptor.getValue(), quadrantAndBlock, QuadrantAndBlock.class);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = FieldStatus.class, names = {"STATUS_000", "STATUS_900"}, mode = EnumSource.Mode.EXCLUDE)
+  void duplicateSubmissionSection_whenFieldStatusHasNoImportedInformationSource_thenInformationSourceNotSet(
+      FieldStatus fieldStatus
+  ) {
+    var fieldResource = new Resource();
+
+    var fieldSubmission = new Submission();
+    fieldSubmission.setResource(fieldResource);
+
+    var fieldSubmissionDetail = new SubmissionDetail();
+    fieldSubmissionDetail.setSubmission(fieldSubmission);
+
+    var fieldGeneralDetail = new GeneralDetail();
+
+    var field = new Field();
+
+    var newDiscoverySubmissionDetail = new SubmissionDetail();
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(fieldSubmissionDetail))
+        .thenReturn(Optional.of(fieldGeneralDetail));
+
+    when(fieldPersistenceService.getFieldByResource(fieldResource)).thenReturn(Optional.of(field));
+
+    when(fieldStatusService.getMostRecentFieldStatus(field)).thenReturn(Optional.of(fieldStatus));
+
+    postFieldGeneralDetailsDuplicationService.duplicateSubmissionSection(fieldSubmissionDetail, newDiscoverySubmissionDetail);
+
+    verify(entityManager).persist(generalDetailCaptor.capture());
+
+    assertThat(generalDetailCaptor.getValue())
+        .extracting(
+            GeneralDetail::getInformationSource,
+            GeneralDetail::getOtherInformationSource
+        ).containsExactly(
+            null,
+            null
+        );
   }
 
 }

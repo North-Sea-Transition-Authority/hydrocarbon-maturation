@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -135,7 +136,7 @@ public class GeneralDetailSummaryService {
     var informationSource = detail.getInformationSource();
     if (informationSource != null) {
       if (informationSource == InformationSource.OTHER) {
-        informationSourceDisplay = detail.getOtherInformationSource();
+        informationSourceDisplay = StringUtils.defaultString(detail.getOtherInformationSource());
       } else {
         informationSourceDisplay = informationSource.getDisplayName();
       }

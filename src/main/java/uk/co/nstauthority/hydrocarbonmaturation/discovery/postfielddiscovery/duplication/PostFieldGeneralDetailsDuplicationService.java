@@ -18,6 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 @Service
 public class PostFieldGeneralDetailsDuplicationService implements PostFieldSectionDuplicationService {
 
+  static final String SHELVED_FIELD_INFORMATION_SOURCE = "Information imported from shelved field";
+  static final String CEASED_PRODUCTION_FIELD_INFORMATION_SOURCE = "Information imported from ceased production field";
 
   private final EntityManager entityManager;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
@@ -58,12 +60,14 @@ public class PostFieldGeneralDetailsDuplicationService implements PostFieldSecti
 
         var fieldStatus = fieldStatusService.getMostRecentFieldStatus(f);
         fieldStatus.ifPresent(status -> {
-          newGeneralDetail.setInformationSource(InformationSource.OTHER);
-
+          // only set the information source when we have a description to go with it, otherwise leave it
+          // for the user to provide on the general details page
           if (status.equals(FieldStatus.STATUS_000)) {
-            newGeneralDetail.setOtherInformationSource("Information imported from shelved field");
+            newGeneralDetail.setInformationSource(InformationSource.OTHER);
+            newGeneralDetail.setOtherInformationSource(SHELVED_FIELD_INFORMATION_SOURCE);
           } else if (status.equals(FieldStatus.STATUS_900)) {
-            newGeneralDetail.setOtherInformationSource("Information imported from ceased production field");
+            newGeneralDetail.setInformationSource(InformationSource.OTHER);
+            newGeneralDetail.setOtherInformationSource(CEASED_PRODUCTION_FIELD_INFORMATION_SOURCE);
           }
         });
       });
