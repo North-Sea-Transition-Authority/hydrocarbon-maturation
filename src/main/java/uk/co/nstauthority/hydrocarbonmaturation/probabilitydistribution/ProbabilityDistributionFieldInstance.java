@@ -165,17 +165,17 @@ public enum ProbabilityDistributionFieldInstance implements Displayable {
 
   // Fluid contacts
   DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to oil-water contact"
   ),
   DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas-water contact"
   ),
   DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY(
-      List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas-oil contact"
   ),

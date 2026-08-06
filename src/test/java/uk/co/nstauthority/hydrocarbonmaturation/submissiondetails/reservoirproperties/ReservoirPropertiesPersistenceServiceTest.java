@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -184,6 +185,12 @@ class ReservoirPropertiesPersistenceServiceTest {
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY,
+            form.getDepthToGasOilContact(),
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail);
+    verify(probabilityDistributionPersistenceService, never())
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD,
             form.getDepthToGasOilContact(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);

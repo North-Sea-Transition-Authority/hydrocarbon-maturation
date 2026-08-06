@@ -19,6 +19,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -299,6 +300,60 @@ class ReservoirPropertiesFormValidatorTest {
             "depthToOilWaterContact.probabilityDistributionType",
             "depthToGasOilContact.probabilityDistributionType"
         );
+  }
+
+  @Test
+  void validate_whenDiscovery_whenNoAverageNetPayThicknessDistributionType_fullValidation_thenValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_DISCOVERY);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetPayThickness.probabilityDistributionType",
+                Set.of("averageNetPayThickness.probabilityDistributionType.required")));
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Select the distribution used for average net pay thickness");
+  }
+
+  @Test
+  void validate_whenDiscovery_whenNoAverageNetPayThicknessDistributionType_partialValidation_thenNoValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL, SubmissionType.CREATE_DISCOVERY);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors).doesNotContainKey("averageNetPayThickness.probabilityDistributionType");
+  }
+
+  @Test
+  void validate_whenDryHole_whenNoAverageNetReservoirThicknessDistributionType_fullValidation_thenValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.POST_DRILL_DRY_HOLE);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("averageNetReservoirThickness.probabilityDistributionType",
+                Set.of("averageNetReservoirThickness.probabilityDistributionType.required")));
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Select the distribution used for average net reservoir thickness");
+  }
+
+  @Test
+  void validate_whenDryHole_whenNoAverageNetReservoirThicknessDistributionType_partialValidation_thenNoValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL, SubmissionType.POST_DRILL_DRY_HOLE);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors).doesNotContainKey("averageNetReservoirThickness.probabilityDistributionType");
   }
 
   @ParameterizedTest
@@ -964,6 +1019,34 @@ class ReservoirPropertiesFormValidatorTest {
   }
 
   @Test
+  void validate_whenFieldSubmission_whenOnlyNetPorosityInvalid_fullValidation_thenOnlyNetPorosityErrors() {
+    var form = getFormWithInvalidNetPorosityAndValidNetToGross();
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_FDP);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    var customPath = ProbabilityDistributionType.CUSTOM.getPath();
+    assertThat(extractedErrors)
+        .contains(
+            entry("netPorosity." + customPath + ".error", Set.of("netPorosity." + customPath + ".error.error")))
+        .doesNotContainKey("netToGross." + customPath + ".error");
+  }
+
+  @Test
+  void validate_whenFieldSubmission_whenOnlyNetPorosityInvalid_partialValidation_thenOnlyNetPorosityErrors() {
+    var form = getFormWithInvalidNetPorosityAndValidNetToGross();
+
+    var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL, SubmissionType.CREATE_FDP);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    var customPath = ProbabilityDistributionType.CUSTOM.getPath();
+    assertThat(extractedErrors)
+        .contains(
+            entry("netPorosity." + customPath + ".error", Set.of("netPorosity." + customPath + ".error.error")))
+        .doesNotContainKey("netToGross." + customPath + ".error");
+  }
+
+  @Test
   void partialValidation_whenProspectSubmission_withValidForm() {
     var form = new ReservoirPropertiesForm();
     var bindingResult = validateReservoirProperties(form, ValidationType.PARTIAL, SubmissionType.CREATE_PROSPECT);
@@ -1008,6 +1091,22 @@ class ReservoirPropertiesFormValidatorTest {
   private ReservoirPropertiesForm getInvalidForm_fieldSubmission() {
     var form = new ReservoirPropertiesForm();
     form.setFracturePressure(new DecimalInput("a"));
+    return form;
+  }
+
+  private ReservoirPropertiesForm getFormWithInvalidNetPorosityAndValidNetToGross() {
+    var form = getValidForm();
+    form.setAverageNetPayThickness(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD));
+    form.setGrossReservoirThickness(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD));
+    form.setGrossRockVolume(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD));
+    form.setPercentOfGrvOilBearing(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD));
+    form.setNetToGross(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD));
+    form.setNetPorosity(ProbabilityDistributionTestUtil.getInvalidCustomProbabilityDistributionForm());
     return form;
   }
 

@@ -142,7 +142,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
 
     if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       ProbabilityDistributionValidationUtil.validateCustomPartialPercentage(
-          reservoirForm.getNetToGross(),
+          reservoirForm.getNetPorosity(),
           errors,
           "netPorosity",
           "Net porosity",
@@ -221,6 +221,11 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     } else if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)
         || SubmissionDetailUtil.isProspectSubmission(submissionType)) {
+      ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+          errors,
+          averageNetPayThicknessFormField,
+          "average net pay thickness"
+      );
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getAverageNetPayThickness(),
           errors,
@@ -230,10 +235,16 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     }
 
     if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      var averageNetReservoirThicknessFormField = "averageNetReservoirThickness";
+      ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+          errors,
+          averageNetReservoirThicknessFormField,
+          "average net reservoir thickness"
+      );
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getAverageNetReservoirThickness(),
           errors,
-          "averageNetReservoirThickness",
+          averageNetReservoirThicknessFormField,
           "Average net reservoir thickness"
       );
     }
@@ -334,7 +345,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
 
     if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       ProbabilityDistributionValidationUtil.validateCustomFullPercentage(
-          reservoirForm.getNetToGross(),
+          reservoirForm.getNetPorosity(),
           errors,
           "netPorosity",
           "Net porosity",

@@ -251,11 +251,6 @@ public class ReservoirPropertiesPersistenceService {
         form.getDepthToGasOilContact(),
         submissionDetail,
         reservoirSubmissionDetail);
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD,
-        form.getDepthToGasOilContact(),
-        submissionDetail,
-        reservoirSubmissionDetail);
   }
 
   private void saveFieldDepthToProbabilityDistributions(ReservoirSubmissionDetail reservoirSubmissionDetail,

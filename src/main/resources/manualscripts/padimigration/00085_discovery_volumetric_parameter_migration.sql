@@ -275,6 +275,21 @@ DO $$
                     reservoir_volumetric_parameters.depth_to_water_p01
                 ) IS NOT NULL THEN
 
+                SELECT
+                    CASE reservoir_volumetric_parameters.depth_to_water_dist
+                        WHEN N THEN NORMAL
+                        WHEN L THEN LOGNORMAL
+                        WHEN B THEN BETA
+                        WHEN T THEN TRIANGULAR
+                        WHEN R THEN RECTANGULAR
+                        WHEN C THEN CONSTANT
+                        END
+                INTO padi_distribution_type;
+
+                IF padi_distribution_type IS NULL AND reservoir_volumetric_parameters.depth_to_water_dist != Z THEN
+                    padi_other_distribution_type := reservoir_volumetric_parameters.depth_to_water_dist;
+                END IF;
+
                 INSERT INTO remi.probability_distributions (
                     id,
                     submission_detail_id,
@@ -297,8 +312,8 @@ DO $$
                 ) VALUES (
                      gen_random_uuid(),
                      reservoir_volumetric_parameters.sd_id,
-                     'CUSTOM',
-                     NULL,
+                     padi_distribution_type,
+                     padi_other_distribution_type,
                      CASE
                          WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'mixed oil and gas' THEN 'DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY'
                          WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'oil' THEN 'DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY'
