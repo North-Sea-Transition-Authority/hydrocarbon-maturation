@@ -52,9 +52,11 @@ CVE-2025-14813
 # org.bouncycastle:bcprov-jdk18on
 CVE-2026-0636
 CVE-2026-5598
+CVE-2025-14813
 
 # org.springframework.security:spring-security-web
 CVE-2026-22732
+CVE-2026-47838
 
 # org.springframework:spring-webmvc
 CVE-2026-22737
@@ -104,15 +106,19 @@ CVE-2026-54514
 CVE-2026-54515
 CVE-2026-59888
 
-# ch.qos.logback:logback-core (app.jar)
+# ch.qos.logback:logback-core
 CVE-2026-10532
 CVE-2026-9828
 
 # org.springframework.security:spring-security-web (app.jar)
 CVE-2026-47838
+CVE-2026-41706
 
 # org.springframework.data:spring-data-commons
 CVE-2026-41695
+CVE-2026-41716
+CVE-2026-41711
+CVE-2026-41721
 
 # org.springframework:spring-core
 CVE-2026-41848
@@ -121,3 +127,15 @@ CVE-2026-41848
 CVE-2026-41850
 CVE-2026-41851
 CVE-2026-41852
+
+# io.micrometer:micrometer-core (app.jar)
+CVE-2026-40983
+CVE-2026-40984
+
+# org.springframework.security:spring-security-saml2-service-provider (app.jar)
+CVE-2026-40988
+CVE-2026-41003
+CVE-2026-41694
+
+# org.springframework:spring-web (app.jar)
+CVE-2026-41854

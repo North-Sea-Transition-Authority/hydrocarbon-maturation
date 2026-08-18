@@ -52,7 +52,7 @@ public class NewFieldService {
     this.fieldStatusService = fieldStatusService;
   }
 
-  BindingResult validate(FieldForm form, BindingResult bindingResult) {
+  public BindingResult validate(FieldForm form, BindingResult bindingResult) {
     fieldFormValidator.validate(form, bindingResult);
     return bindingResult;
   }

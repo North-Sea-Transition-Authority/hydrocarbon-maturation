@@ -1,0 +1,80 @@
+### Bootstrap an offshore field (NNS)
+POST {{baseUrl}}/api/internal/v1/bootstrap-test-fields
+Content-Type: application/json
+Authorization: Bearer {{apiKey}}
+
+[
+  {
+    "correctedLegalFieldName": "Test NNS Field 8",
+    "onshoreOffshore": "OFFSHORE",
+    "geographicalArea": "NORTHERN_NORTH_SEA",
+    "prePearsOrganisationId": {{operatorOrgUnitId}}
+  }
+]
+
+> {% client.test("201 Created", function() {
+    client.assert(response.status === 201, "Expected 201, got " + response.status);
+}); %}
+
+### Bootstrap an offshore field (CNS) with status advanced to STATUS_400
+POST {{baseUrl}}/api/internal/v1/bootstrap-test-fields
+Content-Type: application/json
+Authorization: Bearer {{apiKey}}
+
+[
+  {
+    "correctedLegalFieldName": "Test CNS Field",
+    "onshoreOffshore": "OFFSHORE",
+    "geographicalArea": "CENTRAL_NORTH_SEA",
+    "prePearsOrganisationId": {{operatorOrgUnitId}},
+    "fieldStatus": "STATUS_400"
+  }
+]
+
+> {% client.test("201 Created", function() {
+    client.assert(response.status === 201, "Expected 201, got " + response.status);
+}); %}
+
+### Bootstrap an onshore field
+POST {{baseUrl}}/api/internal/v1/bootstrap-test-fields
+Content-Type: application/json
+Authorization: Bearer {{apiKey}}
+
+[
+  {
+    "correctedLegalFieldName": "Test Onshore Field",
+    "onshoreOffshore": "ONSHORE"
+  }
+]
+
+> {% client.test("201 Created", function() {
+    client.assert(response.status === 201, "Expected 201, got " + response.status);
+}); %}
+
+### Bootstrap multiple fields in one call (idempotent — safe to re-run)
+POST {{baseUrl}}/api/internal/v1/bootstrap-test-fields
+Content-Type: application/json
+Authorization: Bearer {{apiKey}}
+
+[
+  {
+    "correctedLegalFieldName": "Alpha Field",
+    "onshoreOffshore": "OFFSHORE",
+    "geographicalArea": "NORTHERN_NORTH_SEA",
+    "prePearsOrganisationId": {{operatorOrgUnitId}},
+    "fieldStatus": "STATUS_600"
+  },
+  {
+    "correctedLegalFieldName": "Beta Field",
+    "onshoreOffshore": "OFFSHORE",
+    "geographicalArea": "SOUTHERN_NORTH_SEA",
+    "determinationStatus": "UNDETERMINED"
+  }
+]
+
+> {% client.test("201 Created", function() {
+    client.assert(response.status === 201, "Expected 201, got " + response.status);
+});
+client.test("Returns array", function() {
+    client.assert(Array.isArray(response.body), "Response body should be an array");
+}); %}

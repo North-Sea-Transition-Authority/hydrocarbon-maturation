@@ -11,16 +11,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class ExternalApiWebSecurityConfiguration {
 
+  public static final String EXTERNAL_API_PATH = "/api/external/v1/**";
+  private static final String INTERNAL_API_PATH = "/api/internal/v1/**";
+
   private final String preSharedKey;
   private final ExternalApiAuthenticationEntryPoint externalApiAuthenticationEntryPoint;
-  private final String energyPortalApiBaseUrlMatcher;
 
   @Autowired
   public ExternalApiWebSecurityConfiguration(ExternalApiConfiguration externalApiConfiguration,
                                              ExternalApiAuthenticationEntryPoint externalApiAuthenticationEntryPoint) {
     this.preSharedKey = externalApiConfiguration.preSharedKey();
     this.externalApiAuthenticationEntryPoint = externalApiAuthenticationEntryPoint;
-    this.energyPortalApiBaseUrlMatcher = "/api/external/v1/**";
   }
 
   @Bean
@@ -30,13 +31,13 @@ public class ExternalApiWebSecurityConfiguration {
     filter.setAuthenticationManager(new ExternalApiSecurityAuthManager(preSharedKey));
 
     httpSecurity
-        .securityMatcher(energyPortalApiBaseUrlMatcher)
+        .securityMatcher(EXTERNAL_API_PATH, INTERNAL_API_PATH)
         .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry.anyRequest().authenticated())
         .sessionManagement(httpSecuritySessionManagementConfigurer ->
             httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .addFilter(filter)
-        .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers(energyPortalApiBaseUrlMatcher))
+        .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers(EXTERNAL_API_PATH, INTERNAL_API_PATH))
         .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
             httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(externalApiAuthenticationEntryPoint)
         );

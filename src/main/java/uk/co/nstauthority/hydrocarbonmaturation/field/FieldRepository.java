@@ -22,4 +22,6 @@ public interface FieldRepository extends CrudRepository<Field, Integer> {
 
   @EntityGraph(attributePaths = {"resource"})
   List<Field> findAllByFieldIdentifierIn(List<Integer> fieldIds);
+
+  Optional<Field> findByCorrectedLegalFieldNameIgnoreCase(String correctedLegalFieldName);
 }

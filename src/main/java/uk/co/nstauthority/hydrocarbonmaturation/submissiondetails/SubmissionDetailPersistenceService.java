@@ -87,7 +87,7 @@ public class SubmissionDetailPersistenceService {
   }
 
   @Transactional
-  void approveSubmission(SubmissionDetail submissionDetail, User user) {
+  public void approveSubmission(SubmissionDetail submissionDetail, User user) {
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetail.setAcceptedTimestamp(clock.instant());
     submissionDetail.setAcceptedByWuaId(user.wuaId().intValue());
