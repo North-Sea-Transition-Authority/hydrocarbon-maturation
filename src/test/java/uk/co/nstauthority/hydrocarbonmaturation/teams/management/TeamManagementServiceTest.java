@@ -381,7 +381,8 @@ public class TeamManagementServiceTest {
     when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findAllByWuaId(1))
-        .thenReturn(Collections.emptyList());
+        .thenReturn(Collections.emptyList())
+        .thenReturn(List.of(regTeamUser1RoleManage, regTeamUser1RoleOrgAdmin));
 
     teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS));
 
@@ -392,6 +393,7 @@ public class TeamManagementServiceTest {
         Set.of(Role.MANAGE_TEAM.name(), Role.REGULATOR_MANAGE_ALL_ORGANISATIONS.name())
     );
     verify(energyPortalServiceAccessService).addUser(user1WuaId);
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -423,6 +425,7 @@ public class TeamManagementServiceTest {
         regTeam.getTeamType().name(),
         Set.of(Role.MANAGE_TEAM.name(), Role.REGULATOR_MANAGE_ALL_ORGANISATIONS.name())
     );
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -456,6 +459,7 @@ public class TeamManagementServiceTest {
         any(),
         any()
     );
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -477,6 +481,7 @@ public class TeamManagementServiceTest {
         any(),
         any()
     );
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -497,6 +502,33 @@ public class TeamManagementServiceTest {
         any(),
         any(),
         any()
+    );
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
+  }
+
+  @Test
+  void setUserTeamRoles_whenNoTeamRolesLeft_thenRemoveEpasAccess() {
+    var expectedProjection = new UserProjectionRoot()
+        .isAccountShared()
+        .canLogin();
+
+    when(userApi.findUserById(eq(user1WuaId), refEq(expectedProjection), any(RequestPurpose.class)))
+        .thenReturn(Optional.of(user1));
+    when(teamRoleRepository.findAllByWuaId(user1WuaId)).thenReturn(List.of());
+
+    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of());
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
+    verify(energyPortalServiceAccessService).removeUser(user1WuaId);
+
+    assertThat(teamRoleListCaptor.getValue()).isEqualTo(List.of());
+
+    verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
+        user1WuaId,
+        regTeam.getId().toString(),
+        regTeam.getTeamType().name(),
+        Set.of()
     );
   }
 
