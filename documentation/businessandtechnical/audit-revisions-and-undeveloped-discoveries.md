@@ -11,8 +11,8 @@ conclusion. Everything below lives in the `remi` schema.
 
 ## 1. Two different kinds of "history"
 
-ReMI records history in two distinct ways, and mixing them up is the single most common source of
-wrong numbers.
+ReMI records history in two distinct ways. Confusing them is easy to do and hard to spot afterwards,
+because both produce plausible-looking numbers.
 
 | | **Business history** | **System history (audit)** |
 |---|---|---|
@@ -36,7 +36,7 @@ ReMI uses Hibernate Envers. The model is the standard Envers one, with a customi
 
 | Column | Type | Meaning |
 |---|---|---|
-| `rev` | `SERIAL` (integer), primary key | Revision number. Monotonically increasing, so it also orders changes reliably. |
+| `rev` | `SERIAL` (integer), primary key | Revision number, allocated in ascending order, so sorting by `rev` puts changes in the order they were made. Gaps are normal — the counter is shared by every audited table. |
 | `updated_at` | `TIMESTAMPTZ` | When the change was committed. |
 | `updated_by_user_id` | `VARCHAR(255)` | The Energy Portal web user account (WUA) ID of the signed-in user. Numeric in practice, but stored as text. |
 | `updated_by_proxy_user_id` | `VARCHAR(255)` | Populated when the change was made by someone acting on another user's behalf (proxy sign-in). Usually null. |
@@ -85,7 +85,7 @@ Two consequences worth stating plainly:
 
 ### 2.3 What is and is not audited
 
-17 tables are audited. The ones a data consumer is most likely to meet:
+Seventeen tables are audited. That is the complete list, not a selection from it:
 
 `resources_aud`, `resource_groups_aud`, `resource_group_links_aud`, `fields_aud`, `reservoirs_aud`,
 `regulator_managed_information_aud`, `regulator_reporting_information_aud`, `projects_aud`,
@@ -110,8 +110,9 @@ Not audited, and the usual traps:
 ## 3. The undeveloped discovery tables
 
 Undeveloped discovery data is regulator-maintained: it is entered and maintained in ReMI by NSTA
-staff holding the Reserves and Resources Advisor role, not by operators through a submission. That is
-why it is Envers-audited rather than versioned through the submission pipeline.
+staff holding the Reserves and Resources Advisor role, not by operators through a submission. It
+therefore has no submission versioning behind it: its change history lives entirely in the audit
+tables described in section 2.
 
 ### 3.1 `undeveloped_discoveries` — the tracking flag
 
@@ -141,11 +142,12 @@ One row per *information date* per tracked discovery. This is the table that car
 | `information_date` | The date the information relates to. This is the business timeline; ordering and "latest" are determined by this column, not by `id` or by revision order. |
 | `status` | `EXTANT` or `DELETED` |
 
-**`status` is a soft delete.** Removing a snapshot through the UI sets `status = 'DELETED'` and leaves
-the row in place. Consequences for anyone querying directly:
+**`status` is a soft delete.** Removing a snapshot in ReMI sets `status = 'DELETED'` and leaves the
+row in place. Consequences for anyone querying directly:
 
-- **Every query must filter `status = 'EXTANT'`.** Omitting it silently re-includes withdrawn
-  snapshots and inflates totals.
+- **Any query reporting current data must filter `status = 'EXTANT'`.** Omitting it silently
+  re-includes withdrawn snapshots. Audit and provenance queries are the exception: there you usually
+  want the withdrawn rows, and `status` is what tells you which they are.
 - A deletion appears in the audit tables as `revtype = 1` (MOD) with `status` changing to `DELETED` —
   *not* as `revtype = 2`.
 
@@ -168,7 +170,7 @@ All volumetric columns are nullable — a snapshot may report oil only, gas only
 | Column | Unit | Derivation |
 |---|---|---|
 | `oil_equivalent_recoverable_one_c` / `_two_c` / `_three_c` | mmboe | `oil_recoverable_xC + (gas_recoverable_xC / 5.8)`, nulls treated as zero, rounded to 2 dp (half-even) |
-| `percentage_gas` | % | `(1 − oil_recoverable_two_c / oil_equivalent_recoverable_two_c) × 100`, 2 dp. Special cases: `0` when 2C oil equivalent is zero (nothing reported); `100` when 2C oil is zero but gas is not |
+| `percentage_gas` | % | `(1 − oil_recoverable_two_c / oil_equivalent_recoverable_two_c) × 100`, 2 dp. Special cases: `0` when 2C oil equivalent is zero, meaning no 2C oil or gas was reported; `100` when 2C oil is zero but gas is not |
 | `calculated_complexity` | score 6–30 | `(2 × viscosity) + vertical_heterogeneity + areal_density + (2 × structural_complexity)`, where each band scores 1–5. `NULL` if any of the four inputs is missing |
 
 Three things to know about the derived columns:
@@ -293,7 +295,8 @@ Seven things this trace demonstrates:
 
 ### 5.4 How the values move over time
 
-Two different traces, because there are two timelines (section 1).
+Three traces: one for each of the two timelines described in section 1, and a third for what an
+extract actually sees, which is a combination of the two.
 
 **Trace 1 — system time.** Every audited column of snapshot `9e77…8b1`, at each of its three
 revisions. Changed cells are bold.
@@ -351,8 +354,9 @@ queries, run on different days:
 The row that catches people out is the fourth: for roughly eighteen hours this discovery was tracked
 and reported nothing at all. A monthly extract that happened to land in that window would show the
 discovery with no volumetrics, which is a true statement about the system and a misleading one about
-the resource. If an extract feeds a published figure, record the extraction timestamp alongside it —
-it is the only way to explain a number that later becomes irreproducible.
+the resource. If an extract feeds a published figure, record the extraction timestamp alongside it.
+Without one, a figure that no longer reproduces is very hard to account for; with one, the as-at
+query in section 6 reconstructs exactly what the extract saw.
 
 ### 5.5 What the queries in section 6 return for this discovery
 
@@ -400,7 +404,7 @@ WHERE ud.is_undeveloped_discovery IS TRUE;
 
 The `id` in the `ORDER BY` is only a tie-break, so that two snapshots sharing one `information_date`
 resolve the same way every time you run the query. It carries no meaning of its own — if you find
-ties in practice, that is worth querying with the data owner rather than silently picking one.
+ties in practice, that is worth raising with the data owner rather than silently picking one.
 
 **Full reported time series for one discovery** (business history — no audit tables needed)
 
@@ -500,9 +504,15 @@ WHERE rn = 1                -- the last revision of each row at or before the cu
   AND status = 'EXTANT';    -- exclude rows soft-deleted by then
 ```
 
-`rev` is safe to rank on here because it is globally sequential, so the highest `rev` at or below the
-cutoff is always the most recent change to that row. No tie-break is needed — `(rev, id)` is the
-primary key of the audit table.
+`rev` is safe to rank on here: revisions of a single row are always made one after another, so the
+highest `rev` at or below the cutoff is that row's most recent change. No tie-break is needed —
+`(rev, id)` is the primary key of the audit table.
+
+The cutoff itself is the looser part. `rev` is allocated when a transaction starts writing and
+`updated_at` is set within it, so under concurrent edits a slightly lower `rev` can carry a slightly
+later timestamp. For a reconstruction to the day this is immaterial; if you are reconstructing to the
+minute around a busy period, pin the cutoff to a specific `rev` you have chosen and reuse that number
+rather than re-deriving it from a timestamp each run.
 
 **Discoveries added to or removed from the tracked population in a period**
 
