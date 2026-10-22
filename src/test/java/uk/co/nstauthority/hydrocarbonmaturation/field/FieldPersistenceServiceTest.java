@@ -198,12 +198,41 @@ class FieldPersistenceServiceTest {
       form.setAssociatedDiscoveries(List.of(ASSOCIATED_DISCOVERY_ID.toString()));
 
       var discovery = new Resource();
+      discovery.setId(UUID.randomUUID());
       var submission = new Submission();
       submission.setResource(discovery);
       var submissionDetail = new SubmissionDetail();
       submissionDetail.setSubmission(submission);
       when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(ASSOCIATED_DISCOVERY_ID))
           .thenReturn(submissionDetail);
+
+      var field = underTest.saveFieldFromFieldForm(form, resource);
+      verify(resourceLinkService).createNewDiscoveryFieldResourceLink(discovery, field.getResource());
+    }
+
+    @Test
+    void associatedDiscoveriesSet_whenMultipleResourceDetailsForSameDiscovery_thenOnlyOneLinkCreated() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
+
+      var otherResourceDetailIdForSameDiscovery = UUID.randomUUID();
+      form.setAssociatedDiscoveries(List.of(
+          ASSOCIATED_DISCOVERY_ID.toString(),
+          otherResourceDetailIdForSameDiscovery.toString()
+      ));
+
+      var discovery = new Resource();
+      discovery.setId(UUID.randomUUID());
+      var submission = new Submission();
+      submission.setResource(discovery);
+      var submissionDetail = new SubmissionDetail();
+      submissionDetail.setSubmission(submission);
+      var otherSubmissionDetail = new SubmissionDetail();
+      otherSubmissionDetail.setSubmission(submission);
+      when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(ASSOCIATED_DISCOVERY_ID))
+          .thenReturn(submissionDetail);
+      when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(otherResourceDetailIdForSameDiscovery))
+          .thenReturn(otherSubmissionDetail);
 
       var field = underTest.saveFieldFromFieldForm(form, resource);
       verify(resourceLinkService).createNewDiscoveryFieldResourceLink(discovery, field.getResource());

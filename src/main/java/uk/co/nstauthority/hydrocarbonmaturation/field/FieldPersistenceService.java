@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class FieldPersistenceService {
@@ -125,6 +126,7 @@ public class FieldPersistenceService {
         .map(resourceDetailId ->
             submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(resourceDetailId)))
         .map(submissionDetail -> submissionDetail.getSubmission().getResource())
+        .filter(StreamUtil.distinctByKey(Resource::getId))
         .forEach(discovery -> resourceLinkService.createNewDiscoveryFieldResourceLink(discovery, field.getResource()));
 
     field.setIsOnPrePearsLicence(form.getIsOnLicence());

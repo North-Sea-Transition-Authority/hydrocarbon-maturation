@@ -22,7 +22,7 @@ public class StreamUtil {
         keyMapper,
         valueMapper,
         (u, v) -> {
-          throw new IllegalStateException(String.format("Duplicate key %s", u));
+          throw new IllegalStateException(String.format("Duplicate key (attempted merging values %s and %s)", u, v));
         },
         LinkedHashMap::new
     );

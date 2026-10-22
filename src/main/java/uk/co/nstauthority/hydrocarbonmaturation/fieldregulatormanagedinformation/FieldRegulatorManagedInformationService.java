@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
@@ -18,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class FieldRegulatorManagedInformationService {
@@ -95,8 +97,9 @@ public class FieldRegulatorManagedInformationService {
 
   public List<ResourceDetail> getAssociatedDiscoveryResourceDetails(Resource resource) {
     return resourceLinkService.getResourceLinksByField(resource).stream()
-        .map(resourceLink -> submissionDetailService
-            .getMostRecentlySubmittedSubmissionDetailForResource(resourceLink.getDiscoveryResource()))
+        .map(ResourceLink::getDiscoveryResource)
+        .filter(StreamUtil.distinctByKey(Resource::getId))
+        .map(submissionDetailService::getMostRecentlySubmittedSubmissionDetailForResource)
         .flatMap(Optional::stream)
         .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
         .toList();

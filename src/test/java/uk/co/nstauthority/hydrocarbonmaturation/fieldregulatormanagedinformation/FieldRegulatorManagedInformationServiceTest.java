@@ -362,6 +362,7 @@ class FieldRegulatorManagedInformationServiceTest {
     var fieldResource = new Resource();
 
     var discoveryResource = new Resource();
+    discoveryResource.setId(UUID.randomUUID());
 
     var discoverySubmission = new Submission();
     discoverySubmission.setResource(discoveryResource);
@@ -378,6 +379,41 @@ class FieldRegulatorManagedInformationServiceTest {
     link.setDiscoveryResource(discoveryResource);
 
     when(resourceLinkService.getResourceLinksByField(fieldResource)).thenReturn(List.of(link));
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(discoveryResource))
+        .thenReturn(Optional.of(discoverySubmissionDetail));
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(discoverySubmissionDetail))
+        .thenReturn(discoveryResourceDetail);
+
+    assertThat(fieldRegulatorManagedInformationService.getAssociatedDiscoveryResourceDetails(fieldResource))
+        .isEqualTo(List.of(discoveryResourceDetail));
+  }
+
+  @Test
+  void getAssociatedDiscoveryResourceDetails_whenDuplicateLinksToSameDiscovery_thenDiscoveryReturnedOnce() {
+    var fieldResource = new Resource();
+
+    var discoveryResource = new Resource();
+    discoveryResource.setId(UUID.randomUUID());
+
+    var discoverySubmission = new Submission();
+    discoverySubmission.setResource(discoveryResource);
+
+    var discoverySubmissionDetail = new SubmissionDetail();
+    discoverySubmissionDetail.setSubmission(discoverySubmission);
+
+    var discoveryResourceDetail = new ResourceDetail();
+    discoveryResourceDetail.setSubmissionDetail(discoverySubmissionDetail);
+    discoveryResourceDetail.setResourceName("Name1");
+
+    var link = new ResourceLink();
+    link.setFieldResource(fieldResource);
+    link.setDiscoveryResource(discoveryResource);
+
+    var duplicateLink = new ResourceLink();
+    duplicateLink.setFieldResource(fieldResource);
+    duplicateLink.setDiscoveryResource(discoveryResource);
+
+    when(resourceLinkService.getResourceLinksByField(fieldResource)).thenReturn(List.of(link, duplicateLink));
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(discoveryResource))
         .thenReturn(Optional.of(discoverySubmissionDetail));
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(discoverySubmissionDetail))
