@@ -22,6 +22,16 @@ CVE-2026-59900
 CVE-2026-54515
 CVE-2026-59889
 GHSA-mhm7-754m-9p8w
+CVE-2026-68497
+CVE-2026-91776
+CVE-2026-91777
+CVE-2026-19032
+CVE-2026-77310
+CVE-2026-83557
+
+# com.fasterxml.jackson.core:jackson-core (app.jar)
+CVE-2026-89407
+CVE-2026-89425
 
 # org.postgresql:postgresql (app.jar)
 CVE-2026-54291
@@ -40,3 +50,14 @@ CVE-2026-75596
 CVE-2026-65182
 CVE-2026-65905
 CVE-2026-68525
+
+# org.bouncycastle:bcprov-jdk18on (app.jar)
+CVE-2026-8763
+CVE-2026-13506
+
+# org.freemarker:freemarker (app.jar)
+CVE-2026-84939
+
+# org.springframework:spring-webmvc (app.jar)
+CVE-2026-47884
+CVE-2026-47890
