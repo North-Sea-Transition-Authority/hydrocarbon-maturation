@@ -174,7 +174,7 @@ steps:
   - name: scan-and-sync-public-repo
     image: quay.io/fivium/drone-trufflehog-plugin:v1.0
     settings:
-#      scan_since_commit_hash: bf702fbf660fa7d7cb77170d8b2615956b1d2883
+      scan_since_commit_hash: 4e4b970801585a91c1e0e7aea0e36cb6a94e28c0
       sync_to_mirror: true
       mirror_remote_url: git@github.com:North-Sea-Transition-Authority/hydrocarbon-maturation.git
       mirror_branch_to_sync: develop
