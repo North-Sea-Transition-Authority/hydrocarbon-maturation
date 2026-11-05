@@ -170,7 +170,7 @@ steps:
     when:
       status:
         - success
-        -
+
   - name: scan-and-sync-public-repo
     image: quay.io/fivium/drone-trufflehog-plugin:v1.0
     settings:
