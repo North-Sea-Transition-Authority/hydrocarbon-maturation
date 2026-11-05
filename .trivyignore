@@ -50,6 +50,10 @@ CVE-2026-75596
 CVE-2026-65182
 CVE-2026-65905
 CVE-2026-68525
+CVE-2026-55276
+CVE-2026-65637
+CVE-2026-53404
+CVE-2026-55956
 
 # org.bouncycastle:bcprov-jdk18on (app.jar)
 CVE-2026-8763
@@ -61,3 +65,6 @@ CVE-2026-84939
 # org.springframework:spring-webmvc (app.jar)
 CVE-2026-47884
 CVE-2026-47890
+
+# com.google.guava:guava
+CVE-2026-102554
