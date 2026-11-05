@@ -173,7 +173,6 @@ steps:
         -
   - name: scan-and-sync-public-repo
     image: quay.io/fivium/drone-trufflehog-plugin:v1.0
-    depends_on: [ restore-cache ]
     settings:
 #      scan_since_commit_hash: bf702fbf660fa7d7cb77170d8b2615956b1d2883
       sync_to_mirror: true
