@@ -170,6 +170,22 @@ steps:
     when:
       status:
         - success
+        -
+  - name: scan-and-sync-public-repo
+    image: quay.io/fivium/drone-trufflehog-plugin:v1.0
+    depends_on: [ restore-cache ]
+    settings:
+#      scan_since_commit_hash: bf702fbf660fa7d7cb77170d8b2615956b1d2883
+      sync_to_mirror: true
+      mirror_remote_url: git@github.com:North-Sea-Transition-Authority/hydrocarbon-maturation.git
+      mirror_branch_to_sync: develop
+      mirror_remote_ssh_key:
+        from_secret: sync_ssh_key
+    when:
+      event:
+        - push
+      branch:
+        - develop
 
   - name: publish-epmq-messages-jar-snapshot
     image: eclipse-temurin:21-jdk
@@ -407,3 +423,11 @@ data: 7IKtrnP4ltl5r2K/enfWRk+lRLBHdOAfNnqoi73OX/bDHzIr6SpzwxKvFOcTi4D5sAf+EbHoQu
 kind: secret
 name: ecr_secret_key
 data: iVDdLq0j8N4gF22QispXVLeUBrN5YGu29k0qs36SJK1bzeN/L8ar/RBTUP1AR7XwncAaISaeanHi/doziVK9MZkXgnY=
+
+---
+
+kind: secret
+name: sync_ssh_key
+data: 0M31EozLMFJ7t8C55qcPcyZz20TVpkA4L89hu4gXFHE5O2pKCkMB
+
+---
